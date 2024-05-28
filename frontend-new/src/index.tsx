@@ -3,14 +3,18 @@ import React from 'react'
 
 import { ChakraProvider } from '@chakra-ui/react'
 import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
 
 import App from './app'
+import store from './store/store'
 import theme from './theme'
 
 const container = document.getElementById('root')
 const root = createRoot(container!)
 root.render(
-  <ChakraProvider theme={theme}>
-    <App />
-  </ChakraProvider>,
+  <Provider store={store}>
+    <ChakraProvider theme={theme}>
+      <App />
+    </ChakraProvider>
+  </Provider>,
 )
