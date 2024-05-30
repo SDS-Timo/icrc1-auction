@@ -32,19 +32,19 @@ const theme = extendTheme({
       '900': '#0d409b',
     },
     grey: {
-      '25': '#FAFAFA',
-      '50': '#F5F5F5',
-      '100': '#E6E6E6',
-      '200': '#D9D9D9',
-      '250': '#BBBBBB',
-      '300': '#A8A8A8',
-      '400': '#939393',
-      '450': '#7a7a7a',
-      '500': '#696969',
-      '600': '#545454',
-      '700': '#434343',
-      '800': '#292929',
-      '900': '#141414',
+      '25': '#ffffff',
+      '50': '#efefef',
+      '100': '#dadada',
+      '200': '#c6c6c6',
+      '250': '#b2b2b2',
+      '300': '#9e9e9e',
+      '400': '#8a8a8a',
+      '450': '#757575',
+      '500': '#616161',
+      '600': '#4d4d4d',
+      '700': '#343434',
+      '800': '#1A1A1A',
+      '900': '#101010',
     },
     yellow: {
       '50': '#FDFDF6',
@@ -74,8 +74,8 @@ const theme = extendTheme({
   styles: {
     global: (props: ThemeProps) => ({
       body: {
-        bg: mode('gray.900', 'white')(props),
-        color: mode('white', 'gray.800')(props),
+        bg: mode('grey.900', 'white')(props),
+        color: mode('white', 'grey.800')(props),
       },
       '&::-webkit-scrollbar': {
         width: '12px',
