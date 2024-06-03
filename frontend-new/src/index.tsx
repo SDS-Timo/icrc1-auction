@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 
 import App from './app'
-import store from './store/store'
+import store from './store'
 import theme from './theme'
 
 const container = document.getElementById('root')

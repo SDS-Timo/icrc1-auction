@@ -1,8 +1,11 @@
 import { Box, Flex } from '@chakra-ui/react'
+//import { useTranslation } from 'react-i18next'
 
 const Terminal = () => {
+  //const { t } = useTranslation()
+
   return (
-    <Box bg="grey.900" color="white" minH="98vh" p={4}>
+    <Box bg="grey.900" color="white" minH="95vh" p={4}>
       {/* Information Section */}
       <Flex w="100%" mb={4} borderRadius="md">
         <Box bg="grey.600" w="20%" p={4} borderRadius="md">

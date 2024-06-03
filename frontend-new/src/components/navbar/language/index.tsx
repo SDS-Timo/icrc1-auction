@@ -8,16 +8,29 @@ import {
   Button,
   Image,
 } from '@chakra-ui/react'
+import { useTranslation } from 'react-i18next'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { LANGUAGES_OPTIONS } from '../../constants/languages'
+import { LANGUAGES_OPTIONS } from '../../../constants/languages'
+import { AppDispatch, RootState } from '../../../store'
+import { setLanguage } from '../../../store/language'
 
 type LanguagesOptionsType = typeof LANGUAGES_OPTIONS
 
 const NavbarLanguages: React.FC = () => {
-  const selectedLanguage = LANGUAGES_OPTIONS['en' as keyof LanguagesOptionsType]
+  const { t } = useTranslation()
 
-  const handleLanguageChange = (lng: string) => {
-    // change language
+  const selectedLanguageKey = useSelector((state: RootState) =>
+    state.language.language?.substring(0, 2),
+  )
+
+  const selectedLanguage =
+    LANGUAGES_OPTIONS[selectedLanguageKey as keyof LanguagesOptionsType]
+
+  const dispatch: AppDispatch = useDispatch()
+
+  const handleLanguageChange = (language: string) => {
+    dispatch(setLanguage(language))
   }
 
   return (
@@ -53,7 +66,7 @@ const NavbarLanguages: React.FC = () => {
               style={{ width: '20px' }}
               mr={2}
             />
-            {LANGUAGES_OPTIONS[key as keyof LanguagesOptionsType].name}
+            {t(LANGUAGES_OPTIONS[key as keyof LanguagesOptionsType].name)}
           </MenuItem>
         ))}
       </MenuList>

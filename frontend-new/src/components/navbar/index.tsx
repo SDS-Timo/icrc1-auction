@@ -3,9 +3,9 @@ import React from 'react'
 import { Image } from '@chakra-ui/react'
 import { Box, Flex } from '@chakra-ui/react'
 
-import NavbarLanguages from './navbarLanguages'
-import NavbarSettings from './navbarSettings'
-import NavbarWallet from './navbarWallet'
+import NavbarLanguages from './language'
+import NavbarSettings from './settings'
+import NavbarWallet from './wallet'
 import Logo from '../../assets/img/icons/logo.svg'
 
 const NavbarComponent: React.FC = () => {
