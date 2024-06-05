@@ -1,11 +1,20 @@
 import React from 'react'
 
-import { Image } from '@chakra-ui/react'
-
-import Settings from '../../../assets/img/icons/settings.svg'
+import { SettingsIcon } from '@chakra-ui/icons'
+import { IconButton, Flex } from '@chakra-ui/react'
 
 const NavbarSettings: React.FC = () => {
-  return <Image src={Settings} alt="wallet" style={{ width: '20px' }} />
+  return (
+    <Flex alignItems="center">
+      <IconButton
+        aria-label="Settings"
+        icon={<SettingsIcon />}
+        variant="unstyled"
+        _hover={{ bg: 'transparent' }}
+        _focus={{ outline: 'none' }}
+      />
+    </Flex>
+  )
 }
 
 export default NavbarSettings

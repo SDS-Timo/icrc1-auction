@@ -8,7 +8,7 @@ interface ThemeProps {
 const theme = extendTheme({
   config: {
     initialColorMode: 'dark',
-    useSystemColorMode: false,
+    useSystemColorMode: true,
   },
   fonts: {
     heading: 'var(--font-opensans)',
@@ -74,21 +74,47 @@ const theme = extendTheme({
   styles: {
     global: (props: ThemeProps) => ({
       body: {
-        bg: mode('grey.900', 'white')(props),
-        color: mode('white', 'grey.800')(props),
-      },
-      '&::-webkit-scrollbar': {
-        width: '12px',
-      },
-      '&::-webkit-scrollbar-track': {
-        width: '12px',
-        background: mode('grey.800', 'grey.200')(props),
-      },
-      '&::-webkit-scrollbar-thumb': {
-        background: mode('grey.700', 'grey.400')(props),
-        borderRadius: '24px',
+        bg: mode('grey.25', 'grey.900')(props),
+        color: mode('grey.900', 'grey.200')(props),
       },
     }),
+  },
+  components: {
+    Select: {
+      baseStyle: {
+        control: {
+          bg: 'white',
+          borderColor: 'grey.400',
+          color: 'grey.700',
+          _hover: {
+            borderColor: 'grey.500',
+          },
+          _disabled: {
+            bg: 'grey.200',
+          },
+        },
+        menu: {
+          bg: 'white',
+          borderColor: 'grey.400',
+        },
+        option: {
+          bg: 'white',
+          color: 'grey.700',
+          _hover: {
+            bg: 'grey.100',
+          },
+        },
+        indicatorSeparator: {
+          bg: 'white',
+        },
+        placeholder: {
+          color: 'grey.700',
+        },
+        singleValue: {
+          color: 'grey.700',
+        },
+      },
+    },
   },
 })
 

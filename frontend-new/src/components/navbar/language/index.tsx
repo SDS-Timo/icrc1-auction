@@ -7,6 +7,7 @@ import {
   MenuItem,
   Button,
   Image,
+  useColorMode,
 } from '@chakra-ui/react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
@@ -19,6 +20,7 @@ type LanguagesOptionsType = typeof LANGUAGES_OPTIONS
 
 const NavbarLanguages: React.FC = () => {
   const { t } = useTranslation()
+  const { colorMode } = useColorMode()
 
   const selectedLanguageKey = useSelector((state: RootState) =>
     state.language.language?.substring(0, 2),
@@ -47,12 +49,12 @@ const NavbarLanguages: React.FC = () => {
           style={{ width: '20px', height: '15px' }}
         />
       </MenuButton>
-      <MenuList background="grey.900">
+      <MenuList bg={colorMode === 'dark' ? 'grey.900' : 'grey.100'}>
         {Object.keys(LANGUAGES_OPTIONS).map((key) => (
           <MenuItem
             key={LANGUAGES_OPTIONS[key as keyof LanguagesOptionsType].lng}
-            _hover={{ bg: 'grey.700' }}
-            background="grey.900"
+            _hover={{ bg: colorMode === 'dark' ? 'grey.500' : 'grey.300' }}
+            background={{ bg: colorMode === 'dark' ? 'grey.900' : 'grey.100' }}
             fontSize="sm"
             onClick={() =>
               handleLanguageChange(
