@@ -5,6 +5,13 @@ interface ThemeProps {
   theme: ThemeConfig & { breakpoints?: Record<string, string> }
 }
 
+const activeLabelStyles = {
+  transform: 'scale(0.85) translateY(-24px)',
+  opacity: 0.8,
+  fontSize: '13px',
+  top: '7px',
+}
+
 const theme = extendTheme({
   config: {
     initialColorMode: 'dark',
@@ -80,38 +87,32 @@ const theme = extendTheme({
     }),
   },
   components: {
-    Select: {
-      baseStyle: {
-        control: {
-          bg: 'white',
-          borderColor: 'grey.400',
-          color: 'grey.700',
-          _hover: {
-            borderColor: 'grey.500',
+    Form: {
+      variants: {
+        floating: {
+          container: {
+            _focusWithin: {
+              label: {
+                ...activeLabelStyles,
+              },
+            },
+            'input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label':
+              {
+                ...activeLabelStyles,
+              },
+            label: {
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              position: 'absolute',
+              backgroundColor: 'transparent',
+              pointerEvents: 'none',
+              mx: 3,
+              my: 4,
+              transformOrigin: 'left top',
+              transition: 'opacity 0.1s',
+            },
           },
-          _disabled: {
-            bg: 'grey.200',
-          },
-        },
-        menu: {
-          bg: 'white',
-          borderColor: 'grey.400',
-        },
-        option: {
-          bg: 'white',
-          color: 'grey.700',
-          _hover: {
-            bg: 'grey.100',
-          },
-        },
-        indicatorSeparator: {
-          bg: 'white',
-        },
-        placeholder: {
-          color: 'grey.700',
-        },
-        singleValue: {
-          color: 'grey.700',
         },
       },
     },

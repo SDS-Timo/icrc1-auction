@@ -21,6 +21,11 @@ const customStyles = {
         theme.colors.grey['50'],
         theme.colors.grey['900'],
       )({ theme, colorMode }),
+
+      borderColor: mode(
+        theme.colors.grey['100'],
+        theme.colors.grey['600'],
+      )({ theme, colorMode }),
     }
   },
   option: (provided: ProvidedStyle, state: OptionState): CSSObject => {
@@ -93,7 +98,33 @@ const customStyles = {
           : theme.colors.grey['25'],
     }
   },
+  clearIndicator: (): CSSObject => {
+    const theme = useTheme()
+    const { colorMode } = useColorMode()
 
+    return {
+      color:
+        colorMode === 'dark'
+          ? theme.colors.grey['600']
+          : theme.colors.grey['100'],
+    }
+  },
+  dropdownIndicator: (): CSSObject => {
+    const theme = useTheme()
+    const { colorMode } = useColorMode()
+
+    return {
+      color:
+        colorMode === 'dark'
+          ? theme.colors.grey['600']
+          : theme.colors.grey['100'],
+    }
+  },
+  indicatorSeparator: (): CSSObject => {
+    return {
+      display: 'none',
+    }
+  },
   noOptionsMessage: (): CSSObject => {
     const theme = useTheme()
     const { colorMode } = useColorMode()

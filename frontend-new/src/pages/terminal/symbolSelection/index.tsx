@@ -43,7 +43,7 @@ const SymbolSelection = () => {
   const [value, setValue] = useState([options[0]])
 
   return (
-    <Box w="100%">
+    <Box w="100%" zIndex="999">
       <Select
         id="example-id"
         value={value}

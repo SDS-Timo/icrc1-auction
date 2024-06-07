@@ -3,12 +3,13 @@ import { Box, Flex } from '@chakra-ui/react'
 
 import HeaderInformation from './headerInformation'
 import SymbolSelection from './symbolSelection'
+import Trading from './trading'
 
 const Terminal = () => {
   //const { t } = useTranslation()
 
   return (
-    <Box color="white" minH="95vh" p={4}>
+    <Box color="white" minH="87vh" p={4}>
       <Flex w="100%" mb={4} borderRadius="md">
         <Box w="23%" display="flex" alignItems="center" justifyContent="center">
           <SymbolSelection />
@@ -18,16 +19,14 @@ const Terminal = () => {
         </Box>
       </Flex>
 
-      {/* Main Content */}
-      <Box display="flex" gap={2}>
-        {/* Left Sidebar */}
-        <Box bg="grey.600" w="26%" p={4} borderRadius="md">
-          Left Sidebar
+      <Box display="flex" gap={2} minH="71vh">
+        <Box bg="grey.800" w="26%" p={4} borderRadius="md">
+          <Trading />
         </Box>
 
         {/* Middle Content */}
         <Box
-          bg="grey.600"
+          bg="grey.800"
           w="60%"
           display="flex"
           flexDirection="column"
@@ -46,7 +45,7 @@ const Terminal = () => {
         </Box>
 
         {/* Right Sidebar */}
-        <Box bg="grey.600" w="26%" p={4} borderRadius="md">
+        <Box bg="grey.800" w="26%" p={4} borderRadius="md">
           Right Sidebar
         </Box>
       </Box>
