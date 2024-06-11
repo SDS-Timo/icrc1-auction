@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import {
   Box,
@@ -12,7 +12,7 @@ import {
   FormControl,
 } from '@chakra-ui/react'
 
-const TradeForm = () => {
+const Trading = () => {
   const [tradeType, setTradeType] = useState('buy')
   const [selectedPercentage, setSelectedPercentage] = useState(null)
   const [price, setPrice] = useState('')
@@ -116,7 +116,9 @@ const TradeForm = () => {
           <Button
             key={percentage}
             flex="1"
+            size="sm"
             mx={1}
+            color={selectedPercentage === percentage ? 'grey.25' : 'inherit'}
             bg={
               selectedPercentage === percentage
                 ? tradeType === 'buy'
@@ -125,14 +127,17 @@ const TradeForm = () => {
                 : 'transparent'
             }
             onClick={() => handlePercentageClick(percentage)}
-            _hover={{ bg: tradeType === 'buy' ? 'green.500' : 'red.500' }}
+            _hover={{
+              bg: tradeType === 'buy' ? 'green.500' : 'red.500',
+              color: 'grey.25',
+            }}
           >
             {percentage}%
           </Button>
         ))}
       </Flex>
       <Text textAlign="center" fontSize="12px">
-        Available: 7000 USDT
+        Available: 7000 ckUSDC
       </Text>
       <Button
         background={tradeType === 'buy' ? 'green.500' : 'red.500'}
@@ -148,4 +153,4 @@ const TradeForm = () => {
   )
 }
 
-export default TradeForm
+export default Trading

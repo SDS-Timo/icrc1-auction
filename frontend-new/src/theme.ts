@@ -82,7 +82,10 @@ const theme = extendTheme({
     global: (props: ThemeProps) => ({
       body: {
         bg: mode('grey.25', 'grey.900')(props),
-        color: mode('grey.900', 'grey.200')(props),
+        color: mode('grey.900', 'grey.300')(props),
+      },
+      button: {
+        color: 'inherit',
       },
     }),
   },
