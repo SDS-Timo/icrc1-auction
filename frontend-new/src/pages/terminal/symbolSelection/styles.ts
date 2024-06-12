@@ -151,7 +151,7 @@ const customStyles = {
     return {
       color:
         colorMode === 'dark'
-          ? theme.colors.grey['400']
+          ? theme.colors.grey['300']
           : theme.colors.grey['600'],
     }
   },
