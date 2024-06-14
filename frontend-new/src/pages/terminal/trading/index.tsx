@@ -143,6 +143,11 @@ const Trading = () => {
         background={tradeType === 'buy' ? 'green.500' : 'red.500'}
         variant="solid"
         h="58px"
+        color="grey.25"
+        _hover={{
+          bg: tradeType === 'buy' ? 'green.400' : 'red.400',
+          color: 'grey.25',
+        }}
       >
         Create Order
       </Button>
