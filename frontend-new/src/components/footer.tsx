@@ -5,14 +5,14 @@ import { Container, Box, Flex, Text } from '@chakra-ui/react'
 const Footer: React.FC = () => {
   return (
     <footer className="footer">
-      <Container maxW="container.lg">
+      <Container maxW="auto">
         <Flex justifyContent="space-between" alignItems="center">
           <Box></Box>
           <Box>
-            <Text color="gray.500">
+            <Text fontSize="12px" textAlign="right">
               &copy; {new Date().getFullYear()} -{' '}
               <a href="/" className="text-muted">
-                Trading
+                Auctions
               </a>
             </Text>
           </Box>

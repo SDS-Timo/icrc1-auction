@@ -94,8 +94,8 @@ const Orders: React.FC = () => {
               <Thead>
                 <Tr>
                   <Th textAlign="center">Side</Th>
-                  <Th textAlign="center">Amount (BTC)</Th>
-                  <Th textAlign="center">Price (ckUSDC)</Th>
+                  <Th textAlign="center">Amount</Th>
+                  <Th textAlign="center">Price</Th>
                   <Th textAlign="center">Actions</Th>
                 </Tr>
               </Thead>

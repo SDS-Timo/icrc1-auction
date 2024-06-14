@@ -93,7 +93,7 @@ const Trading = () => {
             sx={{ borderRadius: '5px' }}
           />
           <FormLabel color="grey.500" fontSize="15px">
-            Amount USDT
+            Amount USDC
           </FormLabel>
         </FormControl>
       </Flex>
@@ -137,7 +137,7 @@ const Trading = () => {
         ))}
       </Flex>
       <Text textAlign="center" fontSize="12px">
-        Available: 7000 ckUSDC
+        Available: 7000 USDC
       </Text>
       <Button
         background={tradeType === 'buy' ? 'green.500' : 'red.500'}

@@ -7,7 +7,6 @@ import NavbarLanguages from './language'
 import NavbarSettings from './settings'
 import NavbarTheme from './theme'
 import NavbarWallet from './wallet'
-import Logo from '../../assets/img/icons/logo.svg'
 
 const NavbarComponent: React.FC = () => {
   return (
@@ -19,9 +18,7 @@ const NavbarComponent: React.FC = () => {
       borderBottom="1px solid"
       borderColor="gray.800"
     >
-      <Box>
-        <Image src={Logo} alt="Logo" />
-      </Box>
+      <Box>{/* <Image src={Logo} alt="Logo" /> */}</Box>
       <Flex flexDirection="row" alignItems="center">
         <NavbarLanguages />
         <NavbarTheme />

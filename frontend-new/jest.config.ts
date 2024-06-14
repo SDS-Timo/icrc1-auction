@@ -5,11 +5,9 @@ import { compilerOptions } from '../tsconfig.json'
 const config: JestConfigWithTsJest = {
   watch: false,
   preset: 'ts-jest/presets/js-with-ts',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   testTimeout: 10000,
   transform: {
-    // '^.+\\.[tj]sx?$' to process js/ts with ts-jest
-    // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with ts-jest
     '^.+\\.tsx?$': [
       'ts-jest',
       {
@@ -17,9 +15,13 @@ const config: JestConfigWithTsJest = {
       },
     ],
   },
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: '<rootDir>',
-  }),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {
+      prefix: '<rootDir>',
+    }),
+    '^.+\\.png$': '<rootDir>/__mocks__/fileMock.ts',
+  },
+  setupFilesAfterEnv: ['jest-localstorage-mock', '@testing-library/jest-dom'],
 }
 
 export default config

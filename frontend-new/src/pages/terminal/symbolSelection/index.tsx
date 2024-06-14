@@ -18,7 +18,7 @@ const SymbolSelection = () => {
         label: 'Bitcoin',
         image: '../../../assets/img/coins/btc.svg',
         base: 'BTC',
-        quote: 'ckUSDC',
+        quote: 'USDC',
       },
       {
         id: '2',
@@ -26,7 +26,7 @@ const SymbolSelection = () => {
         label: 'Ethereum',
         image: '../../../assets/img/coins/eth.svg',
         base: 'ETH',
-        quote: 'ckUSDC',
+        quote: 'USDC',
       },
       {
         id: '3',
@@ -34,7 +34,7 @@ const SymbolSelection = () => {
         label: 'Solana',
         image: '../../../assets/img/coins/sol.svg',
         base: 'SOL',
-        quote: 'ckUSDC',
+        quote: 'USDC',
       },
     ],
     [],

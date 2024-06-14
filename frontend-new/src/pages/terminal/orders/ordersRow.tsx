@@ -1,10 +1,8 @@
 import React from 'react'
 
 import { CloseIcon, ViewIcon } from '@chakra-ui/icons'
-import { Image, IconButton, Td, Tr } from '@chakra-ui/react'
+import { IconButton, Td, Tr } from '@chakra-ui/react'
 
-import longIcon from '../../../assets/img/icons/long.svg'
-import shortIcon from '../../../assets/img/icons/short.svg'
 import { Order } from '../../../types'
 
 interface OrdersRowProps {
@@ -25,12 +23,8 @@ const OrdersRow: React.FC<OrdersRowProps> = ({
         alignItems="center"
         justifyContent="center"
         maxH="45px"
+        color={order.side === 'buy' ? 'green.500' : 'red.500'}
       >
-        <Image
-          src={order.side === 'buy' ? longIcon : shortIcon}
-          alt={order.side === 'buy' ? 'Long' : 'Short'}
-          mr={2}
-        />
         {order.side}
       </Td>
       <Td textAlign="center">{order.amount}</Td>
