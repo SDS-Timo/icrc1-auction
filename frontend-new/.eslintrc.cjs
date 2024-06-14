@@ -36,6 +36,9 @@ module.exports = {
       resolvePaths: [__dirname],
       tryExtensions: ['.ts', '.tsx', '.js', '.json', '.node'],
     },
+    'import/resolver': {
+      typescript: {},
+    },
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -60,6 +63,10 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'off',
     'node/no-unsupported-features/es-syntax': 'off',
     'node/no-unpublished-import': 'off',
+    'node/no-unsupported-features/es-builtins': [
+      'error',
+      { version: '>=10.4.0' },
+    ],
     'prettier/prettier': [
       'warn',
       {
