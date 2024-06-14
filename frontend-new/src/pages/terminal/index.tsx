@@ -21,7 +21,7 @@ const Terminal = () => {
         flexDirection={{ base: 'column', md: 'row' }}
       >
         <Box
-          w={{ base: '100%', md: '24%' }}
+          w={{ base: '100%', md: '20%' }}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -30,7 +30,7 @@ const Terminal = () => {
           <SymbolSelection />
         </Box>
         <Box
-          w={{ base: '100%', md: '75%' }}
+          w={{ base: '100%', md: '80%' }}
           borderRadius="md"
           ml={{ base: 0, md: 2 }}
         >
@@ -41,7 +41,7 @@ const Terminal = () => {
       <Box display="flex" flexDirection={{ base: 'column', md: 'row' }} gap={2}>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '25%' }}
+          w={{ base: '100%', md: '20%' }}
           p={4}
           borderRadius="md"
           mb={{ base: 4, md: 0 }}
@@ -50,7 +50,7 @@ const Terminal = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '55%' }}
+          w={{ base: '100%', md: '60%' }}
           display="flex"
           flexDirection="column"
           gap={4}
