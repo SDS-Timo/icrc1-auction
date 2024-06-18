@@ -12,8 +12,17 @@ interface ProvidedStyle {
   [key: string]: CSSObject | undefined
 }
 
-const customStyles = {
-  control: (): CSSObject => {
+interface CustomStyles {
+  [key: string]:
+    | CSSObject
+    | ((
+        provided: ProvidedStyle,
+        state: OptionState,
+      ) => CSSObject | (() => CSSObject) | undefined)
+}
+
+const customStyles: CustomStyles = {
+  control: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
     return {
@@ -28,7 +37,7 @@ const customStyles = {
       )({ theme, colorMode }),
     }
   },
-  option: (provided: ProvidedStyle, state: OptionState): CSSObject => {
+  option: (provided: ProvidedStyle, state: OptionState) => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
     return {
@@ -61,7 +70,7 @@ const customStyles = {
       },
     }
   },
-  singleValue: (): CSSObject => {
+  singleValue: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
 
@@ -72,7 +81,7 @@ const customStyles = {
           : theme.colors.grey['700'],
     }
   },
-  multiValue: (): CSSObject => {
+  multiValue: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
 
@@ -87,7 +96,7 @@ const customStyles = {
           : theme.colors.grey['25'],
     }
   },
-  multiValueLabel: (): CSSObject => {
+  multiValueLabel: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
 
@@ -98,7 +107,7 @@ const customStyles = {
           : theme.colors.grey['25'],
     }
   },
-  clearIndicator: (): CSSObject => {
+  clearIndicator: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
 
@@ -109,7 +118,7 @@ const customStyles = {
           : theme.colors.grey['100'],
     }
   },
-  dropdownIndicator: (): CSSObject => {
+  dropdownIndicator: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
 
@@ -120,12 +129,12 @@ const customStyles = {
           : theme.colors.grey['100'],
     }
   },
-  indicatorSeparator: (): CSSObject => {
+  indicatorSeparator: () => {
     return {
       display: 'none',
     }
   },
-  noOptionsMessage: (): CSSObject => {
+  noOptionsMessage: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
     return {
@@ -135,7 +144,7 @@ const customStyles = {
           : theme.colors.grey['700'],
     }
   },
-  menu: (): CSSObject => {
+  menu: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
     return {
@@ -145,7 +154,7 @@ const customStyles = {
           : theme.colors.grey['50'],
     }
   },
-  placeholder: (): CSSObject => {
+  placeholder: () => {
     const theme = useTheme()
     const { colorMode } = useColorMode()
     return {

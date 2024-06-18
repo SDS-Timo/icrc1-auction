@@ -32,6 +32,7 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
     environment("all", { prefix: "CANISTER_" }),
+    environment("all", { prefix: "HTTP_" }),
     environment("all", { prefix: "DFX_" }),
   ],
 });

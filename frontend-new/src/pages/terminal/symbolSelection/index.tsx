@@ -1,63 +1,92 @@
-import { useMemo, useState } from 'react'
+import React, { useMemo, useEffect } from 'react'
 
 import { Box } from '@chakra-ui/react'
-import { Select } from 'bymax-react-select'
+import { AnonymousIdentity, HttpAgent } from '@dfinity/agent'
+import { Select, Option } from 'bymax-react-select'
+import { useSelector, useDispatch } from 'react-redux'
 
-import customStyles from './styles.ts'
+import customStyles from './styles'
+import { RootState, AppDispatch } from '../../../store'
+import { setUserAgentHost } from '../../../store/auth'
+import { setSelectedSymbol } from '../../../store/tokens'
+import { fetchTokens } from '../../../store/tokens'
 
-interface CSSObject {
-  [key: string]: string | number | CSSObject | undefined
-}
-
-const SymbolSelection = () => {
-  const options = useMemo(
-    () => [
-      {
-        id: '1',
-        value: 'BTC',
-        label: 'Bitcoin',
-        image: '../../../assets/img/coins/btc.svg',
-        base: 'BTC',
-        quote: 'USDC',
-      },
-      {
-        id: '2',
-        value: 'eth',
-        label: 'Ethereum',
-        image: '../../../assets/img/coins/eth.svg',
-        base: 'ETH',
-        quote: 'USDC',
-      },
-      {
-        id: '3',
-        value: 'sol',
-        label: 'Solana',
-        image: '../../../assets/img/coins/sol.svg',
-        base: 'SOL',
-        quote: 'USDC',
-      },
-    ],
-    [],
+const SymbolSelection: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { tokens, loading } = useSelector((state: RootState) => state.tokens)
+  const selectedSymbol = useSelector(
+    (state: RootState) => state.tokens.selectedSymbol,
   )
 
-  const [value, setValue] = useState([options[0]])
+  const { userAgentHost } = useSelector((state: RootState) => state.auth)
+
+  useEffect(() => {
+    dispatch(setUserAgentHost(`${process.env.HTTP_AGENT_HOST}`))
+  }, [dispatch])
+
+  useEffect(() => {
+    if (userAgentHost) {
+      const myAgent = new HttpAgent({
+        identity: new AnonymousIdentity(),
+        host: userAgentHost,
+      })
+      dispatch(fetchTokens(myAgent))
+    }
+  }, [dispatch, userAgentHost])
+
+  const filteredTokens = useMemo(
+    () => tokens.filter((token) => token.symbol !== 'USDC'),
+    [tokens],
+  )
+
+  const options: Option[] = useMemo(
+    () =>
+      filteredTokens.map((token) => ({
+        id: token.symbol,
+        value: token.symbol,
+        label: token.name,
+        image: token.logo || '',
+        base: token.symbol,
+        quote: 'USDC',
+      })),
+    [filteredTokens],
+  )
+
+  useEffect(() => {
+    if (filteredTokens.length > 0) {
+      const initialSymbol = filteredTokens[0].symbol
+      const initialOption: Option = {
+        id: initialSymbol,
+        value: initialSymbol,
+        label: filteredTokens[0].name,
+        image: filteredTokens[0].logo || '',
+        base: initialSymbol,
+        quote: 'USDC',
+      }
+      dispatch(setSelectedSymbol(initialOption))
+    } else {
+      dispatch(setSelectedSymbol(null))
+    }
+  }, [filteredTokens])
+
+  const handleChange = (option: Option | Option[] | null) => {
+    dispatch(setSelectedSymbol(option))
+  }
 
   return (
-    <Box w="100%" zIndex="99">
+    <Box w="100%" zIndex="9">
       <Select
-        id="example-id"
-        value={value}
+        id="symbols"
+        value={selectedSymbol}
         isMulti={false}
-        isClearable={true}
+        isClearable={false}
         options={options}
-        placeholder="Select a coin"
-        noOptionsMessage="No coins found"
-        onChange={(option: any) => console.log(option)}
-        styles={
-          customStyles as unknown as {
-            [key: string]: () => CSSObject
-          }
-        }
+        placeholder={loading ? 'Loading...' : 'Select a symbol'}
+        noOptionsMessage="No symbols found"
+        isLoading={loading}
+        loadingMessage="Loading..."
+        onChange={handleChange}
+        styles={customStyles as any}
       />
     </Box>
   )

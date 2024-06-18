@@ -4,7 +4,6 @@ import { HelmetProvider, Helmet } from 'react-helmet-async'
 import { useRoutes } from 'react-router-dom'
 
 import './languages/i18n'
-
 import routes from './routes'
 
 const App: React.FC = () => {

@@ -1,5 +1,6 @@
+import React from 'react'
+
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
-//import { useTranslation } from 'react-i18next';
 
 import Chart from './chart'
 import HeaderInformation from './headerInformation'
@@ -8,8 +9,7 @@ import SymbolSelection from './symbolSelection'
 import TradeHistory from './tradeHistory'
 import Trading from './trading'
 
-const Terminal = () => {
-  //const { t } = useTranslation();
+const Terminal: React.FC = () => {
   const bgColor = useColorModeValue('grey.50', 'grey.800')
 
   return (

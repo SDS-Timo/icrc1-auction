@@ -1,3 +1,4 @@
+import { Option } from 'bymax-react-select'
 export interface Language {
   [key: string]: string
 }
@@ -13,4 +14,17 @@ export interface Trade {
   amount: number
   time: string
   type: 'buy' | 'sell'
+}
+export interface TokenMetadata {
+  symbol: string
+  name: string
+  decimals: number
+  logo: string
+  fee: string
+}
+export interface TokensState {
+  tokens: TokenMetadata[]
+  loading: boolean
+  error: string | null
+  selectedSymbol: Option | Option[] | null
 }
