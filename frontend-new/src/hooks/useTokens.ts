@@ -22,15 +22,11 @@ const useTokens = () => {
             agent: userAgent,
             canisterId: principal,
           })
+
           const principalData = await metadata({ certified: true })
           const token = parseMetadata(principalData)
-
-          if (token.symbol.includes('ck') || token.name.includes('ck')) {
-            token.symbol = token.symbol.replace('ck', '')
-            token.name = token.name.replace('ck', '')
-          }
-
           const logo = await findLogo(token)
+
           return { ...token, logo }
         }),
       )

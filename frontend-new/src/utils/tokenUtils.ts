@@ -34,6 +34,11 @@ export const parseMetadata = (
     }
   })
 
+  if (symbol.includes('ck') || name.includes('ck')) {
+    symbol = symbol.replace('ck', '')
+    name = name.replace('ck', '')
+  }
+
   return { symbol, name, decimals, logo, fee }
 }
 
