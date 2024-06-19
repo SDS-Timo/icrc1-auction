@@ -11,6 +11,9 @@ import {
   FormLabel,
   FormControl,
 } from '@chakra-ui/react'
+import { useSelector } from 'react-redux'
+
+import { RootState } from '../../../store'
 
 const Trading = () => {
   const [tradeType, setTradeType] = useState('buy')
@@ -18,6 +21,10 @@ const Trading = () => {
   const [price, setPrice] = useState('')
   const [quoteAmount, setQuoteAmount] = useState('')
   const [baseAmount, setBaseAmount] = useState('')
+  const [message, setMessage] = useState('')
+  const selectedSymbol = useSelector(
+    (state: RootState) => state.tokens.selectedSymbol,
+  )
 
   const handleTradeTypeChange = (type) => {
     setTradeType(type)
@@ -77,6 +84,7 @@ const Trading = () => {
             value={price}
             onChange={(e) => handleInputChange(e, setPrice)}
             sx={{ borderRadius: '5px' }}
+            isDisabled={!selectedSymbol}
           />
           <FormLabel color="grey.500" fontSize="15px">
             Price
@@ -91,9 +99,13 @@ const Trading = () => {
             value={quoteAmount}
             onChange={(e) => handleInputChange(e, setQuoteAmount)}
             sx={{ borderRadius: '5px' }}
+            isDisabled={!selectedSymbol}
           />
           <FormLabel color="grey.500" fontSize="15px">
-            Amount USDC
+            Amount{' '}
+            {Array.isArray(selectedSymbol)
+              ? selectedSymbol[0]?.quote
+              : selectedSymbol?.quote}
           </FormLabel>
         </FormControl>
       </Flex>
@@ -105,9 +117,13 @@ const Trading = () => {
             value={baseAmount}
             onChange={(e) => handleInputChange(e, setBaseAmount)}
             sx={{ borderRadius: '5px' }}
+            isDisabled={!selectedSymbol}
           />
           <FormLabel color="grey.500" fontSize="15px">
-            Amount BTC
+            Amount{' '}
+            {Array.isArray(selectedSymbol)
+              ? selectedSymbol[0]?.base
+              : selectedSymbol?.base}
           </FormLabel>
         </FormControl>
       </Flex>
@@ -127,6 +143,7 @@ const Trading = () => {
                 : 'transparent'
             }
             onClick={() => handlePercentageClick(percentage)}
+            isDisabled={!selectedSymbol}
             _hover={{
               bg: tradeType === 'buy' ? 'green.500' : 'red.500',
               color: 'grey.25',
@@ -137,13 +154,26 @@ const Trading = () => {
         ))}
       </Flex>
       <Text textAlign="center" fontSize="12px">
-        Available: 7000 USDC
+        Available:
+        {selectedSymbol
+          ? ' 7000 ' +
+            (tradeType === 'buy'
+              ? Array.isArray(selectedSymbol)
+                ? selectedSymbol[0]?.quote
+                : selectedSymbol?.quote
+              : tradeType === 'sell'
+                ? Array.isArray(selectedSymbol)
+                  ? selectedSymbol[0]?.base
+                  : selectedSymbol?.base
+                : '')
+          : ''}
       </Text>
       <Button
         background={tradeType === 'buy' ? 'green.500' : 'red.500'}
         variant="solid"
         h="58px"
         color="grey.25"
+        isDisabled={!selectedSymbol}
         _hover={{
           bg: tradeType === 'buy' ? 'green.400' : 'red.400',
           color: 'grey.25',
@@ -151,9 +181,11 @@ const Trading = () => {
       >
         Create Order
       </Button>
-      <Text textAlign="center" fontSize="15px" color="red.500">
-        Error
-      </Text>
+      {message ?? (
+        <Text textAlign="center" fontSize="15px" color="red.500">
+          {message}
+        </Text>
+      )}
     </VStack>
   )
 }

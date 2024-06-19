@@ -23,7 +23,7 @@ const useTokens = () => {
             canisterId: principal,
           })
 
-          const principalData = await metadata({ certified: true })
+          const principalData = await metadata({ certified: false })
           const token = parseMetadata(principalData)
           const logo = await findLogo(token)
 

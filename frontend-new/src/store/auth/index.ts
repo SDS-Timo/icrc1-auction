@@ -4,7 +4,7 @@ interface AuthState {
   userAgentHost: string | null
 }
 
-const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
+const HTTP_AGENT_HOST: string = `${process.env.HTTP_AGENT_HOST}`
 
 const initialState: AuthState = {
   userAgentHost: HTTP_AGENT_HOST,
@@ -14,7 +14,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUserAgentHost: (state, action: PayloadAction<string>) => {
+    setUserAgentHost: (state: AuthState, action: PayloadAction<string>) => {
       state.userAgentHost = action.payload
     },
   },
