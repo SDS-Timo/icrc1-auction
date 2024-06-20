@@ -1,6 +1,6 @@
 import { Box, Button, Table } from '@mui/joy';
 
-import { useCancelOrder, useListOrders } from '../../../integration';
+import { useCancelOrder, useListOrders } from '@fe/integration';
 import InfoItem from '../../root/info-item';
 
 export type OrdersTableProps = { kind: 'ask' | 'bid' };
@@ -14,9 +14,9 @@ const OrdersTable = ({ kind }: OrdersTableProps) => {
       <Table>
         <colgroup>
           <col style={{ width: '200px' }} />
-          <col style={{ width: '120px' }} />
-          <col style={{ width: '120px' }} />
-          <col style={{ width: '60px' }} />
+          <col style={{ width: '110px' }} />
+          <col style={{ width: '110px' }} />
+          <col style={{ width: '80px' }} />
         </colgroup>
         <thead>
           <tr>
@@ -27,7 +27,7 @@ const OrdersTable = ({ kind }: OrdersTableProps) => {
           </tr>
         </thead>
         <tbody>
-          {(orders ?? []).map((order, i) => {
+          {(orders ?? []).map(([orderId, order], i) => {
             return (
               <tr key={i}>
                 <td>
@@ -36,7 +36,7 @@ const OrdersTable = ({ kind }: OrdersTableProps) => {
                 <td>{String(order.price)}</td>
                 <td>{String(order.volume)}</td>
                 <td>
-                  <Button onClick={() => cancelOrder(order.icrc1Ledger)} color="danger" size="sm">
+                  <Button onClick={() => cancelOrder(orderId)} color="danger" size="sm">
                     Cancel {kind}
                   </Button>
                 </td>

@@ -1,31 +1,60 @@
-import {Box, Tab, TabList, Tabs} from '@mui/joy';
+import { Box, Tab, TabList, Tabs, Typography } from '@mui/joy';
 
 import Orders from '../orders';
 import ConnectButton from '../../components/connect-button';
 import ThemeButton from '../../components/theme-button';
-import {useIdentity} from '@fe/integration/identity';
+import { useIdentity } from '@fe/integration/identity';
 
 import InfoItem from './info-item';
-import {useSessionsCounter, useTrustedLedger} from '@fe/integration';
-import {useState} from 'react';
+import { useIsAdmin, useSessionsCounter, useTrustedLedger } from '@fe/integration';
+import { useState } from 'react';
 import Credits from '../credits';
-import OrdersHistory from '../orders-history';
+import TransactionsHistory from '@fe/components/transactions-history';
 import Assets from '../assets';
 import Owners from '../owners';
-import {canisterId} from "@declarations/icrc1_auction";
+import { canisterId } from '@declarations/icrc1_auction';
+import PriceHistory from '@fe/components/price-history';
+import RunAuctionButton from '@fe/components/run-auction-button';
+import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { AnonymousIdentity, Identity } from '@dfinity/agent';
+import { useQueryClient } from 'react-query';
 
 const Root = () => {
-    const {identity} = useIdentity();
+    const {identity, setIdentity} = useIdentity();
 
     const [tabValue, setTabValue] = useState(0);
 
     const userPrincipal = identity.getPrincipal().toText();
 
+    const isAdmin = useIsAdmin();
+
+    const onSeedInput = async (seed: string) => {
+      const seedToIdentity: (seed: string) => Identity | null = seed => {
+        const seedBuf = new Uint8Array(new ArrayBuffer(32));
+        if (seed.length && seed.length > 0 && seed.length <= 32) {
+          seedBuf.set(new TextEncoder().encode(seed));
+          return Ed25519KeyIdentity.generate(seedBuf);
+        }
+        return null;
+      };
+      let newIdentity = seedToIdentity(seed) || new AnonymousIdentity();
+      if (identity.getPrincipal().toText() !== newIdentity.getPrincipal().toText()) {
+        setIdentity(newIdentity);
+        const queryClient = useQueryClient();
+        await Promise.all([
+          queryClient.invalidateQueries('myCredits'),
+          queryClient.invalidateQueries('myBids'),
+          queryClient.invalidateQueries('myAsks'),
+          queryClient.invalidateQueries('transaction-history'),
+        ]);
+      }
+    };
+
     return (
         <Box
             sx={{
                 width: '100%',
-                maxWidth: '990px',
+                maxWidth: '1200px',
                 p: 4,
                 mx: 'auto',
             }}>
@@ -42,8 +71,13 @@ const Root = () => {
                             gap: 0.5,
                             marginBottom: 1,
                         }}>
+                      {isAdmin && (<RunAuctionButton></RunAuctionButton>)}
                         <InfoItem label="Sessions counter" content={String(useSessionsCounter().data)}/>
                         <InfoItem label="Your principal" content={userPrincipal} withCopy/>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography sx={{ fontWeight: 700 }} level="body-xs">Principal seed:</Typography>
+                          <input type="text" onChange={e => onSeedInput(e.target.value)}></input>
+                        </Box>
                         <InfoItem label="Trusted ledger" content={useTrustedLedger().data?.toText() || ""} withCopy/>
                         <InfoItem label="Auction principal" content={canisterId} withCopy/>
                     </Box>
@@ -59,7 +93,8 @@ const Root = () => {
                         <Tab color="neutral">My credits</Tab>
                         <Tab color="neutral">Active Bids</Tab>
                         <Tab color="neutral">Active Asks</Tab>
-                        <Tab color="neutral">History</Tab>
+                        <Tab color="neutral">Transaction history</Tab>
+                        <Tab color="neutral">Price history</Tab>
                         <Tab color="neutral">Admins</Tab>
                     </TabList>
                     <ConnectButton/>
@@ -69,8 +104,9 @@ const Root = () => {
                 {tabValue === 1 && <Credits/>}
                 {tabValue === 2 && <Orders kind="bid"/>}
                 {tabValue === 3 && <Orders kind="ask"/>}
-                {tabValue === 4 && <OrdersHistory/>}
-                {tabValue === 5 && <Owners/>}
+                {tabValue === 4 && <TransactionsHistory />}
+                {tabValue === 5 && <PriceHistory />}
+                {tabValue === 6 && <Owners />}
             </Tabs>
         </Box>
     );
