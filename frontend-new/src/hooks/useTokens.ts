@@ -27,7 +27,7 @@ const useTokens = () => {
           const token = parseMetadata(principalData)
           const logo = await findLogo(token)
 
-          return { ...token, logo }
+          return { ...token, logo, principal: principal.toText() }
         }),
       )
 

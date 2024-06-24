@@ -1,4 +1,5 @@
-import { Option } from 'bymax-react-select'
+import { Option as OptionBymax } from 'bymax-react-select'
+
 export interface Language {
   [key: string]: string
 }
@@ -21,6 +22,10 @@ export interface TokenMetadata {
   decimals: number
   logo: string
   fee: string
+  principal?: string
+}
+export interface Option extends OptionBymax {
+  principal?: string
 }
 export interface TokensState {
   tokens: TokenMetadata[]

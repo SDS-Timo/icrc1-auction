@@ -2,6 +2,9 @@
   "frontend": {
     "ic": "pfsv3-oiaaa-aaaao-a3mza-cai"
   },
+  "frontend-new": {
+    "ic": "i4tvh-qyaaa-aaaap-ahmea-cai"
+  },
   "icrc1_auction": {
     "ic": "pmr6h-yaaaa-aaaao-a3myq-cai"
   },

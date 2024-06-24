@@ -62,6 +62,7 @@ module.exports = {
     'react/prop-types': 'off',
     'react-hooks/exhaustive-deps': 'off',
     'node/no-unsupported-features/es-syntax': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     'node/no-unpublished-import': 'off',
     'node/no-unsupported-features/es-builtins': [
       'error',

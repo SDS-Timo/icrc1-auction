@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react'
 
 import { Box } from '@chakra-ui/react'
 import { AnonymousIdentity, HttpAgent } from '@dfinity/agent'
-import { Select, Option } from 'bymax-react-select'
+import { Select } from 'bymax-react-select'
 import { useSelector, useDispatch } from 'react-redux'
 
 import customStyles from './styles'
@@ -10,6 +10,7 @@ import { RootState, AppDispatch } from '../../../store'
 import { setUserAgentHost } from '../../../store/auth'
 import { setSelectedSymbol } from '../../../store/tokens'
 import { fetchTokens } from '../../../store/tokens'
+import { Option } from '../../../types'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -48,6 +49,7 @@ const SymbolSelection: React.FC = () => {
         image: token.logo || '',
         base: token.symbol,
         quote: 'USDC',
+        principal: token.principal,
       })),
     [filteredTokens],
   )
@@ -62,6 +64,7 @@ const SymbolSelection: React.FC = () => {
         image: filteredTokens[0].logo || '',
         base: initialSymbol,
         quote: 'USDC',
+        principal: filteredTokens[0].principal,
       }
       dispatch(setSelectedSymbol(initialOption))
     } else {

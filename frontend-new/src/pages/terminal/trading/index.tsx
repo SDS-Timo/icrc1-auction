@@ -26,15 +26,15 @@ const Trading = () => {
     (state: RootState) => state.tokens.selectedSymbol,
   )
 
-  const handleTradeTypeChange = (type) => {
+  const handleTradeTypeChange = (type: any) => {
     setTradeType(type)
   }
 
-  const handlePercentageClick = (percentage) => {
+  const handlePercentageClick = (percentage: any) => {
     setSelectedPercentage(percentage === selectedPercentage ? null : percentage)
   }
 
-  const handleInputChange = (e, setState) => {
+  const handleInputChange = (e: any, setState: any) => {
     setState(e.target.value)
   }
 

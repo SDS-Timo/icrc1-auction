@@ -33,6 +33,14 @@
       "source": ["dist/"],
       "build": "npm run build:frontend",
       "declarations": {}
+    },
+    "frontend-new": {
+      "frontend": {
+        "entrypoint": "dist/index.html"
+      },
+      "source": ["dist/"],
+      "build": "npm run build:frontend",
+      "type": "assets"
     }
   },
   "defaults": {

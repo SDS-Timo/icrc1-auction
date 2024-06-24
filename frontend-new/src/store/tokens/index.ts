@@ -1,9 +1,8 @@
 import { HttpAgent } from '@dfinity/agent'
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { Option } from 'bymax-react-select'
 
 import useTokens from '../../hooks/useTokens'
-import { TokenMetadata, TokensState } from '../../types'
+import { TokenMetadata, TokensState, Option } from '../../types'
 
 const initialState: TokensState = {
   tokens: [],
