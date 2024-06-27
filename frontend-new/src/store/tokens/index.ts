@@ -9,6 +9,13 @@ const initialState: TokensState = {
   loading: false,
   error: null,
   selectedSymbol: null,
+  selectedQuote: {
+    decimals: 6,
+    fee: '',
+    logo: '',
+    name: 'USDC',
+    symbol: 'USDC',
+  },
 }
 
 export const fetchTokens = createAsyncThunk<TokenMetadata[], HttpAgent>(
@@ -35,6 +42,9 @@ const tokensSlice = createSlice({
     ) => {
       state.selectedSymbol = action.payload
     },
+    setSelectedQuote: (state, action: PayloadAction<TokenMetadata>) => {
+      state.selectedQuote = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -47,6 +57,12 @@ const tokensSlice = createSlice({
         (state, action: PayloadAction<TokenMetadata[]>) => {
           state.tokens = action.payload
           state.loading = false
+          const quoteToken = action.payload.find(
+            (token) => token.symbol === 'USDC',
+          )
+          if (quoteToken) {
+            state.selectedQuote = quoteToken
+          }
         },
       )
       .addCase(fetchTokens.rejected, (state, action) => {
@@ -56,6 +72,6 @@ const tokensSlice = createSlice({
   },
 })
 
-export const { setSelectedSymbol } = tokensSlice.actions
+export const { setSelectedSymbol, setSelectedQuote } = tokensSlice.actions
 
 export default tokensSlice.reducer

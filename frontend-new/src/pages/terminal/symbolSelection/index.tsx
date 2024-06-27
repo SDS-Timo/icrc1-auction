@@ -49,6 +49,7 @@ const SymbolSelection: React.FC = () => {
         image: token.logo || '',
         base: token.symbol,
         quote: 'USDC',
+        decimals: token.decimals,
         principal: token.principal,
       })),
     [filteredTokens],
@@ -64,6 +65,7 @@ const SymbolSelection: React.FC = () => {
         image: filteredTokens[0].logo || '',
         base: initialSymbol,
         quote: 'USDC',
+        decimals: filteredTokens[0].decimals,
         principal: filteredTokens[0].principal,
       }
       dispatch(setSelectedSymbol(initialOption))

@@ -68,6 +68,10 @@ module.exports = {
       'error',
       { version: '>=10.4.0' },
     ],
+    'node/no-unsupported-features/node-builtins': [
+      'error',
+      { version: '>=10.4.0' },
+    ],
     'prettier/prettier': [
       'warn',
       {

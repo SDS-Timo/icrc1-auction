@@ -3,6 +3,7 @@ import {
   IcrcMetadataResponseEntries,
 } from '@dfinity/ledger-icrc'
 
+import defSymbolLogo from '../assets/img/coins/default.svg'
 import { TokenMetadata } from '../types'
 
 export const parseMetadata = (
@@ -44,8 +45,11 @@ export const parseMetadata = (
 
 export const findLogo = async (token: TokenMetadata): Promise<string> => {
   let logo =
-    token.logo || `../../../assets/img/coins/${token.symbol.toLowerCase()}.svg`
-  const defSymbolLogo = `../../../assets/img/coins/default.svg`
+    token.logo ||
+    new URL(
+      `../assets/img/coins/${token.symbol.toLowerCase()}.svg`,
+      import.meta.url,
+    ).href
 
   if (!token.logo) {
     try {

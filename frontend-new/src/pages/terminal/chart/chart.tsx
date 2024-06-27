@@ -3,17 +3,14 @@ import React, { useEffect, useRef } from 'react'
 import { useTheme } from '@chakra-ui/react'
 import Chart from 'chart.js/auto'
 
-interface DataItem {
-  label: string
-  price: number
-  volume: number
-}
+import { DataItem } from '../../../types'
 
 interface Props {
   data: DataItem[]
+  volumeAxis: string | undefined
 }
 
-const AuctionsChart: React.FC<Props> = ({ data }) => {
+const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
   const theme = useTheme()
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstanceRef = useRef<Chart | null>(null)
@@ -41,7 +38,9 @@ const AuctionsChart: React.FC<Props> = ({ data }) => {
             datasets: [
               {
                 label: 'Price',
-                data: data.map((item: DataItem) => item.price),
+                data: data.map((item: DataItem) =>
+                  item.price !== undefined ? item.price : null,
+                ),
                 fill: false,
                 borderColor: theme.colors.blue['500'],
                 borderWidth: 2,
@@ -50,7 +49,9 @@ const AuctionsChart: React.FC<Props> = ({ data }) => {
               },
               {
                 label: 'Volume',
-                data: data.map((item: DataItem) => item.volume),
+                data: data.map((item: DataItem) =>
+                  item.volume !== undefined ? item.volume : null,
+                ),
                 fill: false,
                 borderColor: theme.colors.yellow['500'],
                 borderWidth: 2,
@@ -74,6 +75,11 @@ const AuctionsChart: React.FC<Props> = ({ data }) => {
                   display: true,
                   text: 'Price',
                 },
+                ticks: {
+                  callback: function (value) {
+                    return Number(value).toFixed(2)
+                  },
+                },
               },
               'y-volume': {
                 type: 'linear',
@@ -84,13 +90,39 @@ const AuctionsChart: React.FC<Props> = ({ data }) => {
                 },
                 title: {
                   display: true,
-                  text: 'Volume',
+                  text: `Volume ${volumeAxis ?? ''}`,
                 },
-                min: 0,
+                ticks: {
+                  callback: function (value) {
+                    return Number(value).toFixed(6)
+                  },
+                },
               },
               x: {
                 grid: {
                   display: false,
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || ''
+                    if (label) {
+                      label += ': '
+                    }
+                    if (context.parsed.y !== null) {
+                      if (context.dataset.label === 'Price') {
+                        label += Number(context.parsed.y).toFixed(2)
+                      } else if (context.dataset.label === 'Volume') {
+                        label += Number(context.parsed.y).toFixed(6)
+                      }
+                    }
+                    return label
+                  },
                 },
               },
             },

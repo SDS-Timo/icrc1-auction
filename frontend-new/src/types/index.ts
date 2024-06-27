@@ -25,6 +25,7 @@ export interface TokenMetadata {
   principal?: string
 }
 export interface Option extends OptionBymax {
+  decimals?: number
   principal?: string
 }
 export interface TokensState {
@@ -32,4 +33,12 @@ export interface TokensState {
   loading: boolean
   error: string | null
   selectedSymbol: Option | Option[] | null
+  selectedQuote: TokenMetadata
+}
+export interface DataItem {
+  label: string
+  price: number
+  volume?: number
+  volumeInBase?: number
+  volumeInQuote?: number
 }
