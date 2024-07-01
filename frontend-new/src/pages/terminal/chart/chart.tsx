@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 
-import { useTheme } from '@chakra-ui/react'
+import { useTheme, useColorMode } from '@chakra-ui/react'
 import Chart from 'chart.js/auto'
 
 import { DataItem } from '../../../types'
@@ -12,6 +12,7 @@ interface Props {
 
 const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
   const theme = useTheme()
+  const { colorMode } = useColorMode()
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstanceRef = useRef<Chart | null>(null)
 
@@ -34,7 +35,14 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
         chartInstanceRef.current = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: data.map((item: DataItem) => item.label),
+            labels: data.map((item: DataItem) => {
+              const date = new Date(item.label)
+              const options: Intl.DateTimeFormatOptions = {
+                day: '2-digit',
+                month: 'short',
+              }
+              return date.toLocaleDateString('en-GB', options)
+            }),
             datasets: [
               {
                 label: 'Price',
@@ -74,10 +82,18 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                 title: {
                   display: true,
                   text: 'Price',
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['400']
+                      : theme.colors.grey['700'],
                 },
                 ticks: {
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['200']
+                      : theme.colors.grey['900'],
                   callback: function (value) {
-                    return Number(value).toFixed(2)
+                    return Number(value).toLocaleString('en-US')
                   },
                 },
               },
@@ -91,10 +107,19 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                 title: {
                   display: true,
                   text: `Volume ${volumeAxis ?? ''}`,
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['200']
+                      : theme.colors.grey['900'],
                 },
                 ticks: {
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['200']
+                      : theme.colors.grey['900'],
                   callback: function (value) {
-                    return Number(value).toFixed(6)
+                    const decimals = data.length ? data[0].volumeDecimals : 0
+                    return Number(value).toFixed(decimals)
                   },
                 },
               },
@@ -102,23 +127,56 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                 grid: {
                   display: false,
                 },
+                ticks: {
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['200']
+                      : theme.colors.grey['900'],
+                },
               },
             },
             plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['200']
+                      : theme.colors.grey['900'],
+                },
+              },
               tooltip: {
                 mode: 'index',
                 intersect: false,
                 callbacks: {
+                  title(tooltipItems) {
+                    return data[tooltipItems[0].dataIndex].label
+                  },
                   label: function (context) {
-                    let label = context.dataset.label || ''
+                    let label = context.dataset.label
                     if (label) {
                       label += ': '
                     }
                     if (context.parsed.y !== null) {
                       if (context.dataset.label === 'Price') {
-                        label += Number(context.parsed.y).toFixed(2)
+                        const decimals = data[0].priceDecimals ?? 2
+                        const value = context.parsed.y
+                        const [integerPart, decimalPart = ''] = value
+                          .toString()
+                          .split('.')
+                        const truncatedDecimalPart = decimalPart
+                          .padEnd(decimals, '0')
+                          .slice(0, decimals)
+                        const adjustedValue = `${integerPart}.${truncatedDecimalPart}`
+                        label += Number(adjustedValue).toLocaleString('en-US', {
+                          minimumFractionDigits: decimals,
+                          maximumFractionDigits: decimals,
+                        })
                       } else if (context.dataset.label === 'Volume') {
-                        label += Number(context.parsed.y).toFixed(6)
+                        const volumeDecimals = data[0].volumeDecimals ?? 2
+                        label += Number(context.parsed.y).toFixed(
+                          volumeDecimals,
+                        )
                       }
                     }
                     return label
@@ -132,7 +190,7 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
         console.error('Failed to get 2D context from canvas')
       }
     }
-  }, [data, theme])
+  }, [data, colorMode])
 
   return (
     <div style={{ position: 'relative', height: '30vh', width: '100%' }}>

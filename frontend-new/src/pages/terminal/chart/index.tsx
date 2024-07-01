@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
 
-import { RepeatIcon } from '@chakra-ui/icons'
-import { Box, IconButton } from '@chakra-ui/react'
+import {
+  Box,
+  Switch,
+  Button,
+  FormControl,
+  FormLabel,
+  useTheme,
+  useColorMode,
+} from '@chakra-ui/react'
 import { AnonymousIdentity, HttpAgent } from '@dfinity/agent'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -12,6 +19,8 @@ import { setUserAgentHost } from '../../../store/auth'
 import { DataItem } from '../../../types'
 
 const ChartPlot = () => {
+  const theme = useTheme()
+  const { colorMode } = useColorMode()
   const dispatch = useDispatch<AppDispatch>()
   const { userAgentHost } = useSelector((state: RootState) => state.auth)
   const selectedSymbol = useSelector(
@@ -24,8 +33,10 @@ const ChartPlot = () => {
   const { getPriceHistory } = usePriceHistory()
 
   const [data, setData] = useState<DataItem[]>([])
+  const [priceHistoryData, setPriceHistoryData] = useState<DataItem[]>([])
   const [volumeAxis, setVolumeAxis] = useState('quote')
   const [loading, setLoading] = useState(true)
+  const [timeframe, setTimeframe] = useState('All')
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
@@ -50,9 +61,10 @@ const ChartPlot = () => {
         selectedQuote,
       )
 
-      const limitedData = prices.slice(-100).reverse()
+      const pricesSort = prices.reverse()
 
-      setData(limitedData)
+      setPriceHistoryData(pricesSort)
+      setData(pricesSort)
       setVolumeAxis('quote')
       setLoading(false)
     }
@@ -76,16 +88,36 @@ const ChartPlot = () => {
         return {
           ...item,
           volume: item.volumeInQuote,
+          volumeDecimals: item.volumeInQuoteDecimals,
         }
       } else {
         return {
           ...item,
           volume: item.volumeInBase,
+          volumeDecimals: item.volumeInBaseDecimals,
         }
       }
     })
     setData(updatedData)
   }, [volumeAxis])
+
+  const onChangeTimeframe = (newTimeframe: string) => {
+    setTimeframe(newTimeframe)
+    const startDate = new Date()
+    if (newTimeframe === '1W') {
+      startDate.setDate(startDate.getDate() - 6)
+    } else if (newTimeframe === '1M') {
+      startDate.setMonth(startDate.getMonth() - 1)
+    } else {
+      setData(priceHistoryData)
+      return
+    }
+    const filtered = priceHistoryData.filter((item) => {
+      const itemDate = new Date(item.label)
+      return itemDate >= startDate
+    })
+    setData(filtered)
+  }
 
   return (
     <Box position="relative">
@@ -103,19 +135,71 @@ const ChartPlot = () => {
         pointerEvents={loading ? 'none' : 'auto'}
       >
         <Box
-          position="absolute"
-          top="98%"
-          left="96%"
-          transform="translateX(-50%)"
-          zIndex="10"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
         >
-          <IconButton
-            aria-label="Change Scale"
-            icon={<RepeatIcon />}
-            variant="unstyled"
-            size="md"
-            onClick={handleToggleVolumeAxis}
-          />
+          <Box>
+            {['1W', '1M', 'All'].map((label) => (
+              <Button
+                key={label}
+                onClick={() => onChangeTimeframe(label)}
+                variant="unstyled"
+                _hover={{
+                  bg:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['600']
+                      : theme.colors.grey['200'],
+                  color:
+                    colorMode === 'dark'
+                      ? theme.colors.grey['25']
+                      : theme.colors.grey['700'],
+                }}
+                bg={
+                  timeframe === label
+                    ? colorMode === 'dark'
+                      ? theme.colors.grey['600']
+                      : theme.colors.grey['200']
+                    : 'transparent'
+                }
+                color={
+                  timeframe === label
+                    ? colorMode === 'dark'
+                      ? theme.colors.grey['25']
+                      : theme.colors.grey['700']
+                    : 'inherit'
+                }
+                fontSize="xs"
+                size="sm"
+                borderRadius="0"
+              >
+                {label}
+              </Button>
+            ))}
+          </Box>
+          <Box>
+            <FormControl display="flex" alignItems="center">
+              <FormLabel htmlFor="volume-axis-switch" mb="0" fontSize="10px">
+                {symbol?.quote}
+              </FormLabel>
+              <Switch
+                id="volume-axis-switch"
+                isChecked={volumeAxis === 'base'}
+                onChange={handleToggleVolumeAxis}
+                size="sm"
+                colorScheme="green"
+              />
+              <FormLabel
+                htmlFor="volume-axis-switch"
+                mb="0"
+                ml="2"
+                fontSize="10px"
+              >
+                {symbol?.base}
+              </FormLabel>
+            </FormControl>
+          </Box>
         </Box>
         <Chart
           data={data}

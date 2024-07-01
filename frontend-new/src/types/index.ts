@@ -38,7 +38,11 @@ export interface TokensState {
 export interface DataItem {
   label: string
   price: number
-  volume?: number
-  volumeInBase?: number
-  volumeInQuote?: number
+  volume: number
+  volumeInBase: number
+  volumeInQuote: number
+  priceDecimals?: number
+  volumeDecimals?: number
+  volumeInBaseDecimals?: number
+  volumeInQuoteDecimals?: number
 }

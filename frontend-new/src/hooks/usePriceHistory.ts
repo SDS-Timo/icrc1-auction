@@ -5,7 +5,12 @@ import { Principal } from '@dfinity/principal'
 import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { DataItem, Option, TokenMetadata } from '../types'
-import { convertPrice, convertVolume, getDecimals } from '../utils/chartUtils'
+import {
+  convertPrice,
+  convertVolume,
+  getDecimals,
+  addDecimal,
+} from '../utils/chartUtils'
 
 const usePriceHistory = () => {
   const getPriceHistory = async (
@@ -37,18 +42,23 @@ const usePriceHistory = () => {
         )
         .map(([ts, sessionNumber, ledger, volume, price]) => {
           const date = new Date(Number(ts) / 1_000_000)
-          const options: Intl.DateTimeFormatOptions = {
+          const optionsDateTime: Intl.DateTimeFormatOptions = {
             day: '2-digit',
             month: 'short',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
           }
-          const formattedDate = date.toLocaleDateString('en-GB', options)
-
+          const formattedDateTime = date.toLocaleDateString(
+            'en-GB',
+            optionsDateTime,
+          )
           const formattedPrice = convertPrice(
             Number(price),
             getDecimals(selectedSymbol),
             getDecimals(selectedQuote),
           )
-
           const { volumeInQuote, volumeInBase } = convertVolume(
             Number(volume),
             getDecimals(selectedSymbol),
@@ -56,7 +66,7 @@ const usePriceHistory = () => {
           )
 
           return {
-            label: formattedDate,
+            label: formattedDateTime,
             price: formattedPrice,
             volume: volumeInQuote,
             volumeInQuote,
@@ -64,7 +74,9 @@ const usePriceHistory = () => {
           }
         })
 
-      return formattedData
+      const data = addDecimal(formattedData)
+
+      return data
     } catch (error) {
       console.error('Error fetching prices:', error)
       return []

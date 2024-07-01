@@ -22,10 +22,6 @@ const theme = extendTheme({
     body: 'var(--font-opensans)',
   },
   colors: {
-    btn: {
-      400: '#00E0C6',
-      500: '#009987',
-    },
     blue: {
       '50': '#edf8ff',
       '100': '#d6edff',
@@ -82,7 +78,7 @@ const theme = extendTheme({
     global: (props: ThemeProps) => ({
       body: {
         bg: mode('grey.25', 'grey.900')(props),
-        color: mode('grey.900', 'grey.300')(props),
+        color: mode('grey.900', 'grey.200')(props),
       },
       button: {
         color: 'inherit',

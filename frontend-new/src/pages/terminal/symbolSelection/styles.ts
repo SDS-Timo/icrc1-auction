@@ -160,8 +160,8 @@ const customStyles: CustomStyles = {
     return {
       color:
         colorMode === 'dark'
-          ? theme.colors.grey['300']
-          : theme.colors.grey['600'],
+          ? theme.colors.grey['100']
+          : theme.colors.grey['900'],
     }
   },
 }
