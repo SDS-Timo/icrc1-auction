@@ -1,13 +1,14 @@
-import { HttpAgent } from '@dfinity/agent'
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import useTokens from '../../hooks/useTokens'
-import { TokenMetadata, TokensState, Option } from '../../types'
+import {
+  TokenMetadata,
+  TokensState,
+  Option,
+  HeaderInformation,
+} from '../../types'
 
 const initialState: TokensState = {
-  tokens: [],
-  loading: false,
-  error: null,
+  headerInformation: null,
   selectedSymbol: null,
   selectedQuote: {
     decimals: 6,
@@ -17,20 +18,6 @@ const initialState: TokensState = {
     symbol: 'USDC',
   },
 }
-
-export const fetchTokens = createAsyncThunk<TokenMetadata[], HttpAgent>(
-  'tokens/fetchTokens',
-  async (userAgent, thunkAPI) => {
-    try {
-      const { getTokens } = useTokens()
-      const tokens = await getTokens(userAgent)
-      return tokens
-    } catch (error) {
-      console.error('Error fetching tokens:', error)
-      return thunkAPI.rejectWithValue('Failed to fetch tokens')
-    }
-  },
-)
 
 const tokensSlice = createSlice({
   name: 'tokens',
@@ -45,33 +32,16 @@ const tokensSlice = createSlice({
     setSelectedQuote: (state, action: PayloadAction<TokenMetadata>) => {
       state.selectedQuote = action.payload
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchTokens.pending, (state) => {
-        state.loading = true
-        state.error = null
-      })
-      .addCase(
-        fetchTokens.fulfilled,
-        (state, action: PayloadAction<TokenMetadata[]>) => {
-          state.tokens = action.payload
-          state.loading = false
-          const quoteToken = action.payload.find(
-            (token) => token.symbol === 'USDC',
-          )
-          if (quoteToken) {
-            state.selectedQuote = quoteToken
-          }
-        },
-      )
-      .addCase(fetchTokens.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload as string
-      })
+    setHeaderInformation: (
+      state,
+      action: PayloadAction<HeaderInformation | null>,
+    ) => {
+      state.headerInformation = action.payload
+    },
   },
 })
 
-export const { setSelectedSymbol, setSelectedQuote } = tokensSlice.actions
+export const { setSelectedSymbol, setSelectedQuote, setHeaderInformation } =
+  tokensSlice.actions
 
 export default tokensSlice.reducer

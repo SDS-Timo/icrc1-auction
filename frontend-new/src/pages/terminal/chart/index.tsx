@@ -9,14 +9,16 @@ import {
   useTheme,
   useColorMode,
 } from '@chakra-ui/react'
-import { AnonymousIdentity, HttpAgent } from '@dfinity/agent'
 import { useSelector, useDispatch } from 'react-redux'
 
 import Chart from './chart'
 import usePriceHistory from '../../../hooks/usePriceHistory'
 import { RootState, AppDispatch } from '../../../store'
 import { setUserAgentHost } from '../../../store/auth'
+import { setHeaderInformation } from '../../../store/tokens'
 import { DataItem } from '../../../types'
+import { getAgent } from '../../../utils/authUtils'
+import { calculateHeaderInformation } from '../../../utils/headerInformationUtils'
 
 const ChartPlot = () => {
   const theme = useTheme()
@@ -30,9 +32,7 @@ const ChartPlot = () => {
     (state: RootState) => state.tokens.selectedQuote,
   )
 
-  const { getPriceHistory } = usePriceHistory()
-
-  const [data, setData] = useState<DataItem[]>([])
+  const [chartData, setChartData] = useState<DataItem[]>([])
   const [priceHistoryData, setPriceHistoryData] = useState<DataItem[]>([])
   const [volumeAxis, setVolumeAxis] = useState('quote')
   const [loading, setLoading] = useState(true)
@@ -50,21 +50,21 @@ const ChartPlot = () => {
       selectedSymbol.principal
     ) {
       setLoading(true)
-      const myAgent = new HttpAgent({
-        identity: new AnonymousIdentity(),
-        host: userAgentHost,
-      })
+      dispatch(setHeaderInformation(null))
 
+      const myAgent = getAgent(userAgentHost)
+      const { getPriceHistory } = usePriceHistory()
       const prices = await getPriceHistory(
         myAgent,
         selectedSymbol,
         selectedQuote,
       )
 
-      const pricesSort = prices.reverse()
+      const headerInformation = calculateHeaderInformation(prices)
+      dispatch(setHeaderInformation(headerInformation))
 
-      setPriceHistoryData(pricesSort)
-      setData(pricesSort)
+      setPriceHistoryData(prices)
+      setChartData(prices)
       setVolumeAxis('quote')
       setLoading(false)
     }
@@ -72,6 +72,24 @@ const ChartPlot = () => {
 
   const handleToggleVolumeAxis = () => {
     setVolumeAxis((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
+  }
+
+  const onChangeTimeframe = (newTimeframe: string) => {
+    setTimeframe(newTimeframe)
+    const startDate = new Date()
+    if (newTimeframe === '1W') {
+      startDate.setDate(startDate.getDate() - 6)
+    } else if (newTimeframe === '1M') {
+      startDate.setMonth(startDate.getMonth() - 1)
+    } else {
+      setChartData(priceHistoryData)
+      return
+    }
+    const filtered = priceHistoryData.filter((item) => {
+      const itemDate = new Date(item.label)
+      return itemDate >= startDate
+    })
+    setChartData(filtered)
   }
 
   useEffect(() => {
@@ -83,7 +101,7 @@ const ChartPlot = () => {
   }, [userAgentHost, selectedSymbol, selectedQuote])
 
   useEffect(() => {
-    const updatedData = data.map((item) => {
+    const updatedData = chartData.map((item) => {
       if (volumeAxis === 'quote') {
         return {
           ...item,
@@ -98,38 +116,11 @@ const ChartPlot = () => {
         }
       }
     })
-    setData(updatedData)
+    setChartData(updatedData)
   }, [volumeAxis])
-
-  const onChangeTimeframe = (newTimeframe: string) => {
-    setTimeframe(newTimeframe)
-    const startDate = new Date()
-    if (newTimeframe === '1W') {
-      startDate.setDate(startDate.getDate() - 6)
-    } else if (newTimeframe === '1M') {
-      startDate.setMonth(startDate.getMonth() - 1)
-    } else {
-      setData(priceHistoryData)
-      return
-    }
-    const filtered = priceHistoryData.filter((item) => {
-      const itemDate = new Date(item.label)
-      return itemDate >= startDate
-    })
-    setData(filtered)
-  }
 
   return (
     <Box position="relative">
-      {loading && (
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          zIndex="10"
-        ></Box>
-      )}
       <Box
         filter={loading ? 'blur(5px)' : 'none'}
         pointerEvents={loading ? 'none' : 'auto'}
@@ -202,7 +193,7 @@ const ChartPlot = () => {
           </Box>
         </Box>
         <Chart
-          data={data}
+          data={chartData}
           volumeAxis={volumeAxis === 'quote' ? symbol?.quote : symbol?.base}
         />
       </Box>

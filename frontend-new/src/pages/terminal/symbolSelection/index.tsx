@@ -1,39 +1,43 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 
 import { Box } from '@chakra-ui/react'
-import { AnonymousIdentity, HttpAgent } from '@dfinity/agent'
 import { Select } from 'bymax-react-select'
 import { useSelector, useDispatch } from 'react-redux'
 
 import customStyles from './styles'
+import useTokens from '../../../hooks/useTokens'
 import { RootState, AppDispatch } from '../../../store'
 import { setUserAgentHost } from '../../../store/auth'
-import { setSelectedSymbol } from '../../../store/tokens'
-import { fetchTokens } from '../../../store/tokens'
-import { Option } from '../../../types'
+import { setSelectedSymbol, setSelectedQuote } from '../../../store/tokens'
+import { Option, TokenMetadata } from '../../../types'
+import { getAgent } from '../../../utils/authUtils'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { tokens, loading } = useSelector((state: RootState) => state.tokens)
+  const [tokens, setTokens] = useState<TokenMetadata[]>([])
+  const [loading, setLoading] = useState(true)
+  const { userAgentHost } = useSelector((state: RootState) => state.auth)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
 
-  const { userAgentHost } = useSelector((state: RootState) => state.auth)
-
-  useEffect(() => {
-    dispatch(setUserAgentHost(`${process.env.HTTP_AGENT_HOST}`))
-  }, [dispatch])
-
-  useEffect(() => {
+  async function fetchTokens() {
     if (userAgentHost) {
-      const myAgent = new HttpAgent({
-        identity: new AnonymousIdentity(),
-        host: userAgentHost,
-      })
-      dispatch(fetchTokens(myAgent))
+      setLoading(true)
+
+      const myAgent = getAgent(userAgentHost)
+      const { getTokens } = useTokens()
+      const data = await getTokens(myAgent)
+
+      const quoteToken = data.find((token) => token.symbol === 'USDC')
+      if (quoteToken) {
+        dispatch(setSelectedQuote(quoteToken))
+      }
+
+      setTokens(data)
+      setLoading(false)
     }
-  }, [dispatch, userAgentHost])
+  }
 
   const filteredTokens = useMemo(
     () => tokens.filter((token) => token.symbol !== 'USDC'),
@@ -55,6 +59,18 @@ const SymbolSelection: React.FC = () => {
     [filteredTokens],
   )
 
+  const handleChange = (option: Option | Option[] | null) => {
+    dispatch(setSelectedSymbol(option))
+  }
+
+  useEffect(() => {
+    dispatch(setUserAgentHost(`${process.env.HTTP_AGENT_HOST}`))
+  }, [dispatch])
+
+  useEffect(() => {
+    fetchTokens()
+  }, [userAgentHost])
+
   useEffect(() => {
     if (filteredTokens.length > 0) {
       const initialSymbol = filteredTokens[0].symbol
@@ -73,10 +89,6 @@ const SymbolSelection: React.FC = () => {
       dispatch(setSelectedSymbol(null))
     }
   }, [filteredTokens])
-
-  const handleChange = (option: Option | Option[] | null) => {
-    dispatch(setSelectedSymbol(option))
-  }
 
   return (
     <Box w="100%" zIndex="9">

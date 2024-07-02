@@ -27,13 +27,22 @@ export interface TokenMetadata {
 export interface Option extends OptionBymax {
   decimals?: number
   principal?: string
+  lastAuction?: number
+  previousChange?: number
+  periodVolume?: number
+}
+export interface HeaderInformation {
+  lastAuction: number | string
+  previousChange: {
+    amount: number | string
+    percentage: number | string
+  }
+  periodVolume: number | string
 }
 export interface TokensState {
-  tokens: TokenMetadata[]
-  loading: boolean
-  error: string | null
   selectedSymbol: Option | Option[] | null
   selectedQuote: TokenMetadata
+  headerInformation: HeaderInformation | null
 }
 export interface DataItem {
   label: string

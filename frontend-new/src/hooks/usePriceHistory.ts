@@ -1,10 +1,8 @@
-import { Actor } from '@dfinity/agent'
 import { HttpAgent } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
 
-import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
-import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { DataItem, Option, TokenMetadata } from '../types'
+import { getActor } from '../utils/authUtils'
 import {
   convertPrice,
   convertVolume,
@@ -19,10 +17,7 @@ const usePriceHistory = () => {
     selectedQuote: TokenMetadata,
   ): Promise<DataItem[]> => {
     try {
-      const serviceActor = Actor.createActor<IcrcxActor>(IcrcxIDLFactory, {
-        agent: userAgent,
-        canisterId: `${process.env.CANISTER_ID_ICRC1_AUCTION}`,
-      })
+      const serviceActor = getActor(userAgent)
 
       const principal = Array.isArray(selectedSymbol)
         ? selectedSymbol[0]?.principal
@@ -38,9 +33,12 @@ const usePriceHistory = () => {
 
       const formattedData: DataItem[] = (prices ?? [])
         .filter(
-          ([ts, sessionNumber, ledger, volume, price]) => Number(price) !== 0,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([_ts, _sessionNumber, _ledger, _volume, price]) =>
+            Number(price) !== 0,
         )
-        .map(([ts, sessionNumber, ledger, volume, price]) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(([ts, _sessionNumber, _ledger, volume, price]) => {
           const date = new Date(Number(ts) / 1_000_000)
           const optionsDateTime: Intl.DateTimeFormatOptions = {
             day: '2-digit',
@@ -75,6 +73,7 @@ const usePriceHistory = () => {
         })
 
       const data = addDecimal(formattedData)
+      data.reverse()
 
       return data
     } catch (error) {

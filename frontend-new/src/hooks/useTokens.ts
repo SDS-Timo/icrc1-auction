@@ -1,19 +1,14 @@
-import { Actor } from '@dfinity/agent'
 import { HttpAgent } from '@dfinity/agent'
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc'
 
-import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
-import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { TokenMetadata } from '../types'
+import { getActor } from '../utils/authUtils'
 import { parseMetadata, findLogo } from '../utils/tokenUtils'
 
 const useTokens = () => {
   const getTokens = async (userAgent: HttpAgent): Promise<TokenMetadata[]> => {
     try {
-      const serviceActor = Actor.createActor<IcrcxActor>(IcrcxIDLFactory, {
-        agent: userAgent,
-        canisterId: `${process.env.CANISTER_ID_ICRC1_AUCTION}`,
-      })
+      const serviceActor = getActor(userAgent)
 
       const principals = await serviceActor.icrcX_supported_tokens()
       const tokens = await Promise.all(
