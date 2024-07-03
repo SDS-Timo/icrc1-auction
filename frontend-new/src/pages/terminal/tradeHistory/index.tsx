@@ -30,9 +30,7 @@ const tradeHistory: Trade[] = [
 const TradeHistory: React.FC = () => {
   return (
     <Box>
-      <Text mb="20px" fontWeight="bold">
-        Trade History
-      </Text>
+      <Text mb="20px">Trade History</Text>
       <Table variant="unstyled" size="sm">
         <Thead>
           <Tr>

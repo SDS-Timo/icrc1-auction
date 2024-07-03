@@ -153,7 +153,7 @@ const Trading = () => {
           </Button>
         ))}
       </Flex>
-      <Text textAlign="center" fontSize="12px">
+      <Text textAlign="center" fontSize="14px">
         Available:
         {selectedSymbol
           ? ' 7000 ' +

@@ -19,8 +19,8 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text fontSize="14px">Last Auction</Text>
-          <Text fontSize="13px">
+          <Text>Last Auction</Text>
+          <Text>
             {typeof headerInformation?.lastAuction === 'number'
               ? `$${headerInformation?.lastAuction.toFixed(2)}`
               : '--'}
@@ -34,22 +34,22 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text fontSize="14px">Previous Change</Text>
+          <Text>Previous Change</Text>
           {typeof headerInformation?.previousChange.amount === 'number' &&
           typeof headerInformation?.previousChange.percentage === 'number' ? (
             headerInformation.previousChange.amount >= 0 ? (
-              <Text color="green.400" fontSize="13px">
+              <Text color="green.400">
                 +{headerInformation.previousChange.percentage.toFixed(2)}% (+$
                 {headerInformation.previousChange.amount.toFixed(2)})
               </Text>
             ) : (
-              <Text color="red.400" fontSize="13px">
+              <Text color="red.400">
                 {headerInformation.previousChange.percentage.toFixed(2)}% ($
                 {headerInformation.previousChange.amount.toFixed(2)})
               </Text>
             )
           ) : (
-            <Text fontSize="13px">--</Text>
+            <Text>--</Text>
           )}
         </Flex>
       </Box>
@@ -60,14 +60,12 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text fontSize="14px">7d Volume</Text>
+          <Text>7d Volume</Text>
           {typeof headerInformation?.periodVolume === 'number' &&
           headerInformation?.periodVolume > 0 ? (
-            <Text fontSize="13px">
-              ${headerInformation.periodVolume.toFixed(2)}
-            </Text>
+            <Text>${headerInformation.periodVolume.toFixed(2)}</Text>
           ) : (
-            <Text fontSize="13px">--</Text>
+            <Text>--</Text>
           )}
         </Flex>
       </Box>

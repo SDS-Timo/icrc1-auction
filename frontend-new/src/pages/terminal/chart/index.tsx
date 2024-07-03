@@ -161,7 +161,7 @@ const ChartPlot = () => {
                       : theme.colors.grey['700']
                     : 'inherit'
                 }
-                fontSize="xs"
+                fontSize="sm"
                 size="sm"
                 borderRadius="0"
               >
@@ -171,7 +171,7 @@ const ChartPlot = () => {
           </Box>
           <Box>
             <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="volume-axis-switch" mb="0" fontSize="10px">
+              <FormLabel htmlFor="volume-axis-switch" mb="0">
                 {symbol?.quote}
               </FormLabel>
               <Switch
@@ -181,12 +181,7 @@ const ChartPlot = () => {
                 size="sm"
                 colorScheme="green"
               />
-              <FormLabel
-                htmlFor="volume-axis-switch"
-                mb="0"
-                ml="2"
-                fontSize="10px"
-              >
+              <FormLabel htmlFor="volume-axis-switch" mb="0" ml="2">
                 {symbol?.base}
               </FormLabel>
             </FormControl>

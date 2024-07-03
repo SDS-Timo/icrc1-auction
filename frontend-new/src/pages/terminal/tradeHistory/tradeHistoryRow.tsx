@@ -11,18 +11,11 @@ interface TradeHistoryRowProps {
 const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({ trade }) => {
   return (
     <Tr key={trade.id} textAlign="center">
-      <Td
-        fontSize="12px"
-        color={trade.type === 'buy' ? 'green.500' : 'red.500'}
-      >
+      <Td color={trade.type === 'buy' ? 'green.500' : 'red.500'}>
         {trade.price}
       </Td>
-      <Td textAlign="center" fontSize="12px">
-        {trade.amount}
-      </Td>
-      <Td fontSize="12px" whiteSpace="nowrap">
-        {trade.time}
-      </Td>
+      <Td textAlign="center">{trade.amount}</Td>
+      <Td whiteSpace="nowrap">{trade.time}</Td>
     </Tr>
   )
 }
