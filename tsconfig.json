@@ -25,5 +25,5 @@
       "@fe/*": ["./frontend/*"]
     }
   },
-  "include": ["frontend/**/*", "frontend-new/**/*"]
+  "include": ["frontend-new/**/*"]
 }
