@@ -10,7 +10,7 @@ const useTokens = () => {
     try {
       const serviceActor = getActor(userAgent)
 
-      const principals = await serviceActor.icrcX_supported_tokens()
+      const principals = await serviceActor.icrc84_supported_tokens()
       const tokens = await Promise.all(
         principals.map(async (principal) => {
           const { metadata } = IcrcLedgerCanister.create({
