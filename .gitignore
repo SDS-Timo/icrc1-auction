@@ -49,6 +49,7 @@ node_modules/
 jspm_packages/
 .mops
 dist/
+dist_legacy/
 declarations/
 
 # TypeScript v1 declaration files
