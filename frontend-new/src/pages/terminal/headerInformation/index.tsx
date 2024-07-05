@@ -1,4 +1,12 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+} from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 
 import { RootState } from '../../../store'
@@ -19,12 +27,14 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text>Last Auction</Text>
-          <Text>
-            {typeof headerInformation?.lastAuction === 'number'
-              ? `$${headerInformation?.lastAuction.toFixed(2)}`
-              : '--'}
-          </Text>
+          <Stat>
+            <StatLabel>Last Auction</StatLabel>
+            <StatNumber>
+              {typeof headerInformation?.lastAuction === 'number'
+                ? `$${headerInformation?.lastAuction.toFixed(2)}`
+                : '--'}
+            </StatNumber>
+          </Stat>
         </Flex>
       </Box>
       <Box
@@ -34,23 +44,35 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text>Previous Change</Text>
-          {typeof headerInformation?.previousChange.amount === 'number' &&
-          typeof headerInformation?.previousChange.percentage === 'number' ? (
-            headerInformation.previousChange.amount >= 0 ? (
-              <Text color="green.400">
-                +{headerInformation.previousChange.percentage.toFixed(2)}% (+$
-                {headerInformation.previousChange.amount.toFixed(2)})
-              </Text>
+          <Stat>
+            <StatLabel>Previous Change</StatLabel>
+            {typeof headerInformation?.previousChange.amount === 'number' &&
+            typeof headerInformation?.previousChange.percentage === 'number' ? (
+              headerInformation.previousChange.amount >= 0 ? (
+                <>
+                  <StatNumber>
+                    {headerInformation.previousChange.amount.toFixed(2)}
+                  </StatNumber>
+                  <StatHelpText>
+                    <StatArrow type="increase" />
+                    {headerInformation.previousChange.percentage.toFixed(2)}%
+                  </StatHelpText>
+                </>
+              ) : (
+                <>
+                  <StatNumber>
+                    {headerInformation.previousChange.amount.toFixed(2)}
+                  </StatNumber>
+                  <StatHelpText>
+                    <StatArrow type="decrease" />
+                    {headerInformation.previousChange.percentage.toFixed(2)}%
+                  </StatHelpText>
+                </>
+              )
             ) : (
-              <Text color="red.400">
-                {headerInformation.previousChange.percentage.toFixed(2)}% ($
-                {headerInformation.previousChange.amount.toFixed(2)})
-              </Text>
-            )
-          ) : (
-            <Text>--</Text>
-          )}
+              <StatNumber>--</StatNumber>
+            )}
+          </Stat>
         </Flex>
       </Box>
       <Box
@@ -60,13 +82,16 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Text>7d Volume</Text>
-          {typeof headerInformation?.periodVolume === 'number' &&
-          headerInformation?.periodVolume > 0 ? (
-            <Text>${headerInformation.periodVolume.toFixed(2)}</Text>
-          ) : (
-            <Text>--</Text>
-          )}
+          <Stat>
+            <StatLabel>7d Volume</StatLabel>
+            <StatNumber>
+              {headerInformation &&
+              typeof headerInformation.periodVolume === 'number' &&
+              headerInformation.periodVolume > 0
+                ? `$${headerInformation.periodVolume.toFixed(2)}`
+                : '--'}
+            </StatNumber>
+          </Stat>{' '}
         </Flex>
       </Box>
     </Flex>
