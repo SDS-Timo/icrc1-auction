@@ -10,6 +10,10 @@ const store = configureStore({
     language: languageReducer,
     tokens: tokensReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 })
 
 export type RootState = ReturnType<typeof store.getState>

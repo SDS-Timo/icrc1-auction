@@ -66,11 +66,11 @@ module.exports = {
     'node/no-unpublished-import': 'off',
     'node/no-unsupported-features/es-builtins': [
       'error',
-      { version: '>=10.4.0' },
+      { version: '>=11.0.0' },
     ],
     'node/no-unsupported-features/node-builtins': [
       'error',
-      { version: '>=10.4.0' },
+      { version: '>=11.0.0' },
     ],
     'prettier/prettier': [
       'warn',

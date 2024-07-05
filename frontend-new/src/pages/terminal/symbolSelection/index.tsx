@@ -7,36 +7,31 @@ import { useSelector, useDispatch } from 'react-redux'
 import customStyles from './styles'
 import useTokens from '../../../hooks/useTokens'
 import { RootState, AppDispatch } from '../../../store'
-import { setUserAgentHost } from '../../../store/auth'
 import { setSelectedSymbol, setSelectedQuote } from '../../../store/tokens'
 import { Option, TokenMetadata } from '../../../types'
-import { getAgent } from '../../../utils/authUtils'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [tokens, setTokens] = useState<TokenMetadata[]>([])
   const [loading, setLoading] = useState(true)
-  const { userAgentHost } = useSelector((state: RootState) => state.auth)
+  const { userAgent } = useSelector((state: RootState) => state.auth)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
 
   async function fetchTokens() {
-    if (userAgentHost) {
-      setLoading(true)
+    setLoading(true)
 
-      const myAgent = getAgent(userAgentHost)
-      const { getTokens } = useTokens()
-      const data = await getTokens(myAgent)
+    const { getTokens } = useTokens()
+    const data = await getTokens(userAgent)
 
-      const quoteToken = data.find((token) => token.symbol === 'USDC')
-      if (quoteToken) {
-        dispatch(setSelectedQuote(quoteToken))
-      }
-
-      setTokens(data)
-      setLoading(false)
+    const quoteToken = data.find((token) => token.symbol === 'USDC')
+    if (quoteToken) {
+      dispatch(setSelectedQuote(quoteToken))
     }
+
+    setTokens(data)
+    setLoading(false)
   }
 
   const filteredTokens = useMemo(
@@ -64,12 +59,8 @@ const SymbolSelection: React.FC = () => {
   }
 
   useEffect(() => {
-    dispatch(setUserAgentHost(`${process.env.HTTP_AGENT_HOST}`))
-  }, [dispatch])
-
-  useEffect(() => {
     fetchTokens()
-  }, [userAgentHost])
+  }, [])
 
   useEffect(() => {
     if (filteredTokens.length > 0) {

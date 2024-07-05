@@ -115,6 +115,13 @@ const theme = extendTheme({
         },
       },
     },
+    Drawer: {
+      baseStyle: (props: ThemeProps) => ({
+        dialog: {
+          bg: mode('grey.25', 'grey.900')(props),
+        },
+      }),
+    },
   },
 })
 

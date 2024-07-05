@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 
 import ENUS from './locales/en/en-us.json'
 import ESES from './locales/es/es-es.json'
+import ITIT from './locales/it/it-it.json'
 import PTBR from './locales/pt/pt-br.json'
 import { Language } from '../types'
 
@@ -14,13 +15,14 @@ const resources: Resources = {
   'en-US': ENUS,
   'pt-BR': PTBR,
   'es-ES': ESES,
+  'it-IT': ITIT,
 }
 
 i18n.use(initReactI18next).init({
   debug: false,
   resources,
   lng: navigator.language,
-  fallbackLng: 'pt-BR',
+  fallbackLng: 'en-US',
   interpolation: {
     escapeValue: false,
   },

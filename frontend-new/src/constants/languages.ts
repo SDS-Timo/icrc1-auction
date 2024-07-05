@@ -1,5 +1,6 @@
 import ptFlag from '../assets/img/flags/br.png'
 import esFlag from '../assets/img/flags/es.png'
+import itFlag from '../assets/img/flags/it.png'
 import usFlag from '../assets/img/flags/us.png'
 
 export const LANGUAGES_OPTIONS: {
@@ -14,6 +15,11 @@ export const LANGUAGES_OPTIONS: {
     icon: ptFlag,
     name: 'Portuguese',
     lng: 'pt-BR',
+  },
+  it: {
+    icon: itFlag,
+    name: 'Italian',
+    lng: 'it-IT',
   },
   es: {
     icon: esFlag,

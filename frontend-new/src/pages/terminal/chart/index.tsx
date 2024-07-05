@@ -6,25 +6,22 @@ import {
   Button,
   FormControl,
   FormLabel,
-  useTheme,
-  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import Chart from './chart'
 import usePriceHistory from '../../../hooks/usePriceHistory'
 import { RootState, AppDispatch } from '../../../store'
-import { setUserAgentHost } from '../../../store/auth'
 import { setHeaderInformation } from '../../../store/tokens'
 import { DataItem } from '../../../types'
-import { getAgent } from '../../../utils/authUtils'
 import { calculateHeaderInformation } from '../../../utils/headerInformationUtils'
 
 const ChartPlot = () => {
-  const theme = useTheme()
-  const { colorMode } = useColorMode()
+  const bgColor = useColorModeValue('grey.200', 'grey.600')
+  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const dispatch = useDispatch<AppDispatch>()
-  const { userAgentHost } = useSelector((state: RootState) => state.auth)
+  const { userAgent } = useSelector((state: RootState) => state.auth)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -43,7 +40,6 @@ const ChartPlot = () => {
 
   async function fetchPrices() {
     if (
-      userAgentHost &&
       selectedSymbol &&
       selectedQuote &&
       !Array.isArray(selectedSymbol) &&
@@ -52,10 +48,9 @@ const ChartPlot = () => {
       setLoading(true)
       dispatch(setHeaderInformation(null))
 
-      const myAgent = getAgent(userAgentHost)
       const { getPriceHistory } = usePriceHistory()
       const prices = await getPriceHistory(
-        myAgent,
+        userAgent,
         selectedSymbol,
         selectedQuote,
       )
@@ -93,12 +88,8 @@ const ChartPlot = () => {
   }
 
   useEffect(() => {
-    dispatch(setUserAgentHost(`${process.env.HTTP_AGENT_HOST}`))
-  }, [dispatch])
-
-  useEffect(() => {
     fetchPrices()
-  }, [userAgentHost, selectedSymbol, selectedQuote])
+  }, [selectedSymbol, selectedQuote])
 
   useEffect(() => {
     const updatedData = chartData.map((item) => {
@@ -138,29 +129,11 @@ const ChartPlot = () => {
                 onClick={() => onChangeTimeframe(label)}
                 variant="unstyled"
                 _hover={{
-                  bg:
-                    colorMode === 'dark'
-                      ? theme.colors.grey['600']
-                      : theme.colors.grey['200'],
-                  color:
-                    colorMode === 'dark'
-                      ? theme.colors.grey['25']
-                      : theme.colors.grey['700'],
+                  bg: bgColor,
+                  color: fontColor,
                 }}
-                bg={
-                  timeframe === label
-                    ? colorMode === 'dark'
-                      ? theme.colors.grey['600']
-                      : theme.colors.grey['200']
-                    : 'transparent'
-                }
-                color={
-                  timeframe === label
-                    ? colorMode === 'dark'
-                      ? theme.colors.grey['25']
-                      : theme.colors.grey['700']
-                    : 'inherit'
-                }
+                bg={timeframe === label ? bgColor : 'transparent'}
+                color={timeframe === label ? fontColor : 'inherit'}
                 fontSize="sm"
                 size="sm"
                 borderRadius="0"
