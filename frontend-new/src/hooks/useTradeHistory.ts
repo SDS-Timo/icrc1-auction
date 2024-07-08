@@ -10,8 +10,8 @@ import {
   addDecimal,
 } from '../utils/chartUtils'
 
-const usePriceHistory = () => {
-  const getPriceHistory = async (
+const useTransactionHistory = () => {
+  const getTransactionHistory = async (
     userAgent: HttpAgent,
     selectedSymbol: Option,
     selectedQuote: TokenMetadata,
@@ -25,20 +25,15 @@ const usePriceHistory = () => {
 
       if (!principal) return []
 
-      const prices = await serviceActor.queryPriceHistory(
+      const transactions = await serviceActor.queryTransactionHistory(
         [Principal.fromText(principal)],
         BigInt(10000),
         BigInt(0),
       )
 
-      const formattedData: DataItem[] = (prices ?? [])
-        .filter(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([_ts, _sessionNumber, _ledger, _volume, price]) =>
-            Number(price) !== 0,
-        )
+      const formattedData: DataItem[] = (transactions ?? [])
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .map(([ts, _sessionNumber, _ledger, volume, price], index) => {
+        .map(([ts, _sessionNumber, kind, _ledger, volume, price], index) => {
           const date = new Date(Number(ts) / 1_000_000)
           const optionsDateTime: Intl.DateTimeFormatOptions = {
             day: '2-digit',
@@ -76,6 +71,7 @@ const usePriceHistory = () => {
             datetime: formattedDateTime,
             time: formattedTime,
             price: formattedPrice,
+            type: 'ask' in kind ? 'buy' : 'sell',
             volume: volumeInQuote,
             volumeInQuote,
             volumeInBase,
@@ -87,12 +83,12 @@ const usePriceHistory = () => {
 
       return data
     } catch (error) {
-      console.error('Error fetching prices:', error)
+      console.error('Error fetching transactions:', error)
       return []
     }
   }
 
-  return { getPriceHistory }
+  return { getTransactionHistory }
 }
 
-export default usePriceHistory
+export default useTransactionHistory

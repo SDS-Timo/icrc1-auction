@@ -4,9 +4,9 @@ import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
 
 import Chart from './chart'
 import HeaderInformation from './headerInformation'
+import History from './history'
 import Orders from './orders'
 import SymbolSelection from './symbolSelection'
-import TradeHistory from './tradeHistory'
 import Trading from './trading'
 
 const Terminal: React.FC = () => {
@@ -50,7 +50,7 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '60%' }}
+          w={{ base: '100%', md: '55%' }}
           display="flex"
           flexDirection="column"
           gap={4}
@@ -67,11 +67,11 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '20%' }}
+          w={{ base: '100%', md: '25%' }}
           p={4}
           borderRadius="md"
         >
-          <TradeHistory />
+          <History />
         </Box>
       </Box>
     </Box>

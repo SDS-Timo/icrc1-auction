@@ -13,7 +13,7 @@ import { RootState } from '../../../store'
 
 const HeaderInformation = () => {
   const headerInformation = useSelector(
-    (state: RootState) => state.tokens.headerInformation,
+    (state: RootState) => state.prices.headerInformation,
   )
 
   const isLoading = !headerInformation
@@ -31,7 +31,10 @@ const HeaderInformation = () => {
             <StatLabel>Last Auction</StatLabel>
             <StatNumber>
               {typeof headerInformation?.lastAuction === 'number'
-                ? `$${headerInformation?.lastAuction.toFixed(2)}`
+                ? `$${headerInformation?.lastAuction.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`
                 : '--'}
             </StatNumber>
           </Stat>
@@ -51,7 +54,14 @@ const HeaderInformation = () => {
               headerInformation.previousChange.amount >= 0 ? (
                 <>
                   <StatNumber>
-                    {headerInformation.previousChange.amount.toFixed(2)}
+                    $
+                    {headerInformation.previousChange.amount.toLocaleString(
+                      'en-US',
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      },
+                    )}
                   </StatNumber>
                   <StatHelpText>
                     <StatArrow type="increase" />
@@ -61,7 +71,14 @@ const HeaderInformation = () => {
               ) : (
                 <>
                   <StatNumber>
-                    {headerInformation.previousChange.amount.toFixed(2)}
+                    $
+                    {headerInformation.previousChange.amount.toLocaleString(
+                      'en-US',
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      },
+                    )}
                   </StatNumber>
                   <StatHelpText>
                     <StatArrow type="decrease" />
@@ -88,7 +105,10 @@ const HeaderInformation = () => {
               {headerInformation &&
               typeof headerInformation.periodVolume === 'number' &&
               headerInformation.periodVolume > 0
-                ? `$${headerInformation.periodVolume.toFixed(2)}`
+                ? `$${headerInformation.periodVolume.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`
                 : '--'}
             </StatNumber>
           </Stat>{' '}

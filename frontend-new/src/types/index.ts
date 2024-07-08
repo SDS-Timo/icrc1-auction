@@ -9,13 +9,6 @@ export interface Order {
   amount: number
   price: number
 }
-export interface Trade {
-  id: string
-  price: number
-  amount: number
-  time: string
-  type: 'buy' | 'sell'
-}
 export interface TokenMetadata {
   symbol: string
   name: string
@@ -42,11 +35,17 @@ export interface HeaderInformation {
 export interface TokensState {
   selectedSymbol: Option | Option[] | null
   selectedQuote: TokenMetadata
+}
+export interface PricesHistoryState {
+  pricesHistory: DataItem[] | []
   headerInformation: HeaderInformation | null
 }
 export interface DataItem {
-  label: string
+  id?: number
+  datetime: string
+  time?: string
   price: number
+  type?: 'buy' | 'sell'
   volume: number
   volumeInBase: number
   volumeInQuote: number

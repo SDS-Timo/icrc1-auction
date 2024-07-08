@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import Chart from './chart'
 import usePriceHistory from '../../../hooks/usePriceHistory'
 import { RootState, AppDispatch } from '../../../store'
-import { setHeaderInformation } from '../../../store/tokens'
+import { setHeaderInformation, setPricesHistory } from '../../../store/prices'
 import { DataItem } from '../../../types'
 import { calculateHeaderInformation } from '../../../utils/headerInformationUtils'
 
@@ -28,9 +28,11 @@ const ChartPlot = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
+  const priceHistoryData = useSelector(
+    (state: RootState) => state.prices.pricesHistory,
+  )
 
   const [chartData, setChartData] = useState<DataItem[]>([])
-  const [priceHistoryData, setPriceHistoryData] = useState<DataItem[]>([])
   const [volumeAxis, setVolumeAxis] = useState('quote')
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState('All')
@@ -58,7 +60,7 @@ const ChartPlot = () => {
       const headerInformation = calculateHeaderInformation(prices)
       dispatch(setHeaderInformation(headerInformation))
 
-      setPriceHistoryData(prices)
+      dispatch(setPricesHistory(prices))
       setChartData(prices)
       setVolumeAxis('quote')
       setLoading(false)
@@ -81,7 +83,7 @@ const ChartPlot = () => {
       return
     }
     const filtered = priceHistoryData.filter((item) => {
-      const itemDate = new Date(item.label)
+      const itemDate = new Date(item.datetime)
       return itemDate >= startDate
     })
     setChartData(filtered)
@@ -144,7 +146,7 @@ const ChartPlot = () => {
           </Box>
           <Box>
             <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="volume-axis-switch" mb="0">
+              <FormLabel htmlFor="volume-axis-switch" mb="0" fontSize="14px">
                 {symbol?.quote}
               </FormLabel>
               <Switch
@@ -154,7 +156,12 @@ const ChartPlot = () => {
                 size="sm"
                 colorScheme="green"
               />
-              <FormLabel htmlFor="volume-axis-switch" mb="0" ml="2">
+              <FormLabel
+                htmlFor="volume-axis-switch"
+                mb="0"
+                ml="2"
+                fontSize="14px"
+              >
                 {symbol?.base}
               </FormLabel>
             </FormControl>

@@ -36,12 +36,12 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
           type: 'line',
           data: {
             labels: data.map((item: DataItem) => {
-              const date = new Date(item.label)
+              const date = new Date(item.datetime)
               const options: Intl.DateTimeFormatOptions = {
                 day: '2-digit',
                 month: 'short',
               }
-              return date.toLocaleDateString('en-GB', options)
+              return date.toLocaleDateString('en-US', options)
             }),
             datasets: [
               {
@@ -150,7 +150,7 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                 intersect: false,
                 callbacks: {
                   title(tooltipItems) {
-                    return data[tooltipItems[0].dataIndex].label
+                    return data[tooltipItems[0].dataIndex].datetime
                   },
                   label: function (context) {
                     let label = context.dataset.label

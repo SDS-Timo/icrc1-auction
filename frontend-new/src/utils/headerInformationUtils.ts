@@ -41,7 +41,7 @@ export function calculateHeaderInformation(prices: DataItem[]) {
       startDate.setDate(startDate.getDate() - 6)
 
       const filtered = prices.filter((item) => {
-        const itemDate = new Date(item.label)
+        const itemDate = new Date(item.datetime)
         return itemDate >= startDate
       })
 

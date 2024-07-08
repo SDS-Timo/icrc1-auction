@@ -1,14 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import {
-  TokenMetadata,
-  TokensState,
-  Option,
-  HeaderInformation,
-} from '../../types'
+import { TokenMetadata, TokensState, Option } from '../../types'
 
 const initialState: TokensState = {
-  headerInformation: null,
   selectedSymbol: null,
   selectedQuote: {
     decimals: 6,
@@ -32,16 +26,9 @@ const tokensSlice = createSlice({
     setSelectedQuote: (state, action: PayloadAction<TokenMetadata>) => {
       state.selectedQuote = action.payload
     },
-    setHeaderInformation: (
-      state,
-      action: PayloadAction<HeaderInformation | null>,
-    ) => {
-      state.headerInformation = action.payload
-    },
   },
 })
 
-export const { setSelectedSymbol, setSelectedQuote, setHeaderInformation } =
-  tokensSlice.actions
+export const { setSelectedSymbol, setSelectedQuote } = tokensSlice.actions
 
 export default tokensSlice.reducer
