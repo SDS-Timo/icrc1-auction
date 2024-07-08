@@ -43,6 +43,9 @@ const HistoryTabs: React.FC = () => {
   const pricesHistory = useSelector(
     (state: RootState) => state.prices.pricesHistory,
   )
+  const symbol = Array.isArray(selectedSymbol)
+    ? selectedSymbol[0]
+    : selectedSymbol
 
   async function fetchTransactions() {
     if (
@@ -94,7 +97,7 @@ const HistoryTabs: React.FC = () => {
         <TabPanels>
           <TabPanel>
             <Box>
-              <PriceHistory prices={pricesHistory} />
+              <PriceHistory prices={pricesHistory} selectedSymbol={symbol} />
               {pricesHistory.length === 0 && (
                 <Flex
                   justifyContent="center"
@@ -108,7 +111,10 @@ const HistoryTabs: React.FC = () => {
           </TabPanel>
           <TabPanel>
             <Box>
-              <TradeHistory transactions={transactions} />
+              <TradeHistory
+                transactions={transactions}
+                selectedSymbol={symbol}
+              />
               {!loading && isAuthenticated && transactions.length === 0 && (
                 <Flex
                   justifyContent="center"

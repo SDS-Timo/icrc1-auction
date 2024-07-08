@@ -2,13 +2,17 @@ import React from 'react'
 
 import { Td, Tr, Tooltip } from '@chakra-ui/react'
 
-import { DataItem } from '../../../types'
+import { DataItem, Option } from '../../../types'
 
 interface TradeHistoryRowProps {
   trade: DataItem
+  selectedSymbol: Option | null
 }
 
-const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({ trade }) => {
+const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({
+  trade,
+  selectedSymbol,
+}) => {
   return (
     <Tr key={trade.id}>
       <Td
@@ -21,7 +25,9 @@ const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({ trade }) => {
         })}
       </Td>
       <Td textAlign="center">
-        <Tooltip label={trade.volumeInBase.toFixed(trade.volumeInBaseDecimals)}>
+        <Tooltip
+          label={`${trade.volumeInBase.toFixed(trade.volumeInBaseDecimals)} ${selectedSymbol?.base}`}
+        >
           {trade.volume.toFixed(trade.volumeDecimals)}
         </Tooltip>
       </Td>

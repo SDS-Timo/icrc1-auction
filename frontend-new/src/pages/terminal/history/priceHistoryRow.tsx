@@ -2,13 +2,17 @@ import React from 'react'
 
 import { Td, Tr, Tooltip } from '@chakra-ui/react'
 
-import { DataItem } from '../../../types'
+import { DataItem, Option } from '../../../types'
 
 interface PriceHistoryRowProps {
   price: DataItem
+  selectedSymbol: Option | null
 }
 
-const PriceHistoryRow: React.FC<PriceHistoryRowProps> = ({ price }) => {
+const PriceHistoryRow: React.FC<PriceHistoryRowProps> = ({
+  price,
+  selectedSymbol,
+}) => {
   return (
     <Tr key={price.id}>
       <Td textAlign="center">
@@ -18,7 +22,9 @@ const PriceHistoryRow: React.FC<PriceHistoryRowProps> = ({ price }) => {
         })}
       </Td>
       <Td textAlign="center">
-        <Tooltip label={price.volumeInBase.toFixed(price.volumeInBaseDecimals)}>
+        <Tooltip
+          label={`${price.volumeInBase.toFixed(price.volumeInBaseDecimals)} ${selectedSymbol?.base}`}
+        >
           {price.volume.toFixed(price.volumeDecimals)}
         </Tooltip>
       </Td>
