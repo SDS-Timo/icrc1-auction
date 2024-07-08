@@ -11,15 +11,15 @@ export const LANGUAGES_OPTIONS: {
     name: 'English',
     lng: 'en-US',
   },
-  pt: {
-    icon: ptFlag,
-    name: 'Portuguese',
-    lng: 'pt-BR',
-  },
   it: {
     icon: itFlag,
     name: 'Italian',
     lng: 'it-IT',
+  },
+  pt: {
+    icon: ptFlag,
+    name: 'Portuguese',
+    lng: 'pt-BR',
   },
   es: {
     icon: esFlag,

@@ -99,7 +99,7 @@ const HistoryTabs: React.FC = () => {
                 <Flex
                   justifyContent="center"
                   alignItems="center"
-                  minHeight="50vh"
+                  minHeight="45vh"
                 >
                   <Text>No data</Text>
                 </Flex>
@@ -113,7 +113,7 @@ const HistoryTabs: React.FC = () => {
                 <Flex
                   justifyContent="center"
                   alignItems="center"
-                  minHeight="50vh"
+                  minHeight="45vh"
                 >
                   <Text>No data</Text>
                 </Flex>
@@ -122,7 +122,7 @@ const HistoryTabs: React.FC = () => {
                 <Flex
                   justifyContent="center"
                   alignItems="center"
-                  minHeight="50vh"
+                  minHeight="45vh"
                 >
                   <Button
                     onClick={onOpen}
