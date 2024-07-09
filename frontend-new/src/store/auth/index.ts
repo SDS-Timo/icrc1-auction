@@ -2,17 +2,14 @@ import { HttpAgent, AnonymousIdentity } from '@dfinity/agent'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Draft } from 'immer'
 
+import { getAgent } from '../../utils/authUtils'
+
 interface AuthState {
   userAgent: HttpAgent
   isAuthenticated: boolean
 }
 
-const HTTP_AGENT_HOST: string = `${process.env.HTTP_AGENT_HOST}`
-
-const anonymousIdentity = new HttpAgent({
-  identity: new AnonymousIdentity(),
-  host: HTTP_AGENT_HOST,
-})
+const anonymousIdentity = getAgent(new AnonymousIdentity())
 
 const initialState: AuthState = {
   userAgent: anonymousIdentity,

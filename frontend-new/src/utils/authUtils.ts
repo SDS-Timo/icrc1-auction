@@ -1,13 +1,10 @@
-import { Actor } from '@dfinity/agent'
-import { HttpAgent, Identity } from '@dfinity/agent'
+import { Actor, HttpAgent, Identity } from '@dfinity/agent'
 import { Ed25519KeyIdentity } from '@dfinity/identity'
 
 import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { AppDispatch } from '../store'
 import { setUserAgent, setIsAuthenticated } from '../store/auth'
-
-const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
 
 export function getActor(userAgent: HttpAgent) {
   const serviceActor = Actor.createActor<IcrcxActor>(IcrcxIDLFactory, {
@@ -19,6 +16,8 @@ export function getActor(userAgent: HttpAgent) {
 }
 
 export function getAgent(identity: Identity) {
+  const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
+
   const myAgent = new HttpAgent({
     identity,
     host: HTTP_AGENT_HOST,

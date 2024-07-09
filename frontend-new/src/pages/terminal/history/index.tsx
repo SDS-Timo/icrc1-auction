@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   Box,
@@ -28,6 +28,7 @@ const HistoryTabs: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [transactions, setTransactions] = useState<DataItem[]>([])
+  const [prices, setPrices] = useState<DataItem[]>([])
   const [selectedTab, setSelectedTab] = useState(0)
   const [loading, setLoading] = useState(true)
   const { userAgent } = useSelector((state: RootState) => state.auth)
@@ -61,14 +62,23 @@ const HistoryTabs: React.FC = () => {
         selectedSymbol,
         selectedQuote,
       )
-      setTransactions(transactions)
+
+      const transactionsFiltered = [...transactions].reverse().slice(0, 19)
+      setTransactions(transactionsFiltered)
       setLoading(false)
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchTransactions()
   }, [selectedSymbol, selectedQuote, userAgent])
+
+  useEffect(() => {
+    if (pricesHistory.length > 0) {
+      const pricesFiltered = [...pricesHistory].reverse().slice(0, 19)
+      setPrices(pricesFiltered)
+    }
+  }, [pricesHistory])
 
   return (
     <Box
@@ -97,11 +107,8 @@ const HistoryTabs: React.FC = () => {
         <TabPanels>
           <TabPanel>
             <Box>
-              <PriceHistory
-                historyData={pricesHistory}
-                selectedSymbol={symbol}
-              />
-              {pricesHistory.length === 0 && (
+              <PriceHistory historyData={prices} selectedSymbol={symbol} />
+              {prices.length === 0 && (
                 <Flex
                   justifyContent="center"
                   alignItems="center"
