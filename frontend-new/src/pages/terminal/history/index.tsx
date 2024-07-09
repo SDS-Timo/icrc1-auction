@@ -15,8 +15,8 @@ import {
 } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 
-import PriceHistory from './priceHistory'
-import TradeHistory from './tradeHistory'
+import PriceHistory from './history'
+import TradeHistory from './history'
 import AuthComponent from '../../../components/auth'
 import useTransactionHistory from '../../../hooks/useTradeHistory'
 import { RootState } from '../../../store'
@@ -97,7 +97,10 @@ const HistoryTabs: React.FC = () => {
         <TabPanels>
           <TabPanel>
             <Box>
-              <PriceHistory prices={pricesHistory} selectedSymbol={symbol} />
+              <PriceHistory
+                historyData={pricesHistory}
+                selectedSymbol={symbol}
+              />
               {pricesHistory.length === 0 && (
                 <Flex
                   justifyContent="center"
@@ -112,7 +115,7 @@ const HistoryTabs: React.FC = () => {
           <TabPanel>
             <Box>
               <TradeHistory
-                transactions={transactions}
+                historyData={transactions}
                 selectedSymbol={symbol}
               />
               {!loading && isAuthenticated && transactions.length === 0 && (
