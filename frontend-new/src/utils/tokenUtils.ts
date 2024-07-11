@@ -1,14 +1,15 @@
+import { HttpAgent } from '@dfinity/agent'
 import {
   IcrcTokenMetadataResponse,
   IcrcMetadataResponseEntries,
+  IcrcLedgerCanister,
 } from '@dfinity/ledger-icrc'
+import { Principal } from '@dfinity/principal'
 
 import defSymbolLogo from '../assets/img/coins/default.svg'
 import { TokenMetadata } from '../types'
 
-export const parseMetadata = (
-  metadata: IcrcTokenMetadataResponse,
-): TokenMetadata => {
+const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
   let symbol = 'unknown'
   let name = 'unknown'
   let decimals = 0
@@ -40,10 +41,10 @@ export const parseMetadata = (
     name = name.replace('ck', '')
   }
 
-  return { symbol, name, decimals, logo, fee }
+  return { symbol, name, decimals, logo, fee, base: symbol, quote: 'USDC' }
 }
 
-export const findLogo = async (token: TokenMetadata): Promise<string> => {
+const findLogo = async (token: TokenMetadata): Promise<string> => {
   let logo =
     token.logo ||
     new URL(
@@ -64,4 +65,20 @@ export const findLogo = async (token: TokenMetadata): Promise<string> => {
   }
 
   return logo
+}
+
+export async function getTokenInfo(
+  userAgent: HttpAgent,
+  canisterId: Principal,
+) {
+  const { metadata } = IcrcLedgerCanister.create({
+    agent: userAgent,
+    canisterId: canisterId,
+  })
+
+  const principalData = await metadata({ certified: false })
+  const token = parseMetadata(principalData)
+  const logo = await findLogo(token)
+
+  return { token, logo }
 }

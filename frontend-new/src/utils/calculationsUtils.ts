@@ -1,4 +1,4 @@
-import { DataItem } from '../types'
+import { DataItem, TokenDataItem } from '../types'
 
 export function convertPrice(
   price: number,
@@ -27,7 +27,9 @@ export function getDecimals(option: any): number {
   return 20
 }
 
-export function addDecimal(objects: DataItem[]) {
+export function addDecimal<T extends DataItem | TokenDataItem>(
+  objects: T[],
+): T[] {
   function getDecimalPlaces(num: { toString: () => string }) {
     const numStr = num.toString().split('.')[1] || ''
     const firstSignificantDigitIndex = numStr.search(/[^0]/)

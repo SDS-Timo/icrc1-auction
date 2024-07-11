@@ -8,7 +8,7 @@ import {
   convertVolume,
   getDecimals,
   addDecimal,
-} from '../utils/chartUtils'
+} from '../utils/calculationsUtils'
 
 const usePriceHistory = () => {
   const getPriceHistory = async (

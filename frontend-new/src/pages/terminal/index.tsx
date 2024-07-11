@@ -5,12 +5,13 @@ import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
 import Chart from './chart'
 import HeaderInformation from './headerInformation'
 import History from './history'
-import Orders from './orders'
 import SymbolSelection from './symbolSelection'
 import Trading from './trading'
+import Orders from './userData'
 
 const Terminal: React.FC = () => {
   const bgColor = useColorModeValue('grey.50', 'grey.800')
+  const isVisible = true
 
   return (
     <Box p={4}>
@@ -53,12 +54,19 @@ const Terminal: React.FC = () => {
           w={{ base: '100%', md: '55%' }}
           display="flex"
           flexDirection="column"
-          gap={4}
           p={4}
           borderRadius="md"
           mb={{ base: 4, md: 0 }}
+          height="80vh"
         >
-          <Box bg={bgColor} minH="30vh" p={4} borderRadius="md">
+          <Box
+            bg={bgColor}
+            display={isVisible ? 'block' : 'none'}
+            px={4}
+            pt={4}
+            borderRadius="md"
+            h="40vh"
+          >
             <Chart />
           </Box>
           <Box bg={bgColor} p={4} borderRadius="md">

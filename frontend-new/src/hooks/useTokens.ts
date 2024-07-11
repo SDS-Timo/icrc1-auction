@@ -1,9 +1,8 @@
 import { HttpAgent } from '@dfinity/agent'
-import { IcrcLedgerCanister } from '@dfinity/ledger-icrc'
 
 import { TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
-import { parseMetadata, findLogo } from '../utils/tokenUtils'
+import { getTokenInfo } from '../utils/tokenUtils'
 
 const useTokens = () => {
   const getTokens = async (userAgent: HttpAgent): Promise<TokenMetadata[]> => {
@@ -13,19 +12,11 @@ const useTokens = () => {
       const principals = await serviceActor.icrc84_supported_tokens()
       const tokens = await Promise.all(
         principals.map(async (principal) => {
-          const { metadata } = IcrcLedgerCanister.create({
-            agent: userAgent,
-            canisterId: principal,
-          })
-
-          const principalData = await metadata({ certified: false })
-          const token = parseMetadata(principalData)
-          const logo = await findLogo(token)
-
+          const { token, logo } = await getTokenInfo(userAgent, principal)
           return { ...token, logo, principal: principal.toText() }
         }),
       )
-
+      tokens.sort((a, b) => a.symbol.localeCompare(b.symbol))
       return tokens
     } catch (error) {
       console.error('Error fetching tokens:', error)

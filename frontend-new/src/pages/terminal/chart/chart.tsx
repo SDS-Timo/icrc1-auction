@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 
-import { useTheme, useColorMode } from '@chakra-ui/react'
+import { Box, useTheme, useColorMode } from '@chakra-ui/react'
 import Chart from 'chart.js/auto'
 
 import { DataItem } from '../../../types'
@@ -20,14 +20,6 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d')
       if (ctx) {
-        const gradientFillPrice = ctx.createLinearGradient(0, 0, 0, 300)
-        gradientFillPrice.addColorStop(0, theme.colors.blue['300'])
-        gradientFillPrice.addColorStop(1, 'rgba(0, 0, 0, 0)')
-
-        const gradientFillVolume = ctx.createLinearGradient(0, 0, 0, 300)
-        gradientFillVolume.addColorStop(0, theme.colors.yellow['400'])
-        gradientFillVolume.addColorStop(1, 'rgba(0, 0, 0, 0)')
-
         if (chartInstanceRef.current) {
           chartInstanceRef.current.destroy()
         }
@@ -49,21 +41,20 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                 data: data.map((item: DataItem) =>
                   item.price !== undefined ? item.price : null,
                 ),
-                fill: false,
-                borderColor: theme.colors.blue['500'],
+                borderColor: theme.colors.yellow['500'],
                 borderWidth: 2,
-                backgroundColor: theme.colors.blue['500'],
+                backgroundColor: theme.colors.yellow['500'],
                 yAxisID: 'y-price',
               },
               {
                 label: 'Volume',
+                //type: 'bar',
                 data: data.map((item: DataItem) =>
                   item.volume !== undefined ? item.volume : null,
                 ),
-                fill: false,
-                borderColor: theme.colors.yellow['500'],
+                borderColor: theme.colors.blue['500'],
                 borderWidth: 2,
-                backgroundColor: theme.colors.yellow['500'],
+                backgroundColor: theme.colors.blue['500'],
                 yAxisID: 'y-volume',
               },
             ],
@@ -161,14 +152,7 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                       if (context.dataset.label === 'Price') {
                         const decimals = data[0].priceDecimals ?? 2
                         const value = context.parsed.y
-                        const [integerPart, decimalPart = ''] = value
-                          .toString()
-                          .split('.')
-                        const truncatedDecimalPart = decimalPart
-                          .padEnd(decimals, '0')
-                          .slice(0, decimals)
-                        const adjustedValue = `${integerPart}.${truncatedDecimalPart}`
-                        label += Number(adjustedValue).toLocaleString('en-US', {
+                        label += Number(value).toLocaleString('en-US', {
                           minimumFractionDigits: decimals,
                           maximumFractionDigits: decimals,
                         })
@@ -193,9 +177,9 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
   }, [data, colorMode])
 
   return (
-    <div style={{ position: 'relative', height: '30vh', width: '100%' }}>
+    <Box position="relative" height="30vh">
       <canvas ref={chartRef} />
-    </div>
+    </Box>
   )
 }
 
