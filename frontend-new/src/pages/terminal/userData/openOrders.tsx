@@ -10,6 +10,7 @@ import {
   Thead,
   Tbody,
   Tr,
+  Td,
   Th,
   IconButton,
   Input,
@@ -22,9 +23,9 @@ import {
 } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 
-import OpenOrdersRow from './openOrdersRow'
+import OpenOrdersRow from './userDataRow'
 import AuthComponent from '../../../components/auth'
-import useTransactionHistory from '../../../hooks/useTradeHistory'
+import useOpenOrdersHistory from '../../../hooks/useOpenOrders'
 import { RootState } from '../../../store'
 import { TokenDataItem } from '../../../types'
 
@@ -33,10 +34,10 @@ const TradeHistory: React.FC = () => {
   const fontColor = useColorModeValue('grey.700', 'grey.25')
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const [transactions, setTransactions] = useState<TokenDataItem[]>([])
-  const [transactionsFiltered, setTransactionsFiltered] = useState<
-    TokenDataItem[]
-  >([])
+  const [openOrders, setOpenOrders] = useState<TokenDataItem[]>([])
+  const [openOrdersFiltered, setOpenOrdersFiltered] = useState<TokenDataItem[]>(
+    [],
+  )
   const [loading, setLoading] = useState(false)
   const [showAllMarkets, setShowAllMarkets] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -55,27 +56,26 @@ const TradeHistory: React.FC = () => {
     ? selectedSymbol[0]
     : selectedSymbol
 
-  async function fetchTransactions() {
+  async function fetchOpenOrders() {
     if (selectedQuote) {
       setLoading(true)
-      const { getTransactionHistory } = useTransactionHistory()
-      const transactions = await getTransactionHistory(userAgent, selectedQuote)
-
-      const transactionsSort = [...transactions].reverse()
-      setTransactions(transactionsSort)
-      filterTransactions(transactionsSort)
+      const { getOpenOrders } = useOpenOrdersHistory()
+      const openOrders = await getOpenOrders(userAgent, selectedQuote)
+      openOrders.sort((a, b) => a.symbol.localeCompare(b.symbol))
+      setOpenOrders(openOrders)
+      filterOpenOrders(openOrders)
       setLoading(false)
     }
   }
 
-  function filterTransactions(transactions: TokenDataItem[]) {
+  function filterOpenOrders(openOrders: TokenDataItem[]) {
     if (showAllMarkets) {
-      setTransactionsFiltered(transactions)
+      setOpenOrdersFiltered(openOrders)
     } else {
-      const filtered = transactions.filter(
-        (transaction) => transaction.symbol === symbol?.label,
+      const filtered = openOrders.filter(
+        (openOrder) => openOrder.symbol === symbol?.value,
       )
-      setTransactionsFiltered(filtered)
+      setOpenOrdersFiltered(filtered)
     }
   }
 
@@ -91,10 +91,6 @@ const TradeHistory: React.FC = () => {
     console.log(`Cancel Order ${id}`)
   }
 
-  const handleViewTransaction = (id: number | undefined) => {
-    console.log(`View transaction ${id}`)
-  }
-
   const handleToggleVolume = () => {
     setToggleVolume((prevState) =>
       prevState === 'quote' && !showAllMarkets ? 'base' : 'quote',
@@ -102,13 +98,13 @@ const TradeHistory: React.FC = () => {
   }
 
   useEffect(() => {
-    filterTransactions(transactions)
+    filterOpenOrders(openOrders)
     if (showAllMarkets) setToggleVolume('quote')
   }, [showAllMarkets])
 
   useEffect(() => {
-    if (isAuthenticated) fetchTransactions()
-  }, [selectedQuote, userAgent])
+    if (isAuthenticated) fetchOpenOrders()
+  }, [selectedQuote, selectedSymbol, userAgent])
 
   return (
     <Box
@@ -143,7 +139,6 @@ const TradeHistory: React.FC = () => {
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                pr="2.5rem"
               />
               <InputRightElement>
                 <IconButton
@@ -183,15 +178,23 @@ const TradeHistory: React.FC = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {transactionsFiltered.map((transaction) => (
+              {openOrdersFiltered.map((openOrder) => (
                 <OpenOrdersRow
-                  key={transaction.id}
-                  data={transaction}
+                  key={openOrder.id}
+                  data={openOrder}
                   toggleVolume={toggleVolume}
-                  handleCancelOrder={handleCancelOrder}
-                  handleViewTransaction={handleViewTransaction}
+                  handleCancel={handleCancelOrder}
                 />
               ))}
+              {openOrdersFiltered.length === 0 && (
+                <Tr>
+                  <Td colSpan={5}>
+                    <Flex justifyContent="center" alignItems="center" mt={5}>
+                      <Text>No data</Text>
+                    </Flex>
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           </Table>
         </Box>

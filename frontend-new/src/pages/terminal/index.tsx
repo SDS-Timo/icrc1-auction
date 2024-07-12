@@ -14,10 +14,9 @@ const Terminal: React.FC = () => {
   const isVisible = true
 
   return (
-    <Box p={4}>
+    <Box p={2}>
       <Flex
         w="100%"
-        mb={4}
         borderRadius="md"
         flexDirection={{ base: 'column', md: 'row' }}
       >
@@ -51,7 +50,7 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '55%' }}
+          w={{ base: '100%', md: '52%' }}
           display="flex"
           flexDirection="column"
           p={4}
@@ -75,7 +74,7 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '25%' }}
+          w={{ base: '100%', md: '27%' }}
           p={4}
           borderRadius="md"
         >

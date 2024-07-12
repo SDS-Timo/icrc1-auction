@@ -27,7 +27,7 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Stat>
+          <Stat size="sm">
             <StatLabel>Last Auction</StatLabel>
             <StatNumber>
               {typeof headerInformation?.lastAuction === 'number'
@@ -47,7 +47,7 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Stat>
+          <Stat size="sm">
             <StatLabel>Previous Change</StatLabel>
             {typeof headerInformation?.previousChange.amount === 'number' &&
             typeof headerInformation?.previousChange.percentage === 'number' ? (
@@ -99,7 +99,7 @@ const HeaderInformation = () => {
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Stat>
+          <Stat size="sm">
             <StatLabel>7d Volume</StatLabel>
             <StatNumber>
               {headerInformation &&

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ViewIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Td, Tr, Image, Text } from '@chakra-ui/react'
 
 import { TokenDataItem } from '../../../types'
@@ -8,20 +8,22 @@ import { TokenDataItem } from '../../../types'
 interface TradeHistoryRowProps {
   data: TokenDataItem
   toggleVolume: string
-  handleViewTransaction: (id: number | undefined) => void
+  handleCancel?: (id: number | undefined) => void
+  handleView?: (id: number | undefined) => void
 }
 
 const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({
   data,
   toggleVolume,
-  handleViewTransaction,
+  handleCancel,
+  handleView,
 }) => {
   return (
     <Tr key={data.id}>
       <Td textAlign="center">
-        <Flex justifyContent="center" alignItems="center">
+        <Flex justifyContent="left" alignItems="center">
           <Image src={data.logo} alt={data.symbol} h="20px" w="20px" />
-          <Text ml="3px" fontWeight="600">
+          <Text ml="5px" fontWeight="600">
             {data.base}
           </Text>
           <Text fontSize="10px">/{data.quote}</Text>
@@ -45,13 +47,25 @@ const TradeHistoryRow: React.FC<TradeHistoryRowProps> = ({
         })}
       </Td>
       <Td textAlign="center">
-        <IconButton
-          aria-label="View Order"
-          icon={<ViewIcon />}
-          onClick={() => handleViewTransaction(data.id)}
-          variant="ghost"
-          size="xs"
-        />
+        {handleCancel && (
+          <IconButton
+            aria-label="Cancel Order"
+            icon={<CloseIcon />}
+            onClick={() => handleCancel(data.id)}
+            variant="ghost"
+            size="xs"
+            mr={2}
+          />
+        )}
+        {handleView && (
+          <IconButton
+            aria-label="View Order"
+            icon={<ViewIcon />}
+            onClick={() => handleView(data.id)}
+            variant="ghost"
+            size="xs"
+          />
+        )}
       </Td>
     </Tr>
   )

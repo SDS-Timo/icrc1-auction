@@ -10,6 +10,7 @@ import {
   Thead,
   Tbody,
   Tr,
+  Td,
   Th,
   IconButton,
   Input,
@@ -22,7 +23,7 @@ import {
 } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 
-import TradeHistoryRow from './tradeHistoryRow'
+import TradeHistoryRow from './userDataRow'
 import AuthComponent from '../../../components/auth'
 import useTransactionHistory from '../../../hooks/useTradeHistory'
 import { RootState } from '../../../store'
@@ -73,7 +74,7 @@ const TradeHistory: React.FC = () => {
       setTransactionsFiltered(transactions)
     } else {
       const filtered = transactions.filter(
-        (transaction) => transaction.symbol === symbol?.label,
+        (transaction) => transaction.symbol === symbol?.value,
       )
       setTransactionsFiltered(filtered)
     }
@@ -104,7 +105,7 @@ const TradeHistory: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) fetchTransactions()
-  }, [selectedQuote, userAgent])
+  }, [selectedQuote, selectedSymbol, userAgent])
 
   return (
     <Box
@@ -184,9 +185,18 @@ const TradeHistory: React.FC = () => {
                   key={transaction.id}
                   data={transaction}
                   toggleVolume={toggleVolume}
-                  handleViewTransaction={handleViewTransaction}
+                  handleView={handleViewTransaction}
                 />
               ))}
+              {transactionsFiltered.length === 0 && (
+                <Tr>
+                  <Td colSpan={5}>
+                    <Flex justifyContent="center" alignItems="center" mt={5}>
+                      <Text>No data</Text>
+                    </Flex>
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           </Table>
         </Box>

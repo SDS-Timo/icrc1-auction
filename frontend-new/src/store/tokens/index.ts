@@ -10,6 +10,8 @@ const initialState: TokensState = {
     logo: '',
     name: 'USDC',
     symbol: 'USDC',
+    quote: 'USDC',
+    base: 'USDC',
   },
 }
 

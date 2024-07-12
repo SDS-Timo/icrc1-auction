@@ -32,7 +32,7 @@ const customStyles: CustomStyles = {
       )({ theme, colorMode }),
 
       borderColor: mode(
-        theme.colors.grey['100'],
+        theme.colors.grey['400'],
         theme.colors.grey['600'],
       )({ theme, colorMode }),
     }
@@ -126,7 +126,7 @@ const customStyles: CustomStyles = {
       color:
         colorMode === 'dark'
           ? theme.colors.grey['600']
-          : theme.colors.grey['100'],
+          : theme.colors.grey['400'],
     }
   },
   indicatorSeparator: () => {

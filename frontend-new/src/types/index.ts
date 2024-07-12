@@ -23,7 +23,7 @@ export interface DataItem {
   datetime: string
   time?: string
   price: number
-  type?: 'buy' | 'sell'
+  type?: string
   volume: number
   volumeInBase: number
   volumeInQuote: number
@@ -51,9 +51,3 @@ export interface PricesHistoryState {
   headerInformation: HeaderInformation | null
 }
 export interface TokenDataItem extends DataItem, TokenMetadata {}
-export interface Order {
-  id: string
-  side: 'buy' | 'sell'
-  amount: number
-  price: number
-}

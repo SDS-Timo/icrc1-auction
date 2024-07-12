@@ -122,6 +122,41 @@ const theme = extendTheme({
         },
       }),
     },
+    Checkbox: {
+      baseStyle: (props: ThemeProps) => ({
+        control: {
+          borderColor: mode('grey.400', 'grey.600')(props),
+          _hover: {
+            borderColor: mode('grey.800', 'grey.200')(props),
+          },
+          _focus: {
+            borderColor: mode('grey.700', 'grey.200')(props),
+          },
+        },
+      }),
+    },
+    Input: {
+      variants: {
+        outlineCustom: (props: ThemeProps) => ({
+          field: {
+            ...theme.components.Input.variants.outline(props).field,
+            borderColor: mode('grey.400', 'grey.600')(props),
+            _hover: {
+              borderColor: mode('grey.800', 'grey.200')(props),
+            },
+            _focus: {
+              borderColor: mode('grey.700', 'grey.200')(props),
+            },
+            _placeholder: {
+              color: mode('grey.500', 'grey.500')(props),
+            },
+          },
+        }),
+      },
+      defaultProps: {
+        variant: 'outlineCustom',
+      },
+    },
   },
 })
 

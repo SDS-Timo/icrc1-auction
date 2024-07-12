@@ -50,7 +50,7 @@ const NavbarLanguages: React.FC = () => {
           style={{ width: '20px', height: '15px' }}
         />
       </MenuButton>
-      <MenuList bg={bgColor}>
+      <MenuList bg={bgColor} zIndex="10">
         {Object.keys(LANGUAGES_OPTIONS).map((key) => (
           <MenuItem
             key={LANGUAGES_OPTIONS[key as keyof LanguagesOptionsType].lng}
