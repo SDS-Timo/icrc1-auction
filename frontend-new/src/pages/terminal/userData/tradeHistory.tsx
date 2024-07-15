@@ -1,30 +1,22 @@
 import React, { useEffect, useState } from 'react'
 
-import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
-  Button,
+  Image,
   Text,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Td,
-  Th,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Checkbox,
-  HStack,
+  Button,
+  Tooltip,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
+import { Row } from 'react-table'
 
-import TradeHistoryRow from './userDataRow'
 import AuthComponent from '../../../components/auth'
+import PaginationTable, {
+  ColumnWithSorting,
+} from '../../../components/pagination'
 import useTransactionHistory from '../../../hooks/useTradeHistory'
 import { RootState } from '../../../store'
 import { TokenDataItem } from '../../../types'
@@ -40,7 +32,6 @@ const TradeHistory: React.FC = () => {
   >([])
   const [loading, setLoading] = useState(false)
   const [showAllMarkets, setShowAllMarkets] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
   const [toggleVolume, setToggleVolume] = useState('quote')
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const isAuthenticated = useSelector(
@@ -80,22 +71,12 @@ const TradeHistory: React.FC = () => {
     }
   }
 
-  const handleSearch = () => {
-    console.log(`Searching for ${searchTerm}`)
-  }
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShowAllMarkets(e.target.checked)
-  }
-
-  const handleViewTransaction = (id: number | undefined) => {
-    console.log(`View transaction ${id}`)
+  const handleCheckboxChange = (e: boolean) => {
+    setShowAllMarkets(e)
   }
 
   const handleToggleVolume = () => {
-    setToggleVolume((prevState) =>
-      prevState === 'quote' && !showAllMarkets ? 'base' : 'quote',
-    )
+    setToggleVolume((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
   }
 
   useEffect(() => {
@@ -106,6 +87,114 @@ const TradeHistory: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchTransactions()
   }, [selectedQuote, selectedSymbol, userAgent])
+
+  const tableColumns: ColumnWithSorting<TokenDataItem>[] = [
+    {
+      Header: 'Symbol',
+      accessor: 'symbol',
+      Cell: ({ row }: { row: Row<TokenDataItem> }) => {
+        const { symbol, base, quote, logo } = row.original
+        return (
+          <Flex justifyContent="left" alignItems="center">
+            <Image src={logo} alt={symbol} h="20px" w="20px" />
+            <Text ml="5px" fontWeight="600">
+              {base}
+            </Text>
+            <Text fontSize="10px">/{quote}</Text>
+          </Flex>
+        )
+      },
+    },
+    {
+      Header: 'Side',
+      accessor: 'type',
+      Cell: ({ row }: { row: Row<TokenDataItem> }) => {
+        const { type } = row.original
+        return (
+          <Text
+            textAlign="center"
+            color={type === 'buy' ? 'green.500' : 'red.500'}
+          >
+            {type}
+          </Text>
+        )
+      },
+    },
+    {
+      Header: 'Price',
+      accessor: 'price',
+      Cell: ({ row }: { row: Row<TokenDataItem> }) => {
+        const { price, priceDecimals } = row.original
+        return (
+          <Text textAlign="center">
+            {price.toLocaleString('en-US', {
+              minimumFractionDigits: priceDecimals,
+              maximumFractionDigits: priceDecimals,
+            })}
+          </Text>
+        )
+      },
+    },
+    {
+      Header: 'Amount',
+      accessor: 'volume',
+      Cell: ({ row }: { row: Row<TokenDataItem> }) => {
+        const {
+          quote,
+          base,
+          volumeInQuote,
+          volumeInBase,
+          volumeInQuoteDecimals,
+          volumeInBaseDecimals,
+        } = row.original
+        return (
+          <Text
+            textAlign="center"
+            onClick={handleToggleVolume}
+            sx={{ cursor: 'pointer' }}
+          >
+            {toggleVolume === 'quote' ? (
+              <>
+                {volumeInQuote.toFixed(volumeInQuoteDecimals)}{' '}
+                <Text as="span" fontSize="10px">
+                  {quote}
+                </Text>
+              </>
+            ) : (
+              <>
+                {volumeInBase.toFixed(volumeInBaseDecimals)}{' '}
+                <Text as="span" fontSize="10px">
+                  {base}
+                </Text>
+              </>
+            )}
+          </Text>
+        )
+      },
+    },
+    {
+      Header: 'Time',
+      accessor: 'time',
+      Cell: ({ row }: { row: Row<TokenDataItem> }) => {
+        const { time, datetime } = row.original
+        return (
+          <Text textAlign="center">
+            <Tooltip label={datetime}>{time?.toUpperCase()}</Tooltip>
+          </Text>
+        )
+      },
+    },
+    {
+      accessor: 'base',
+    },
+    {
+      accessor: 'quote',
+    },
+  ]
+
+  const hiddenColumns: string[] = ['base', 'quote']
+
+  const sortBy = [{ id: 'symbol', desc: false }]
 
   return (
     <Box
@@ -131,74 +220,18 @@ const TradeHistory: React.FC = () => {
         </Flex>
       ) : (
         <Box>
-          <HStack justifyContent="space-between" mb={4}>
-            <Checkbox onChange={handleCheckboxChange}>
-              <Text fontSize="14px">Show all markets</Text>
-            </Checkbox>
-            <InputGroup size="xs" width="auto">
-              <Input
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                pr="2.5rem"
-              />
-              <InputRightElement>
-                <IconButton
-                  aria-label="Search"
-                  icon={<SearchIcon />}
-                  onClick={handleSearch}
-                  size="xs"
-                  variant="ghost"
-                />
-              </InputRightElement>
-            </InputGroup>
-          </HStack>
-          <Table variant="unstyled" size="sm">
-            <Thead>
-              <Tr>
-                <Th textAlign="center">Symbol</Th>
-                <Th textAlign="center">Side</Th>
-                <Th
-                  textAlign="center"
-                  whiteSpace="nowrap"
-                  cursor="pointer"
-                  onClick={handleToggleVolume}
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  Amount
-                  <Text as="span" fontSize="10px">
-                    {' '}
-                    (
-                    {symbol && toggleVolume === 'quote'
-                      ? symbol.quote
-                      : symbol && symbol.base}
-                    )
-                  </Text>
-                </Th>
-                <Th textAlign="center">Price</Th>
-                <Th textAlign="center">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {transactionsFiltered.map((transaction) => (
-                <TradeHistoryRow
-                  key={transaction.id}
-                  data={transaction}
-                  toggleVolume={toggleVolume}
-                  handleView={handleViewTransaction}
-                />
-              ))}
-              {transactionsFiltered.length === 0 && (
-                <Tr>
-                  <Td colSpan={5}>
-                    <Flex justifyContent="center" alignItems="center" mt={5}>
-                      <Text>No data</Text>
-                    </Flex>
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
+          <PaginationTable
+            columns={tableColumns}
+            data={transactionsFiltered}
+            hiddenColumns={hiddenColumns}
+            searchBy={true}
+            sortBy={sortBy}
+            tableSize="sm"
+            fontSize="11px"
+            pgSize={3}
+            onClick={(c) => c}
+            onClickAllMarkets={handleCheckboxChange}
+          />
         </Box>
       )}
     </Box>

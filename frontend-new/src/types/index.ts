@@ -50,4 +50,6 @@ export interface PricesHistoryState {
   pricesHistory: DataItem[] | []
   headerInformation: HeaderInformation | null
 }
-export interface TokenDataItem extends DataItem, TokenMetadata {}
+export interface TokenDataItem extends DataItem, TokenMetadata {
+  [key: string]: any
+}
