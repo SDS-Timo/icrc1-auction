@@ -4,6 +4,7 @@ import authReducer from './auth'
 import languageReducer from './language'
 import pricesReducer from './prices'
 import tokensReducer from './tokens'
+import uiSettings from './uiSettings'
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     language: languageReducer,
     tokens: tokensReducer,
     prices: pricesReducer,
+    uiSettings: uiSettings,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

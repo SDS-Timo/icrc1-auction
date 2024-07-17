@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { SearchIcon, RepeatIcon } from '@chakra-ui/icons'
 import {
@@ -31,7 +31,6 @@ import {
   useTable,
   usePagination,
   useGlobalFilter,
-  useAsyncDebounce,
   useSortBy,
   Column,
   TableOptions,
@@ -43,10 +42,28 @@ import {
   UseSortByColumnOptions,
 } from 'react-table'
 
+interface PaginationTableProps<T extends object> {
+  columns: Column<T>[]
+  data: T[]
+  hiddenColumns?: string[]
+  searchBy?: boolean
+  sortBy?: any[]
+  tableSize?: string
+  fontSize?: string
+  emptyMessage: string
+  pgSize: number
+  onClick: (values: T) => void
+  onClickAllMarkets: (value: boolean) => void
+}
+
 interface ExtendedHeaderGroup<T extends object> extends HeaderGroup<T> {
   getSortByToggleProps: (props?: any) => any
   isSorted: boolean
   isSortedDesc: boolean
+}
+
+interface ExtendedTableInstance<T extends object> extends TableInstance<T> {
+  setPageSize: (pageSize: number) => void
 }
 
 interface GlobalFilterProps {
@@ -64,12 +81,14 @@ function GlobalFilter({
   onClickAllMarkets,
 }: GlobalFilterProps) {
   const [value, setValue] = useState(globalFilter)
-  const onChange = useAsyncDebounce((value: any) => {
-    setGlobalFilter(value || undefined)
-  }, 200)
+  const onChange = (value: any) => {
+    setGlobalFilter(value || '')
+  }
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onClickAllMarkets(e.target.checked)
+    onChange('')
+    setValue('')
   }
 
   return (
@@ -113,19 +132,6 @@ function GlobalFilter({
   )
 }
 
-interface PaginationTableProps<T extends object> {
-  columns: Column<T>[]
-  data: T[]
-  hiddenColumns?: string[]
-  searchBy?: boolean
-  sortBy?: any[]
-  tableSize?: string
-  fontSize?: string
-  pgSize: number
-  onClick: (values: T) => void
-  onClickAllMarkets: (value: boolean) => void
-}
-
 const PaginationTable = <T extends object>({
   columns,
   data,
@@ -134,6 +140,7 @@ const PaginationTable = <T extends object>({
   sortBy = [],
   tableSize = 'sm',
   fontSize = 'md',
+  emptyMessage,
   pgSize,
   onClick,
   onClickAllMarkets,
@@ -151,6 +158,7 @@ const PaginationTable = <T extends object>({
     gotoPage,
     nextPage,
     previousPage,
+    setPageSize,
     state: { pageIndex, globalFilter },
     setGlobalFilter,
   } = useTable<T>(
@@ -162,7 +170,7 @@ const PaginationTable = <T extends object>({
     useGlobalFilter,
     useSortBy,
     usePagination,
-  ) as TableInstance<T> & {
+  ) as ExtendedTableInstance<T> & {
     page: Row<T>[]
     canPreviousPage: boolean
     canNextPage: boolean
@@ -177,6 +185,10 @@ const PaginationTable = <T extends object>({
 
   const bgColor = useColorModeValue('grey.200', 'grey.700')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+
+  useEffect(() => {
+    setPageSize(pgSize)
+  }, [pgSize, setPageSize])
 
   return (
     <Box>
@@ -222,24 +234,37 @@ const PaginationTable = <T extends object>({
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {page.map((row: Row<T>, rowIndex) => {
-            prepareRow(row)
-            return (
-              <Tr
-                {...row.getRowProps()}
-                key={rowIndex}
-                onClick={() => onClick(row.original)}
-              >
-                {row.cells.map((cell: Cell<T>, cellIndex) => (
-                  <Td {...cell.getCellProps()} key={cellIndex}>
-                    <Flex justifyContent="center" alignItems="center">
+          {page.length === 0 ? (
+            <Tr>
+              <Td colSpan={columns.length}>
+                <Flex
+                  height="50px"
+                  align="center"
+                  justify="center"
+                  width="100%"
+                >
+                  {emptyMessage}
+                </Flex>
+              </Td>
+            </Tr>
+          ) : (
+            page.map((row: Row<T>, rowIndex) => {
+              prepareRow(row)
+              return (
+                <Tr
+                  {...row.getRowProps()}
+                  key={rowIndex}
+                  onClick={() => onClick(row.original)}
+                >
+                  {row.cells.map((cell: Cell<T>, cellIndex) => (
+                    <Td {...cell.getCellProps()} key={cellIndex}>
                       {cell.render('Cell')}
-                    </Flex>
-                  </Td>
-                ))}
-              </Tr>
-            )
-          })}
+                    </Td>
+                  ))}
+                </Tr>
+              )
+            })
+          )}
         </Tbody>
       </Table>
       <Flex

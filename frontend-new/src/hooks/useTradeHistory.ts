@@ -80,7 +80,6 @@ const useTransactionHistory = () => {
       )
 
       const data = addDecimal(formattedData)
-      data.reverse()
 
       return data
     } catch (error) {
