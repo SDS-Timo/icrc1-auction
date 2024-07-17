@@ -191,7 +191,7 @@ const PaginationTable = <T extends object>({
   }, [pgSize, setPageSize])
 
   return (
-    <Box>
+    <Box overflowX="auto">
       {searchBy && (
         <GlobalFilter
           globalFilter={globalFilter}

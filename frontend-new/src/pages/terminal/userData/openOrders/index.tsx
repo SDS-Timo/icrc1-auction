@@ -112,6 +112,7 @@ const OpenOrders: React.FC = () => {
             fontSize="sm"
             size="sm"
             px="15px"
+            isDisabled={!symbol}
           >
             Login or Create Account
           </Button>

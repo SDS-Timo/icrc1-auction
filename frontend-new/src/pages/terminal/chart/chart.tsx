@@ -177,7 +177,7 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
   }, [data, colorMode])
 
   return (
-    <Box position="relative" height="30vh">
+    <Box position="relative" h="30vh">
       <canvas ref={chartRef} />
     </Box>
   )

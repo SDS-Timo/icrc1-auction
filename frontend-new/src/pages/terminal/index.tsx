@@ -22,6 +22,7 @@ const Terminal: React.FC = () => {
         w="100%"
         borderRadius="md"
         flexDirection={{ base: 'column', md: 'row' }}
+        overflowX="auto"
       >
         <Box
           w={{ base: '100%', md: '20%' }}
@@ -41,7 +42,7 @@ const Terminal: React.FC = () => {
         </Box>
       </Flex>
 
-      <Box display="flex" flexDirection={{ base: 'column', md: 'row' }} gap={2}>
+      <Flex direction={{ base: 'column', md: 'row' }} gap={2}>
         <Box
           bg={bgColor}
           w={{ base: '100%', md: '20%' }}
@@ -59,7 +60,7 @@ const Terminal: React.FC = () => {
           p={4}
           borderRadius="md"
           mb={{ base: 4, md: 0 }}
-          h="89vh"
+          h={{ base: '100vh', md: '90vh' }}
         >
           <Box
             bg={bgColor}
@@ -75,7 +76,7 @@ const Terminal: React.FC = () => {
             bg={bgColor}
             p={4}
             borderRadius="md"
-            h={isResizeUserData ? '89vh' : undefined}
+            h={isResizeUserData ? '90vh' : undefined}
           >
             <UserData />
           </Box>
@@ -88,7 +89,7 @@ const Terminal: React.FC = () => {
         >
           <History />
         </Box>
-      </Box>
+      </Flex>
     </Box>
   )
 }
