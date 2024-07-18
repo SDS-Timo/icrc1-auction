@@ -18,6 +18,7 @@ import {
   InputGroup,
   InputRightElement,
   useColorModeValue,
+  useBreakpointValue,
 } from '@chakra-ui/react'
 import {
   FiChevronsLeft,
@@ -74,6 +75,28 @@ interface GlobalFilterProps {
 
 export type ColumnWithSorting<T extends object> = Column<T> &
   UseSortByColumnOptions<T>
+
+export function pgSizeDinamic() {
+  const screenSize = useBreakpointValue({
+    base: 'base',
+    sm: 'sm',
+    md: 'md',
+    lg: 'lg',
+    xl: 'xl',
+  })
+
+  switch (screenSize) {
+    case 'base':
+    case 'sm':
+    case 'xl':
+      return 10
+    case 'md':
+    case 'lg':
+      return 3
+    default:
+      return 3
+  }
+}
 
 function GlobalFilter({
   globalFilter,

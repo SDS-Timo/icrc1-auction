@@ -11,7 +11,9 @@ import { useSelector } from 'react-redux'
 
 import tableContent from './openOrdersTable'
 import AuthComponent from '../../../../components/auth'
-import PaginationTable from '../../../../components/pagination'
+import PaginationTable, {
+  pgSizeDinamic,
+} from '../../../../components/pagination'
 import useOpenOrdersHistory from '../../../../hooks/useOpenOrders'
 import { RootState } from '../../../../store'
 import { TokenDataItem } from '../../../../types'
@@ -19,6 +21,7 @@ import { TokenDataItem } from '../../../../types'
 const OpenOrders: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [openOrders, setOpenOrders] = useState<TokenDataItem[]>([])
@@ -129,7 +132,7 @@ const OpenOrders: React.FC = () => {
             tableSize="sm"
             fontSize="11px"
             emptyMessage="no order found"
-            pgSize={isResizeUserData ? 15 : 3}
+            pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}
             onClickAllMarkets={handleCheckboxChange}
           />

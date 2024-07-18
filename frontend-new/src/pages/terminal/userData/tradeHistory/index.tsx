@@ -11,7 +11,9 @@ import { useSelector } from 'react-redux'
 
 import tableContent from './tradeHistoryTable'
 import AuthComponent from '../../../../components/auth'
-import PaginationTable from '../../../../components/pagination'
+import PaginationTable, {
+  pgSizeDinamic,
+} from '../../../../components/pagination'
 import useTransactionHistory from '../../../../hooks/useTradeHistory'
 import { RootState } from '../../../../store'
 import { TokenDataItem } from '../../../../types'
@@ -19,6 +21,7 @@ import { TokenDataItem } from '../../../../types'
 const TradeHistory: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [transactions, setTransactions] = useState<TokenDataItem[]>([])
@@ -124,7 +127,7 @@ const TradeHistory: React.FC = () => {
             tableSize="sm"
             fontSize="11px"
             emptyMessage="no transactions found"
-            pgSize={isResizeUserData ? 15 : 3}
+            pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}
             onClickAllMarkets={handleCheckboxChange}
           />
