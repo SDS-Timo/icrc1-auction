@@ -14,7 +14,7 @@ import AuthComponent from '../../../../components/auth'
 import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
-import useOpenOrdersHistory from '../../../../hooks/useOpenOrders'
+import useOpenOrders from '../../../../hooks/useOrders'
 import { RootState } from '../../../../store'
 import { TokenDataItem } from '../../../../types'
 
@@ -51,7 +51,7 @@ const OpenOrders: React.FC = () => {
   async function fetchOpenOrders() {
     if (selectedQuote) {
       setLoading(true)
-      const { getOpenOrders } = useOpenOrdersHistory()
+      const { getOpenOrders } = useOpenOrders()
       const openOrders = await getOpenOrders(userAgent, selectedQuote)
 
       setOpenOrders(openOrders)
@@ -104,7 +104,7 @@ const OpenOrders: React.FC = () => {
       pointerEvents={loading ? 'none' : 'auto'}
     >
       {!isAuthenticated ? (
-        <Flex justifyContent="center" alignItems="center" h="5vh">
+        <Flex justifyContent="center" alignItems="center" h="20vh">
           <Button
             onClick={onOpen}
             variant="unstyled"

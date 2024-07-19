@@ -22,7 +22,6 @@ const Terminal: React.FC = () => {
         w="100%"
         borderRadius="md"
         flexDirection={{ base: 'column', md: 'row' }}
-        overflowX="auto"
       >
         <Box
           w={{ base: '100%', md: '20%' }}
@@ -42,7 +41,7 @@ const Terminal: React.FC = () => {
         </Box>
       </Flex>
 
-      <Flex direction={{ base: 'column', md: 'row' }} gap={2}>
+      <Flex direction={{ base: 'column', md: 'row' }} gap={2} overflowX="auto">
         <Box
           bg={bgColor}
           w={{ base: '100%', md: '20%' }}
@@ -57,10 +56,8 @@ const Terminal: React.FC = () => {
           w={{ base: '100%', md: '52%' }}
           display="flex"
           flexDirection="column"
-          p={4}
           borderRadius="md"
           mb={{ base: 4, md: 0 }}
-          h={{ base: '100vh', md: '90vh' }}
         >
           <Box
             bg={bgColor}

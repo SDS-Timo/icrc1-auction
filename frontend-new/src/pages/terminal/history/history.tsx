@@ -21,7 +21,7 @@ const TradeHistory: React.FC<HistoryProps> = ({
   }
 
   return (
-    <Box>
+    <Box overflowX="auto">
       <Table variant="unstyled" size="sm">
         <Thead>
           <Tr>

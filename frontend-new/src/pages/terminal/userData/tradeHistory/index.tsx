@@ -99,7 +99,7 @@ const TradeHistory: React.FC = () => {
       pointerEvents={loading ? 'none' : 'auto'}
     >
       {!isAuthenticated ? (
-        <Flex justifyContent="center" alignItems="center" h="5vh">
+        <Flex justifyContent="center" alignItems="center" h="20vh">
           <Button
             onClick={onOpen}
             variant="unstyled"

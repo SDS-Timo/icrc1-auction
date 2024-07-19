@@ -88,8 +88,10 @@ export function pgSizeDinamic() {
   switch (screenSize) {
     case 'base':
     case 'sm':
-    case 'xl':
+    case '2xl':
       return 10
+    case 'xl':
+      return 4
     case 'md':
     case 'lg':
       return 3
@@ -265,6 +267,7 @@ const PaginationTable = <T extends object>({
                   align="center"
                   justify="center"
                   width="100%"
+                  mt={3}
                 >
                   {emptyMessage}
                 </Flex>
