@@ -3,14 +3,24 @@ import { HttpAgent } from '@dfinity/agent'
 import { TokenDataItem, TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
-  convertPrice,
-  convertVolume,
+  convertPriceFromCanister,
+  convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
 import { getTokenInfo } from '../utils/tokenUtils'
 
+/**
+ * Custom hook for fetching and managing transaction history.
+ */
 const useTransactionHistory = () => {
+  /**
+   * Fetches and returns the transaction history.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @param selectedQuote - The selected token metadata for the quote currency.
+   * @returns A promise that resolves to an array of TokenDataItem objects representing the transaction history.
+   */
   const getTransactionHistory = async (
     userAgent: HttpAgent,
     selectedQuote: TokenMetadata,
@@ -51,13 +61,13 @@ const useTransactionHistory = () => {
 
             const { token, logo } = await getTokenInfo(userAgent, ledger)
 
-            const formattedPrice = convertPrice(
+            const formattedPrice = convertPriceFromCanister(
               Number(price),
               getDecimals(token),
               getDecimals(selectedQuote),
             )
 
-            const { volumeInQuote, volumeInBase } = convertVolume(
+            const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
               Number(volume),
               getDecimals(token),
               formattedPrice,

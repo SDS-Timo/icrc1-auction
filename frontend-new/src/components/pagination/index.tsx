@@ -55,6 +55,7 @@ interface PaginationTableProps<T extends object> {
   pgSize: number
   onClick: (values: T) => void
   onClickAllMarkets: (value: boolean) => void
+  onClickRefresh: () => void
 }
 
 interface ExtendedHeaderGroup<T extends object> extends HeaderGroup<T> {
@@ -70,7 +71,8 @@ interface ExtendedTableInstance<T extends object> extends TableInstance<T> {
 interface GlobalFilterProps {
   globalFilter: any
   setGlobalFilter: (filterValue: any) => void
-  onClickAllMarkets: (value: any) => void
+  onClickAllMarkets: (value: boolean) => void
+  onClickRefresh: () => void
 }
 
 export type ColumnWithSorting<T extends object> = Column<T> &
@@ -104,6 +106,7 @@ function GlobalFilter({
   globalFilter,
   setGlobalFilter,
   onClickAllMarkets,
+  onClickRefresh,
 }: GlobalFilterProps) {
   const [value, setValue] = useState(globalFilter)
   const onChange = (value: any) => {
@@ -146,6 +149,7 @@ function GlobalFilter({
           onClick={() => {
             setValue('')
             onChange('')
+            onClickRefresh()
           }}
           size="xs"
           ml="4px"
@@ -169,6 +173,7 @@ const PaginationTable = <T extends object>({
   pgSize,
   onClick,
   onClickAllMarkets,
+  onClickRefresh,
 }: PaginationTableProps<T>) => {
   const {
     getTableProps,
@@ -222,6 +227,7 @@ const PaginationTable = <T extends object>({
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
           onClickAllMarkets={onClickAllMarkets}
+          onClickRefresh={onClickRefresh}
         />
       )}
       <Table {...getTableProps()} size={tableSize} variant={'unstyled'}>

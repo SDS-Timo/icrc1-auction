@@ -1,7 +1,7 @@
 import { MouseEventHandler } from 'react'
 
 import { CloseIcon } from '@chakra-ui/icons'
-import { Flex, Image, Text, IconButton } from '@chakra-ui/react'
+import { Flex, Image, Text, IconButton, Spinner } from '@chakra-ui/react'
 import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
@@ -10,7 +10,7 @@ import { TokenDataItem } from '../../../../types'
 export default function tableContent(
   toggleVolume: string,
   handleToggleVolume: MouseEventHandler<HTMLParagraphElement> | undefined,
-  handleCancel: (arg0: any) => void,
+  handleCancel: (id: bigint | undefined, type: string | undefined) => void,
 ) {
   const tableColumns: ColumnWithSorting<TokenDataItem>[] = [
     {
@@ -112,13 +112,13 @@ export default function tableContent(
       accessor: 'actions',
       disableSortBy: true,
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
-        const { id } = row.original
+        const { id, type, action } = row.original
         return (
           <Flex justifyContent="center" alignItems="center">
             <IconButton
               aria-label="Cancel Order"
-              icon={<CloseIcon />}
-              onClick={() => handleCancel(id)}
+              icon={action ? <Spinner size="xs" /> : <CloseIcon />}
+              onClick={() => handleCancel(id, type)}
               variant="ghost"
               size="xs"
             />

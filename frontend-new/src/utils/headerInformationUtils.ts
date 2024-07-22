@@ -1,5 +1,13 @@
 import { DataItem, HeaderInformation } from '../types'
 
+/**
+ * Calculates and returns the header information based on the given prices.
+ * The header information includes the last auction price, the previous price change in amount and percentage,
+ * and the total volume over a specific period.
+ *
+ * @param prices - An array of DataItem objects containing price and volume information.
+ * @returns The calculated HeaderInformation object.
+ */
 export function calculateHeaderInformation(prices: DataItem[]) {
   let headerInformation: HeaderInformation = {
     lastAuction: '',

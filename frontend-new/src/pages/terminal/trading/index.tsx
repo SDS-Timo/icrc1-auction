@@ -12,39 +12,53 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useFormik } from 'formik'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import * as Yup from 'yup'
 
 import TradeTypeSelector from './tradeTypeSelector'
 import AuthComponent from '../../../components/auth'
 import useOrders from '../../../hooks/useOrders'
-import { RootState } from '../../../store'
+import { RootState, AppDispatch } from '../../../store'
+import { setIsRefreshOpenOrders } from '../../../store/orders'
+import { TokenDataItem, TokenMetadata } from '../../../types'
+import {
+  convertPriceToCanister,
+  convertVolumeToCanister,
+} from '../../../utils/calculationsUtils'
 
 const Trading = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const dispatch = useDispatch<AppDispatch>()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [tradeType, setTradeType] = useState('buy')
   const [selectedPercentage, setSelectedPercentage] = useState(null)
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState<string | null>(null)
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   )
+  const openOrders = useSelector((state: RootState) => state.orders.openOrders)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
+  )
+  const selectedQuote = useSelector(
+    (state: RootState) => state.tokens.selectedQuote,
   )
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
 
   const handleTradeTypeChange = (type: any) => {
+    setMessage(null)
     setTradeType(type)
   }
 
   const handlePercentageClick = (percentage: any) => {
-    setSelectedPercentage(percentage === selectedPercentage ? null : percentage)
+    setSelectedPercentage(
+      percentage === selectedPercentage || !isAuthenticated ? null : percentage,
+    )
   }
 
   const initialValues = {
@@ -75,24 +89,94 @@ const Trading = () => {
     [['baseAmount', 'quoteAmount']],
   )
 
+  const validationOrder = (
+    orders: TokenDataItem[],
+    base: string | undefined,
+    quote: string | undefined,
+    tradeType: string,
+    price: number,
+    selectedQuote: TokenMetadata,
+  ): string | null => {
+    let message: string | null = null
+
+    for (const order of orders) {
+      const orderPrice = Number(order.price.toFixed(selectedQuote.decimals))
+
+      if (order.symbol === base) {
+        if (order.type === tradeType && orderPrice === price) {
+          message = `There is already an open ${tradeType} order for this ${base}/${quote} at the price $${orderPrice}. If you want to adjust the volume then you have to change the existing order.`
+          break
+        } else if (
+          tradeType === 'buy' &&
+          order.type === 'sell' &&
+          order.price <= price
+        ) {
+          message = `There is already an open sell order (ask) for ${base}/${quote} at the price of $${orderPrice}. The bid price must be lower than that or you have to cancel the ask.`
+          break
+        } else if (
+          tradeType === 'sell' &&
+          order.type === 'buy' &&
+          order.price >= price
+        ) {
+          message = `There is already an open buy order (bid) for ${base}/${quote} at the price of $${orderPrice}. The ask price must be higher than that or you have to cancel the bid.`
+          break
+        }
+      }
+    }
+
+    return message
+  }
+
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      const { placeOrders } = useOrders()
+      const { placeOrder } = useOrders()
+      setMessage(null)
+
+      const price = convertPriceToCanister(
+        Number(values.baseAmount),
+        Number(values.quoteAmount),
+        Number(symbol?.decimals),
+        selectedQuote.decimals,
+      )
+
+      const volume = convertVolumeToCanister(
+        Number(values.quoteAmount),
+        Number(values.price),
+        Number(symbol?.decimals),
+      )
 
       const order = {
-        volume: parseInt(values.baseAmount),
-        price: parseFloat(values.price),
+        volume,
+        price,
         type: tradeType,
       }
 
-      placeOrders(userAgent, symbol, order)
-        .then(() => {
+      const orderExists = validationOrder(
+        openOrders,
+        symbol?.base,
+        symbol?.quote,
+        tradeType,
+        Number(values.price),
+        selectedQuote,
+      )
+
+      if (orderExists) {
+        setStatus({ success: false })
+        resetForm({ values: initialValues })
+
+        setMessage(orderExists)
+        return
+      }
+
+      placeOrder(userAgent, symbol, order)
+        .then((response) => {
           setStatus({ success: true })
           resetForm({ values: initialValues })
-          setMessage('')
-          console.log(values)
+          setMessage(null)
+          dispatch(setIsRefreshOpenOrders())
+          console.log(response)
         })
         .catch((error) => {
           const message = error.response ? error.response.data : error.message
@@ -108,7 +192,18 @@ const Trading = () => {
   useEffect(() => {
     formik.resetForm({ values: initialValues })
     handlePercentageClick(0)
+    setMessage(null)
   }, [selectedSymbol])
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null)
+      }, 30000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [message])
 
   return (
     <VStack spacing={4} align="stretch">
@@ -123,9 +218,13 @@ const Trading = () => {
             placeholder=" "
             name="price"
             sx={{ borderRadius: '5px' }}
-            isDisabled={!selectedSymbol}
+            isDisabled={!selectedSymbol || !isAuthenticated}
             value={formik.values.price}
-            onChange={formik.handleChange}
+            onChange={(e) => {
+              formik.handleChange(e)
+              formik.setFieldValue('baseAmount', '')
+              formik.setFieldValue('quoteAmount', '')
+            }}
           />
           <FormLabel color="grey.500" fontSize="15px">
             Price
@@ -144,7 +243,9 @@ const Trading = () => {
             placeholder=" "
             name="quoteAmount"
             sx={{ borderRadius: '5px' }}
-            isDisabled={!formik.values.price || !selectedSymbol}
+            isDisabled={
+              !formik.values.price || !selectedSymbol || !isAuthenticated
+            }
             value={formik.values.quoteAmount}
             onChange={(e) => {
               formik.handleChange(e)
@@ -175,7 +276,9 @@ const Trading = () => {
             placeholder=" "
             name="baseAmount"
             sx={{ borderRadius: '5px' }}
-            isDisabled={!formik.values.price || !selectedSymbol}
+            isDisabled={
+              !formik.values.price || !selectedSymbol || !isAuthenticated
+            }
             value={formik.values.baseAmount}
             onChange={(e) => {
               formik.handleChange(e)
@@ -272,8 +375,8 @@ const Trading = () => {
           </Button>
         </>
       )}
-      {message ?? (
-        <Text textAlign="center" fontSize="15px" color="red.500">
+      {message && (
+        <Text textAlign="center" fontSize="13px" color="red.500">
           {message}
         </Text>
       )}

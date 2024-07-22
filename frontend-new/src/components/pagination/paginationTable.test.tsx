@@ -16,6 +16,7 @@ describe('PaginationTable', () => {
   const pgSize = 10
   const onClick = jest.fn()
   const onClickAllMarkets = jest.fn()
+  const onClickRefresh = jest.fn()
 
   it('renders table with data', () => {
     renderWithChakraProvider(
@@ -26,6 +27,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
       />,
     )
     expect(screen.getByText(/Page \d+ of/i)).toBeInTheDocument()
@@ -41,6 +43,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
       />,
     )
     expect(screen.getByText(emptyMessage)).toBeInTheDocument()
@@ -55,6 +58,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
       />,
     )
     const firstRow = screen.getAllByRole('row')[1]
@@ -71,6 +75,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
         searchBy={true}
       />,
     )
@@ -88,6 +93,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
       />,
     )
     const nextButton = screen.getByLabelText('Next Page')
@@ -104,6 +110,7 @@ describe('PaginationTable', () => {
         pgSize={pgSize}
         onClick={onClick}
         onClickAllMarkets={onClickAllMarkets}
+        onClickRefresh={onClickRefresh}
       />,
     )
     const firstColumnHeader = screen.getAllByRole('columnheader')[0]

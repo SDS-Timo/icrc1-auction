@@ -19,7 +19,7 @@ export interface HeaderInformation {
   periodVolume: number | string
 }
 export interface DataItem {
-  id?: number
+  id?: bigint
   datetime: string
   time?: string
   price: number
@@ -51,5 +51,10 @@ export interface PricesHistoryState {
   headerInformation: HeaderInformation | null
 }
 export interface TokenDataItem extends DataItem, TokenMetadata {
+  action?: boolean
   [key: string]: any
+}
+export interface TokenDataItemState {
+  isRefreshOpenOrders: boolean
+  openOrders: TokenDataItem[] | []
 }

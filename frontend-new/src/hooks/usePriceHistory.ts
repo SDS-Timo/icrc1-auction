@@ -4,13 +4,24 @@ import { Principal } from '@dfinity/principal'
 import { DataItem, Option, TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
-  convertPrice,
-  convertVolume,
+  convertPriceFromCanister,
+  convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
 
+/**
+ * Custom hook for fetching and managing price history.
+ */
 const usePriceHistory = () => {
+  /**
+   * Fetches and returns the price history for a selected symbol.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @param selectedSymbol - The selected token option, which may include the principal.
+   * @param selectedQuote - The selected token metadata for the quote currency.
+   * @returns A promise that resolves to an array of DataItem objects representing the price history.
+   */
   const getPriceHistory = async (
     userAgent: HttpAgent,
     selectedSymbol: Option,
@@ -59,13 +70,13 @@ const usePriceHistory = () => {
           }
           const formattedTime = date.toLocaleTimeString('en-US', optionsTime)
 
-          const formattedPrice = convertPrice(
+          const formattedPrice = convertPriceFromCanister(
             Number(price),
             getDecimals(selectedSymbol),
             getDecimals(selectedQuote),
           )
 
-          const { volumeInQuote, volumeInBase } = convertVolume(
+          const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
             Number(volume),
             getDecimals(selectedSymbol),
             formattedPrice,

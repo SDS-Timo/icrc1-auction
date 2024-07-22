@@ -9,6 +9,12 @@ import { Principal } from '@dfinity/principal'
 import defSymbolLogo from '../assets/img/coins/default.svg'
 import { TokenMetadata } from '../types'
 
+/**
+ * Parses the metadata response from the ICRC token canister to extract token information.
+ *
+ * @param metadata - The metadata response from the ICRC token canister.
+ * @returns The extracted token metadata.
+ */
 const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
   let symbol = 'unknown'
   let name = 'unknown'
@@ -44,6 +50,13 @@ const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
   return { symbol, name, decimals, logo, fee, base: symbol, quote: 'USDC' }
 }
 
+/**
+ * Finds and returns the logo URL for a given token.
+ * If the logo is not provided in the token metadata, it attempts to fetch the logo from a default location.
+ *
+ * @param token - The token metadata object.
+ * @returns A promise that resolves to the logo URL.
+ */
 const findLogo = async (token: TokenMetadata): Promise<string> => {
   let logo =
     token.logo ||
@@ -67,6 +80,13 @@ const findLogo = async (token: TokenMetadata): Promise<string> => {
   return logo
 }
 
+/**
+ * Retrieves the token information from the ICRC token canister, including the parsed metadata and logo URL.
+ *
+ * @param userAgent - The HTTP agent to interact with the canister.
+ * @param canisterId - The principal ID of the ICRC token canister.
+ * @returns A promise that resolves to an object containing the token metadata and logo URL.
+ */
 export async function getTokenInfo(
   userAgent: HttpAgent,
   canisterId: Principal,

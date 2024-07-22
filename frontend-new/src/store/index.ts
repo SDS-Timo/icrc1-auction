@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 
 import authReducer from './auth'
 import languageReducer from './language'
+import ordersReducer from './orders'
 import pricesReducer from './prices'
 import tokensReducer from './tokens'
 import uiSettings from './uiSettings'
@@ -12,6 +13,7 @@ const store = configureStore({
     language: languageReducer,
     tokens: tokensReducer,
     prices: pricesReducer,
+    orders: ordersReducer,
     uiSettings: uiSettings,
   },
   middleware: (getDefaultMiddleware) =>

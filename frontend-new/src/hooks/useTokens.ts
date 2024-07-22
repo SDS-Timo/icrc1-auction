@@ -4,7 +4,16 @@ import { TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
 import { getTokenInfo } from '../utils/tokenUtils'
 
+/**
+ * Custom hook for fetching and managing tokens.
+ */
 const useTokens = () => {
+  /**
+   * Fetches and returns the supported tokens.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @returns A promise that resolves to an array of TokenMetadata objects representing the supported tokens.
+   */
   const getTokens = async (userAgent: HttpAgent): Promise<TokenMetadata[]> => {
     try {
       const serviceActor = getActor(userAgent)

@@ -130,6 +130,7 @@ const TradeHistory: React.FC = () => {
             pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}
             onClickAllMarkets={handleCheckboxChange}
+            onClickRefresh={() => {}}
           />
         </Box>
       )}

@@ -7,7 +7,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './openOrdersTable'
 import AuthComponent from '../../../../components/auth'
@@ -15,16 +15,16 @@ import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
 import useOpenOrders from '../../../../hooks/useOrders'
-import { RootState } from '../../../../store'
+import { RootState, AppDispatch } from '../../../../store'
+import { setOpenOrders, setIsRefreshOpenOrders } from '../../../../store/orders'
 import { TokenDataItem } from '../../../../types'
 
 const OpenOrders: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const dispatch = useDispatch<AppDispatch>()
   const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const [openOrders, setOpenOrders] = useState<TokenDataItem[]>([])
   const [openOrdersFiltered, setOpenOrdersFiltered] = useState<TokenDataItem[]>(
     [],
   )
@@ -38,6 +38,10 @@ const OpenOrders: React.FC = () => {
   const isResizeUserData = useSelector(
     (state: RootState) => state.uiSettings.isResizeUserData,
   )
+  const isRefreshOpenOrders = useSelector(
+    (state: RootState) => state.orders.isRefreshOpenOrders,
+  )
+  const openOrders = useSelector((state: RootState) => state.orders.openOrders)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -52,10 +56,10 @@ const OpenOrders: React.FC = () => {
     if (selectedQuote) {
       setLoading(true)
       const { getOpenOrders } = useOpenOrders()
-      const openOrders = await getOpenOrders(userAgent, selectedQuote)
+      const openOrdersRaw = await getOpenOrders(userAgent, selectedQuote)
 
-      setOpenOrders(openOrders)
-      filterOpenOrders(openOrders)
+      dispatch(setOpenOrders(openOrdersRaw))
+      filterOpenOrders(openOrdersRaw)
       setLoading(false)
     }
   }
@@ -75,8 +79,30 @@ const OpenOrders: React.FC = () => {
     setShowAllMarkets(e)
   }
 
-  const handleCancelOrder = (id: number | undefined) => {
-    console.log(`Cancel Order ${id}`)
+  const handleRefreshClick = () => {
+    dispatch(setIsRefreshOpenOrders())
+  }
+
+  const handleCancelOrderClick = async (
+    id: bigint | undefined,
+    type: string | undefined,
+  ) => {
+    setOpenOrdersFiltered((prevState) =>
+      prevState.map((order) =>
+        order.id === id ? { ...order, action: true } : order,
+      ),
+    )
+
+    const { cancelOrder } = useOpenOrders()
+    const result = await cancelOrder(userAgent, id, type)
+
+    console.log(result)
+
+    setOpenOrdersFiltered((prevState) =>
+      prevState.map((order) =>
+        order.id === id ? { ...order, action: false } : order,
+      ),
+    )
   }
 
   const handleToggleVolume = () => {
@@ -86,7 +112,7 @@ const OpenOrders: React.FC = () => {
   const { tableColumns, hiddenColumns, sortBy } = tableContent(
     toggleVolume,
     handleToggleVolume,
-    handleCancelOrder,
+    handleCancelOrderClick,
   )
 
   useEffect(() => {
@@ -96,7 +122,7 @@ const OpenOrders: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) fetchOpenOrders()
-  }, [selectedQuote, selectedSymbol, userAgent])
+  }, [selectedQuote, selectedSymbol, userAgent, isRefreshOpenOrders])
 
   return (
     <Box
@@ -135,6 +161,7 @@ const OpenOrders: React.FC = () => {
             pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}
             onClickAllMarkets={handleCheckboxChange}
+            onClickRefresh={handleRefreshClick}
           />
         </Box>
       )}
