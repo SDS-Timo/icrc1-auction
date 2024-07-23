@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Button,
   Input,
@@ -10,6 +11,7 @@ import {
   FormControl,
   useColorModeValue,
   useDisclosure,
+  useToast,
   Spinner,
 } from '@chakra-ui/react'
 import { useFormik } from 'formik'
@@ -21,15 +23,24 @@ import AuthComponent from '../../../components/auth'
 import useOrders from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
 import { setIsRefreshOpenOrders } from '../../../store/orders'
-import { TokenDataItem, TokenMetadata } from '../../../types'
+import { PlaceOrder } from '../../../types'
 import {
   convertPriceToCanister,
   convertVolumeToCanister,
 } from '../../../utils/calculationsUtils'
+import {
+  validationPlaceOrder,
+  getErrorMessagePlaceOrder,
+} from '../../../utils/orderUtils'
 
 const Trading = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const toast = useToast({
+    duration: 10000,
+    position: 'top-right',
+    isClosable: true,
+  })
   const dispatch = useDispatch<AppDispatch>()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -90,49 +101,10 @@ const Trading = () => {
     [['baseAmount', 'quoteAmount']],
   )
 
-  const validationOrder = (
-    orders: TokenDataItem[],
-    base: string | undefined,
-    quote: string | undefined,
-    tradeType: string,
-    price: number,
-    selectedQuote: TokenMetadata,
-  ): string | null => {
-    let message: string | null = null
-
-    for (const order of orders) {
-      const orderPrice = Number(order.price.toFixed(selectedQuote.decimals))
-
-      if (order.symbol === base) {
-        if (order.type === tradeType && orderPrice === price) {
-          message = `There is already an open ${tradeType} order for this ${base}/${quote} at the price $${orderPrice}. If you want to adjust the volume then you have to change the existing order.`
-          break
-        } else if (
-          tradeType === 'buy' &&
-          order.type === 'sell' &&
-          order.price <= price
-        ) {
-          message = `There is already an open sell order (ask) for ${base}/${quote} at the price of $${orderPrice}. The bid price must be lower than that or you have to cancel the ask.`
-          break
-        } else if (
-          tradeType === 'sell' &&
-          order.type === 'buy' &&
-          order.price >= price
-        ) {
-          message = `There is already an open buy order (bid) for ${base}/${quote} at the price of $${orderPrice}. The ask price must be higher than that or you have to cancel the bid.`
-          break
-        }
-      }
-    }
-
-    return message
-  }
-
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      const { placeOrder } = useOrders()
       setMessage(null)
 
       const price = convertPriceToCanister(
@@ -153,7 +125,7 @@ const Trading = () => {
         type: tradeType,
       }
 
-      const orderExists = validationOrder(
+      const orderExists = validationPlaceOrder(
         openOrders,
         symbol?.base,
         symbol?.quote,
@@ -170,32 +142,62 @@ const Trading = () => {
         return
       }
 
+      const toastId = toast({
+        title: 'Create order pending',
+        description: 'Please wait',
+        status: 'loading',
+        duration: null,
+        isClosable: true,
+        icon: <Spinner size="sm" />,
+      })
+
+      const { placeOrder } = useOrders()
       placeOrder(userAgent, symbol, order)
-        .then((response) => {
+        .then((response: PlaceOrder) => {
           setStatus({ success: true })
           resetForm({ values: initialValues })
           setMessage(null)
           dispatch(setIsRefreshOpenOrders())
 
-          if (response.length > 0 && 'Ok' in response[0]) {
-            console.log('Create order ok')
+          if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
+            if (toastId) {
+              toast.update(toastId, {
+                title: 'Sucess',
+                description: 'Order created',
+                status: 'success',
+                isClosable: true,
+                icon: <CheckIcon />,
+              })
+            }
           } else {
-            if (
-              response.length > 0 &&
-              'Err' in response[0] &&
-              'TooLowOrder' in response[0].Err
-            ) {
-              console.log('Error create order: Too low order')
+            if (toastId) {
+              const description = getErrorMessagePlaceOrder(response[0].Err)
+              toast.update(toastId, {
+                title: 'Create order rejected',
+                description,
+                status: 'error',
+                isClosable: true,
+                icon: <CloseIcon />,
+              })
             }
           }
         })
         .catch((error) => {
           const message = error.response ? error.response.data : error.message
-          setMessage(message)
-          console.error(message)
+
+          if (toastId) {
+            toast.update(toastId, {
+              title: 'Create order rejected',
+              description: `Error: ${message}`,
+              status: 'error',
+              isClosable: true,
+              icon: <CloseIcon />,
+            })
+          }
 
           setStatus({ success: false })
           setSubmitting(false)
+          console.error(message)
         })
     },
   })

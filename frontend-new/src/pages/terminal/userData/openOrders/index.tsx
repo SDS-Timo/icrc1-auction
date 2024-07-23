@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
+import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
   Button,
   useColorModeValue,
   useDisclosure,
+  useToast,
+  Spinner,
 } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -17,11 +20,17 @@ import PaginationTable, {
 import useOpenOrders from '../../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../../store'
 import { setOpenOrders, setIsRefreshOpenOrders } from '../../../../store/orders'
-import { TokenDataItem } from '../../../../types'
+import { TokenDataItem, CancelOrder } from '../../../../types'
+import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
 
 const OpenOrders: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const toast = useToast({
+    duration: 10000,
+    position: 'top-right',
+    isClosable: true,
+  })
   const dispatch = useDispatch<AppDispatch>()
   const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -87,29 +96,71 @@ const OpenOrders: React.FC = () => {
     id: bigint | undefined,
     type: string | undefined,
   ) => {
-    setOpenOrdersFiltered((prevState) =>
-      prevState.map((order) =>
-        order.id === id ? { ...order, action: true } : order,
-      ),
-    )
+    const refreshOpenOrders = (action: boolean) => {
+      if (!action) dispatch(setIsRefreshOpenOrders())
 
-    const { cancelOrder } = useOpenOrders()
-    const result = await cancelOrder(userAgent, id, type)
-
-    console.log(result)
-
-    if (result.length > 0 && 'Ok' in result[0]) {
-      console.log('order canceled')
-    } else {
-      console.log('error in order canceled')
+      setOpenOrdersFiltered((prevState) =>
+        prevState.map((order) =>
+          order.id === id ? { ...order, action } : order,
+        ),
+      )
     }
 
-    dispatch(setIsRefreshOpenOrders())
-    setOpenOrdersFiltered((prevState) =>
-      prevState.map((order) =>
-        order.id === id ? { ...order, action: false } : order,
-      ),
-    )
+    refreshOpenOrders(true)
+
+    const toastId = toast({
+      title: 'Cancel order pending',
+      description: 'Please wait',
+      status: 'loading',
+      duration: null,
+      isClosable: true,
+      icon: <Spinner size="sm" />,
+    })
+
+    const { cancelOrder } = useOpenOrders()
+    cancelOrder(userAgent, id, type)
+      .then((response: CancelOrder) => {
+        if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
+          if (toastId) {
+            toast.update(toastId, {
+              title: 'Sucess',
+              description: 'Order cancelled',
+              status: 'success',
+              isClosable: true,
+              icon: <CheckIcon />,
+            })
+          }
+        } else {
+          if (toastId) {
+            const description = getErrorMessageCancelOrder(response[0].Err)
+            toast.update(toastId, {
+              title: 'Cancel order rejected',
+              description,
+              status: 'error',
+              isClosable: true,
+              icon: <CloseIcon />,
+            })
+          }
+        }
+
+        refreshOpenOrders(false)
+      })
+      .catch((error) => {
+        const message = error.response ? error.response.data : error.message
+
+        if (toastId) {
+          toast.update(toastId, {
+            title: 'Cancel order rejected',
+            description: `Error: ${message}`,
+            status: 'error',
+            isClosable: true,
+            icon: <CloseIcon />,
+          })
+        }
+
+        refreshOpenOrders(false)
+        console.error('Cancellation failed:', message)
+      })
   }
 
   const handleToggleVolume = () => {

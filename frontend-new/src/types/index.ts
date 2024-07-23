@@ -1,5 +1,10 @@
 import { Option as OptionBymax } from 'bymax-react-select'
 
+import {
+  CancelOrderError,
+  PlaceOrderError,
+} from '../../../declarations/icrc1_auction/icrc1_auction.did'
+
 export interface Language {
   [key: string]: string
 }
@@ -57,4 +62,16 @@ export interface TokenDataItem extends DataItem, TokenMetadata {
 export interface TokenDataItemState {
   isRefreshOpenOrders: boolean
   openOrders: TokenDataItem[] | []
+}
+
+export interface CancelOrder {
+  Ok?: any
+  Err?: CancelOrderError
+  [key: string]: any
+}
+
+export interface PlaceOrder {
+  Ok?: any
+  Err?: PlaceOrderError
+  [key: string]: any
 }
