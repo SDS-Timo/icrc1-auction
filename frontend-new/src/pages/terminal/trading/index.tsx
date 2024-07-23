@@ -10,6 +10,7 @@ import {
   FormControl,
   useColorModeValue,
   useDisclosure,
+  Spinner,
 } from '@chakra-ui/react'
 import { useFormik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
@@ -135,8 +136,7 @@ const Trading = () => {
       setMessage(null)
 
       const price = convertPriceToCanister(
-        Number(values.baseAmount),
-        Number(values.quoteAmount),
+        Number(values.price),
         Number(symbol?.decimals),
         selectedQuote.decimals,
       )
@@ -176,7 +176,18 @@ const Trading = () => {
           resetForm({ values: initialValues })
           setMessage(null)
           dispatch(setIsRefreshOpenOrders())
-          console.log(response)
+
+          if (response.length > 0 && 'Ok' in response[0]) {
+            console.log('Create order ok')
+          } else {
+            if (
+              response.length > 0 &&
+              'Err' in response[0] &&
+              'TooLowOrder' in response[0].Err
+            ) {
+              console.log('Error create order: Too low order')
+            }
+          }
         })
         .catch((error) => {
           const message = error.response ? error.response.data : error.message
@@ -371,7 +382,13 @@ const Trading = () => {
             isDisabled={!selectedSymbol || formik.isSubmitting}
             onClick={() => formik.handleSubmit()}
           >
-            Create Order
+            {formik.isSubmitting ? (
+              <>
+                Creating Order <Spinner ml={2} size="sm" color="grey.25" />
+              </>
+            ) : (
+              'Create Order'
+            )}
           </Button>
         </>
       )}

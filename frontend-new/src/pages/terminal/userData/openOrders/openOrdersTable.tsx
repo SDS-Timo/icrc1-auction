@@ -77,6 +77,7 @@ export default function tableContent(
         const {
           quote,
           base,
+          decimals,
           volumeInQuote,
           volumeInBase,
           volumeInQuoteDecimals,
@@ -97,7 +98,9 @@ export default function tableContent(
               </>
             ) : (
               <>
-                {volumeInBase.toFixed(volumeInBaseDecimals)}{' '}
+                {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
+                  ? volumeInBase.toFixed(volumeInBaseDecimals)
+                  : volumeInBase.toFixed(decimals)}{' '}
                 <Text as="span" fontSize="10px">
                   {base}
                 </Text>

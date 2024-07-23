@@ -98,6 +98,13 @@ const OpenOrders: React.FC = () => {
 
     console.log(result)
 
+    if (result.length > 0 && 'Ok' in result[0]) {
+      console.log('order canceled')
+    } else {
+      console.log('error in order canceled')
+    }
+
+    dispatch(setIsRefreshOpenOrders())
     setOpenOrdersFiltered((prevState) =>
       prevState.map((order) =>
         order.id === id ? { ...order, action: false } : order,

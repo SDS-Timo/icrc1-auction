@@ -40,26 +40,19 @@ export function convertVolumeFromCanister(
 
 /**
  * Convert the price in the smallest units of the base and quote currencies.
- * @param baseAmount - The amount in the base currency.
- * @param quoteAmount - The amount in the quote currency.
+ * @param price - The price in the quote currency.
  * @param decimalsPrice - The number of decimal places for the price.
  * @param decimalsQuote - The number of decimal places for the quote currency.
  * @returns The price in the smallest unit of the quote currency.
  */
 export function convertPriceToCanister(
-  baseAmount: number,
-  quoteAmount: number,
+  price: number,
   decimalsPrice: number,
   decimalsQuote: number,
 ): number {
-  const smallestUnitBase = Math.pow(10, -decimalsPrice)
-  const smallestUnitQuote = Math.pow(10, -decimalsQuote)
-
-  const baseAmountInSmallestUnit = baseAmount / smallestUnitBase
-  const quoteAmountInSmallestUnit = quoteAmount / smallestUnitQuote
-
-  const price = Math.round(quoteAmountInSmallestUnit / baseAmountInSmallestUnit)
-  return price
+  const priceInSmallestUnitBase =
+    price * Math.pow(10, decimalsQuote - decimalsPrice)
+  return priceInSmallestUnitBase
 }
 
 /**
