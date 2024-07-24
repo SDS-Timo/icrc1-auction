@@ -74,7 +74,7 @@ const useTransactionHistory = () => {
             )
 
             return {
-              id: index,
+              id: BigInt(index),
               datetime: formattedDateTime,
               time: formattedTime,
               price: formattedPrice,

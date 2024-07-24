@@ -17,7 +17,7 @@ const Terminal: React.FC = () => {
   )
 
   return (
-    <Box p={2}>
+    <Box px={2}>
       <Flex
         w="100%"
         borderRadius="md"

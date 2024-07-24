@@ -1,7 +1,7 @@
 import { HttpAgent } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
 
-import { TokenDataItem, TokenMetadata, Option } from '../types'
+import { TokenDataItem, TokenMetadata, Option, Order } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
@@ -38,7 +38,7 @@ const useOrders = () => {
       ]
 
       const openOrders: TokenDataItem[] = await Promise.all(
-        openOrdersRaw.map(async (order) => {
+        (openOrdersRaw ?? []).map(async (order) => {
           const { id, icrc1Ledger, price, volume, type } = order
 
           const { token, logo } = await getTokenInfo(userAgent, icrc1Ledger)
@@ -76,12 +76,6 @@ const useOrders = () => {
       console.error('Error fetching orders:', error)
       return []
     }
-  }
-
-  interface Order {
-    volume: number
-    price: number
-    type: string
   }
 
   /**
@@ -131,6 +125,15 @@ const useOrders = () => {
     }
   }
 
+  /**
+   * Cancels an order based on its type and ID.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param id - The ID of the order to be cancelled. Must be a bigint.
+   * @param type - The type of the order to be cancelled, either 'buy' or 'sell'.
+   * @returns A promise that resolves to the result of the cancellation operation.
+   * @throws An error if the order ID or type is not provided.
+   */
   const cancelOrder = async (
     userAgent: HttpAgent,
     id: bigint | undefined,

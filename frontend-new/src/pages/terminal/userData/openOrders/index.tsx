@@ -180,6 +180,7 @@ const OpenOrders: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) fetchOpenOrders()
+    else setShowAllMarkets(false)
   }, [selectedQuote, selectedSymbol, userAgent, isRefreshOpenOrders])
 
   return (

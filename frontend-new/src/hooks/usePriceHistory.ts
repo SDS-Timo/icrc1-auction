@@ -83,7 +83,7 @@ const usePriceHistory = () => {
           )
 
           return {
-            id: index,
+            id: BigInt(index),
             datetime: formattedDateTime,
             time: formattedTime,
             price: formattedPrice,

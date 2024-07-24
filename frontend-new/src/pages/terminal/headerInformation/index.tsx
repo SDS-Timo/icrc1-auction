@@ -21,7 +21,8 @@ const HeaderInformation = () => {
   return (
     <Flex direction="row" wrap="wrap" gap={4}>
       <Box
-        p={4}
+        mt={3}
+        ml={4}
         borderRadius="md"
         flex="1"
         filter={isLoading ? 'blur(5px)' : 'none'}
@@ -41,9 +42,9 @@ const HeaderInformation = () => {
         </Flex>
       </Box>
       <Box
-        p={4}
         borderRadius="md"
         flex="1"
+        mt={1}
         filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
@@ -93,7 +94,8 @@ const HeaderInformation = () => {
         </Flex>
       </Box>
       <Box
-        p={4}
+        mt={3}
+        ml={4}
         borderRadius="md"
         flex="1"
         filter={isLoading ? 'blur(5px)' : 'none'}

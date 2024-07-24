@@ -57,27 +57,28 @@ export function convertPriceToCanister(
 
 /**
  * Convert the volume in the smallest units of the base currency.
- * @param quoteAmount - The amount in the quote currency.
- * @param priceInQuote - The price in quote unit.
- * @param decimalsPrice - The number of decimal places for the price.
+ * @param baseAmount - The amount in the base currency.
+ * @param decimalsBase - The number of decimal places for the base currency.
  * @returns The volume in the smallest unit of the base currency.
  */
 export function convertVolumeToCanister(
-  quoteAmount: number,
-  priceInQuote: number,
-  decimalsPrice: number,
-): number {
-  const smallestUnitBase = Math.pow(10, -decimalsPrice)
-
-  const baseAmount = quoteAmount / priceInQuote
-
-  const volume = Math.round(baseAmount / smallestUnitBase)
-  return volume
+  baseAmount: number,
+  decimalsBase: number,
+): bigint {
+  const smallestUnitBase = Math.pow(10, decimalsBase)
+  const volume = baseAmount * smallestUnitBase
+  return BigInt(Math.round(volume))
 }
 
-export function getDecimals(option: any): number {
-  if (option && !Array.isArray(option) && typeof option.decimals === 'number') {
-    return option.decimals
+/**
+ * Retrieves the decimal places from the provided symbol object.
+ *
+ * @param symbol - The object containing the decimals property. If the property is not found or the input is invalid, a default value is returned.
+ * @returns The number of decimal places specified in the symbol object, or a default value of 20 if the property is not found or the input is invalid.
+ */
+export function getDecimals(symbol: any): number {
+  if (symbol && !Array.isArray(symbol) && typeof symbol.decimals === 'number') {
+    return symbol.decimals
   }
   return 20
 }
@@ -94,17 +95,22 @@ export function addDecimal<T extends DataItem | TokenDataItem>(
   objects: T[],
 ): T[] {
   function getDecimalPlaces(num: { toString: () => string }) {
-    const numStr = num.toString().split('.')[1] || ''
-    const firstSignificantDigitIndex = numStr.search(/[^0]/)
+    // Convert the number to a string and handle exponential notation
+    let numStr = num.toString()
+    if (numStr.includes('e')) {
+      numStr = Number(num)
+        .toFixed(20)
+        .replace(/\.?0+$/, '')
+    }
+
+    const decimalPart = numStr.split('.')[1] || ''
+    const firstSignificantDigitIndex = decimalPart.search(/[^0]/)
 
     if (firstSignificantDigitIndex === -1) {
       return 0
     }
-    if (firstSignificantDigitIndex + 1 < numStr.length) {
-      return firstSignificantDigitIndex + 2
-    } else {
-      return firstSignificantDigitIndex + 1
-    }
+
+    return firstSignificantDigitIndex + 2
   }
 
   let maxPriceDecimals = 0

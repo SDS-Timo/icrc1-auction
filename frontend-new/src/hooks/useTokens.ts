@@ -20,7 +20,7 @@ const useTokens = () => {
 
       const principals = await serviceActor.icrc84_supported_tokens()
       const tokens = await Promise.all(
-        principals.map(async (principal) => {
+        (principals ?? []).map(async (principal) => {
           const { token, logo } = await getTokenInfo(userAgent, principal)
           return { ...token, logo, principal: principal.toText() }
         }),

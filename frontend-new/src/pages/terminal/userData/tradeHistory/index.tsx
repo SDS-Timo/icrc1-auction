@@ -91,6 +91,7 @@ const TradeHistory: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) fetchTransactions()
+    else setShowAllMarkets(false)
   }, [selectedQuote, selectedSymbol, userAgent])
 
   return (

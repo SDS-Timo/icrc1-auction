@@ -114,8 +114,7 @@ const Trading = () => {
       )
 
       const volume = convertVolumeToCanister(
-        Number(values.quoteAmount),
-        Number(values.price),
+        Number(values.baseAmount),
         Number(symbol?.decimals),
       )
 
@@ -300,7 +299,7 @@ const Trading = () => {
                   'quoteAmount',
                   (
                     parseFloat(e.target.value) * parseFloat(formik.values.price)
-                  ).toFixed(2),
+                  ).toFixed(selectedQuote.decimals),
                 )
               }
             }}

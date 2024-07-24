@@ -75,3 +75,12 @@ export interface PlaceOrder {
   Err?: PlaceOrderError
   [key: string]: any
 }
+export interface Order {
+  volume: bigint
+  price: number
+  type: string
+}
+export interface Balances extends TokenMetadata {
+  id: number
+  volume: number
+}
