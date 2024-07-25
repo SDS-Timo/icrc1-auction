@@ -13,16 +13,20 @@ import {
 } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import SeedComponent from './seed'
+import SeedComponent from './auth/seed'
+import WalletComponent from './wallet'
 import { RootState } from '../../store'
 import { logout } from '../../store/auth'
 
-interface AuthComponentProps {
+interface AccountComponentProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const authComponent: React.FC<AuthComponentProps> = ({ isOpen, onClose }) => {
+const AccountComponent: React.FC<AccountComponentProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const dispatch = useDispatch()
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -39,10 +43,18 @@ const authComponent: React.FC<AuthComponentProps> = ({ isOpen, onClose }) => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Log in to Auction with</DrawerHeader>
+          {isAuthenticated ? (
+            <DrawerHeader>Account details</DrawerHeader>
+          ) : (
+            <DrawerHeader>Log in to Auction with</DrawerHeader>
+          )}
 
           <DrawerBody>
-            <SeedComponent onClose={onClose} />
+            {isAuthenticated ? (
+              <WalletComponent />
+            ) : (
+              <SeedComponent onClose={onClose} />
+            )}
           </DrawerBody>
 
           <DrawerFooter>
@@ -60,4 +72,4 @@ const authComponent: React.FC<AuthComponentProps> = ({ isOpen, onClose }) => {
   )
 }
 
-export default authComponent
+export default AccountComponent

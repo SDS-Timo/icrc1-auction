@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
   Input,
   VStack,
@@ -19,11 +20,13 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as Yup from 'yup'
 
 import TradeTypeSelector from './tradeTypeSelector'
-import AuthComponent from '../../../components/auth'
+import AccountComponent from '../../../components/account'
+import useBalances from '../../../hooks/useBalances'
 import useOrders from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
+import { setBalances } from '../../../store/balances'
 import { setIsRefreshOpenOrders } from '../../../store/orders'
-import { PlaceOrder } from '../../../types'
+import { PlaceOrder, TokenDataItem } from '../../../types'
 import {
   convertPriceToCanister,
   convertVolumeToCanister,
@@ -45,6 +48,8 @@ const Trading = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [tradeType, setTradeType] = useState('buy')
+  const [loading, setLoading] = useState(true)
+  const [available, setAvailable] = useState<TokenDataItem | null>(null)
   const [selectedPercentage, setSelectedPercentage] = useState(null)
   const [message, setMessage] = useState<string | null>(null)
   const { userAgent } = useSelector((state: RootState) => state.auth)
@@ -52,6 +57,7 @@ const Trading = () => {
     (state: RootState) => state.auth.isAuthenticated,
   )
   const openOrders = useSelector((state: RootState) => state.orders.openOrders)
+  const balances = useSelector((state: RootState) => state.balances.balances)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -61,17 +67,6 @@ const Trading = () => {
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
-
-  const handleTradeTypeChange = (type: any) => {
-    setMessage(null)
-    setTradeType(type)
-  }
-
-  const handlePercentageClick = (percentage: any) => {
-    setSelectedPercentage(
-      percentage === selectedPercentage || !isAuthenticated ? null : percentage,
-    )
-  }
 
   const initialValues = {
     price: '',
@@ -201,11 +196,92 @@ const Trading = () => {
     },
   })
 
+  const handleTradeTypeChange = (type: string) => {
+    setMessage(null)
+    setTradeType(type)
+    updateAvailable(type)
+    formik.setFieldValue('price', '')
+    formik.setFieldValue('quoteAmount', '')
+    formik.setFieldValue('baseAmount', '')
+  }
+
+  const updateAvailable = (type: string) => {
+    const quote = symbol?.quote
+    const base = symbol?.base
+    const token = type === 'buy' ? quote : base
+
+    const balance = balances.find((balance) => balance.symbol === token)
+
+    if (balance) {
+      setAvailable(balance)
+    } else {
+      setAvailable(null)
+    }
+  }
+
+  const handlePercentageClick = (percentage: any) => {
+    setSelectedPercentage(
+      percentage === selectedPercentage ||
+        !isAuthenticated ||
+        !formik.values.price
+        ? null
+        : percentage,
+    )
+  }
+
+  async function fetchBalances() {
+    setLoading(true)
+    const { getBalances } = useBalances()
+    const balancesRaw = await getBalances(userAgent)
+    const sortedBalances = balancesRaw.sort(
+      (a, b) => b.volumeInBase - a.volumeInBase,
+    )
+    dispatch(setBalances(sortedBalances))
+    setLoading(false)
+  }
+
   useEffect(() => {
     formik.resetForm({ values: initialValues })
     handlePercentageClick(0)
     setMessage(null)
   }, [selectedSymbol])
+
+  useEffect(() => {
+    updateAvailable(tradeType)
+  }, [balances])
+
+  useEffect(() => {
+    fetchBalances()
+  }, [userAgent])
+
+  useEffect(() => {
+    if (
+      available &&
+      selectedPercentage &&
+      formik.values.price &&
+      !isNaN(parseFloat(formik.values.price))
+    ) {
+      const percentageAvailable =
+        (selectedPercentage / 100) * available.volumeInBase
+
+      let baseAmount = 0
+      let quoteAmount = 0
+
+      if (tradeType === 'buy') {
+        baseAmount = percentageAvailable / parseFloat(formik.values.price)
+        quoteAmount = baseAmount * parseFloat(formik.values.price)
+      } else {
+        baseAmount = percentageAvailable * parseFloat(formik.values.price)
+        quoteAmount = baseAmount / parseFloat(formik.values.price)
+      }
+
+      formik.setFieldValue('baseAmount', baseAmount.toFixed(symbol?.decimals))
+      formik.setFieldValue(
+        'quoteAmount',
+        quoteAmount.toFixed(selectedQuote.decimals),
+      )
+    }
+  }, [selectedPercentage])
 
   useEffect(() => {
     if (message) {
@@ -356,21 +432,28 @@ const Trading = () => {
           >
             Login or Create Account
           </Button>
-          <AuthComponent isOpen={isOpen} onClose={onClose} />
+          <AccountComponent isOpen={isOpen} onClose={onClose} />
         </Flex>
       ) : (
         <>
-          <Text textAlign="center" fontSize="14px">
-            Available:
-            {selectedSymbol
-              ? ' 7000 ' +
-                (tradeType === 'buy'
-                  ? symbol?.quote
-                  : tradeType === 'sell'
-                    ? symbol?.base
-                    : '')
-              : ''}
-          </Text>
+          <Box
+            filter={loading ? 'blur(5px)' : 'none'}
+            pointerEvents={loading ? 'none' : 'auto'}
+          >
+            <Text textAlign="center" fontSize="14px">
+              Available:
+              {available?.volumeInBase && symbol && tradeType ? (
+                <>
+                  {` ${available.volumeInBase.toFixed(available.volumeInBaseDecimals)} `}
+                </>
+              ) : (
+                <>{` 0 `}</>
+              )}
+              <Text as="span" fontSize="11px">
+                {tradeType === 'buy' ? symbol?.quote : symbol?.base}
+              </Text>
+            </Text>
+          </Box>{' '}
           <Button
             background={tradeType === 'buy' ? 'green.500' : 'red.500'}
             variant="solid"

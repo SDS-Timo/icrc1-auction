@@ -63,7 +63,9 @@ export interface TokenDataItemState {
   isRefreshOpenOrders: boolean
   openOrders: TokenDataItem[] | []
 }
-
+export interface BalancesState {
+  balances: TokenDataItem[] | []
+}
 export interface CancelOrder {
   Ok?: any
   Err?: CancelOrderError
@@ -79,8 +81,4 @@ export interface Order {
   volume: bigint
   price: number
   type: string
-}
-export interface Balances extends TokenMetadata {
-  id: number
-  volume: number
 }

@@ -7,7 +7,7 @@ import NavbarLanguages from './language'
 import NavbarSettings from './settings'
 import NavbarTheme from './theme'
 import NavbarWallet from './wallet'
-import AuthComponent from '../auth'
+import AccountComponent from '../account'
 
 const NavbarComponent: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -27,7 +27,7 @@ const NavbarComponent: React.FC = () => {
         <NavbarTheme />
         <NavbarSettings />
         <NavbarWallet onOpen={onOpen} />
-        <AuthComponent isOpen={isOpen} onClose={onClose} />
+        <AccountComponent isOpen={isOpen} onClose={onClose} />
       </Flex>
     </Flex>
   )

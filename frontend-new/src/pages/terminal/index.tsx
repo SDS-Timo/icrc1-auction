@@ -28,7 +28,8 @@ const Terminal: React.FC = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          mb={{ base: 4, md: 0 }}
+          mt={{ base: 2, md: 3 }}
+          mb={{ base: 2, md: 3 }}
         >
           <SymbolSelection />
         </Box>

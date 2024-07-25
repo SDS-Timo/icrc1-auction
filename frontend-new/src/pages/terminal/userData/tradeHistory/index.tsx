@@ -10,7 +10,7 @@ import {
 import { useSelector } from 'react-redux'
 
 import tableContent from './tradeHistoryTable'
-import AuthComponent from '../../../../components/auth'
+import AccountComponent from '../../../../components/account'
 import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
@@ -115,7 +115,7 @@ const TradeHistory: React.FC = () => {
           >
             Login or Create Account
           </Button>
-          <AuthComponent isOpen={isOpen} onClose={onClose} />
+          <AccountComponent isOpen={isOpen} onClose={onClose} />
         </Flex>
       ) : (
         <Box>

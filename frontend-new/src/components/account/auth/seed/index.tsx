@@ -14,8 +14,8 @@ import {
 } from '@chakra-ui/react'
 import { useDispatch } from 'react-redux'
 
-import { AppDispatch } from '../../../store'
-import { seedAuthenticate } from '../../../utils/authUtils'
+import { AppDispatch } from '../../../../store'
+import { seedAuthenticate } from '../../../../utils/authUtils'
 
 interface SeedComponentProps {
   onClose: () => void
