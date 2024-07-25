@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react'
 
 import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Flex,
-  Button,
-  useColorModeValue,
-  useDisclosure,
-  useToast,
-  Spinner,
-} from '@chakra-ui/react'
+import { Box, useDisclosure, useToast, Spinner } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './openOrdersTable'
-import AccountComponent from '../../../../components/account'
+import LoginButtonComponent from '../../../../components/loginButton'
 import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
@@ -24,8 +16,6 @@ import { TokenDataItem, CancelOrder } from '../../../../types'
 import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
 
 const OpenOrders: React.FC = () => {
-  const bgColor = useColorModeValue('grey.200', 'grey.600')
-  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const toast = useToast({
     duration: 10000,
     position: 'top-right',
@@ -189,23 +179,13 @@ const OpenOrders: React.FC = () => {
       pointerEvents={loading ? 'none' : 'auto'}
     >
       {!isAuthenticated ? (
-        <Flex justifyContent="center" alignItems="center" h="20vh">
-          <Button
-            onClick={onOpen}
-            variant="unstyled"
-            _hover={{
-              bg: bgColor,
-              color: fontColor,
-            }}
-            fontSize="sm"
-            size="sm"
-            px="15px"
-            isDisabled={!symbol}
-          >
-            Login or Create Account
-          </Button>
-          <AccountComponent isOpen={isOpen} onClose={onClose} />
-        </Flex>
+        <LoginButtonComponent
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+          symbol={symbol}
+          height="20vh"
+        />
       ) : (
         <Box>
           <PaginationTable

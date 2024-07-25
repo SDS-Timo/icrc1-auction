@@ -10,7 +10,6 @@ import {
   Text,
   FormLabel,
   FormControl,
-  useColorModeValue,
   useDisclosure,
   useToast,
   Spinner,
@@ -20,7 +19,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as Yup from 'yup'
 
 import TradeTypeSelector from './tradeTypeSelector'
-import AccountComponent from '../../../components/account'
+import LoginButtonComponent from '../../../components/loginButton'
 import useBalances from '../../../hooks/useBalances'
 import useOrders from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
@@ -37,8 +36,6 @@ import {
 } from '../../../utils/orderUtils'
 
 const Trading = () => {
-  const bgColor = useColorModeValue('grey.200', 'grey.600')
-  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const toast = useToast({
     duration: 10000,
     position: 'top-right',
@@ -200,6 +197,7 @@ const Trading = () => {
     setMessage(null)
     setTradeType(type)
     updateAvailable(type)
+    setSelectedPercentage(null)
     formik.setFieldValue('price', '')
     formik.setFieldValue('quoteAmount', '')
     formik.setFieldValue('baseAmount', '')
@@ -417,23 +415,13 @@ const Trading = () => {
         ))}
       </Flex>
       {!isAuthenticated ? (
-        <Flex justifyContent="center" alignItems="center" h="10vh">
-          <Button
-            onClick={onOpen}
-            variant="unstyled"
-            _hover={{
-              bg: bgColor,
-              color: fontColor,
-            }}
-            fontSize="sm"
-            size="sm"
-            px="15px"
-            isDisabled={!symbol}
-          >
-            Login or Create Account
-          </Button>
-          <AccountComponent isOpen={isOpen} onClose={onClose} />
-        </Flex>
+        <LoginButtonComponent
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+          symbol={symbol}
+          height="10vh"
+        />
       ) : (
         <>
           <Box
