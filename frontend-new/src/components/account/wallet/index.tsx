@@ -15,14 +15,17 @@ import {
   useToast,
   useColorModeValue,
   Progress,
+  Tooltip,
 } from '@chakra-ui/react'
 import { FaWallet, FaCopy } from 'react-icons/fa'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
+import { PiDownloadSimpleBold } from 'react-icons/pi'
 import { useSelector, useDispatch } from 'react-redux'
 
 import useBalances from '../../../hooks/useBalances'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
+import { formatWalletAddress } from '../../../utils/authUtils'
 
 const WalletContent: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
@@ -34,9 +37,10 @@ const WalletContent: React.FC = () => {
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   )
+  const isPrincipal = useSelector((state: RootState) => state.auth.isPrincipal)
   const balances = useSelector((state: RootState) => state.balances.balances)
 
-  const walletAddress = '0x1234....5678'
+  const walletAddress = formatWalletAddress(isPrincipal)
   const toast = useToast()
 
   async function fetchBalances() {
@@ -55,7 +59,7 @@ const WalletContent: React.FC = () => {
   }, [userAgent])
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(walletAddress).then(() => {
+    navigator.clipboard.writeText(isPrincipal).then(() => {
       toast({
         position: 'top-right',
         title: 'Copied',
@@ -72,9 +76,11 @@ const WalletContent: React.FC = () => {
       <Flex align="center">
         <Icon as={FaWallet} boxSize={6} mr={2} />
         <Text>{walletAddress}</Text>
-        <Button onClick={copyToClipboard} variant="unstyled" ml={2}>
-          <Icon as={FaCopy} boxSize={4} />
-        </Button>
+        <Tooltip label="Wallet Address" aria-label="Wallet Address">
+          <Button onClick={copyToClipboard} ml={2} variant="ghost" size="xs">
+            <Icon as={FaCopy} boxSize={4} />
+          </Button>
+        </Tooltip>
       </Flex>
       <Flex justify="space-between" mt={3}>
         <Button
@@ -158,15 +164,19 @@ const WalletContent: React.FC = () => {
                       w="30px"
                     />
                     <Text ml={2} fontSize="14px" fontWeight={600}>
-                      {token.name}
-                    </Text>
-                  </Flex>
-                  <Text fontSize="13px">
-                    {token.volumeInBase.toFixed(token.volumeInBaseDecimals)}
-                    <Text as="span" fontSize="10px" ml={1}>
                       {token.symbol}
                     </Text>
-                  </Text>
+                  </Flex>
+                  <Flex align="center" ml={2}>
+                    <Text fontSize="13px" mr={2}>
+                      {token.volumeInBase.toFixed(token.volumeInBaseDecimals)}
+                    </Text>
+                    <Tooltip label="Direct Deposit" aria-label="Direct Deposit">
+                      <Button variant="ghost" size="xs">
+                        <Icon as={PiDownloadSimpleBold} boxSize={4} />
+                      </Button>
+                    </Tooltip>
+                  </Flex>
                 </Flex>
               ))
             )}

@@ -4,7 +4,7 @@ import { Ed25519KeyIdentity } from '@dfinity/identity'
 import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { AppDispatch } from '../store'
-import { setUserAgent, setIsAuthenticated } from '../store/auth'
+import { setUserAgent, setIsAuthenticated, setIsPrincipal } from '../store/auth'
 
 /**
  * Creates and returns an actor for interacting with the specified canister.
@@ -41,9 +41,26 @@ export function getAgent(identity: Identity) {
  * @param myAgent - The HTTP agent to be used for the login process.
  * @param dispatch - The dispatch function to trigger actions in the Redux store.
  */
-function doLogin(myAgent: HttpAgent, dispatch: AppDispatch) {
+async function doLogin(myAgent: HttpAgent, dispatch: AppDispatch) {
   dispatch(setUserAgent(myAgent))
   dispatch(setIsAuthenticated(true))
+
+  const principal = await myAgent.getPrincipal()
+  dispatch(setIsPrincipal(principal.toText()))
+}
+
+/**
+ * Formats a wallet address by displaying the first 4 characters,
+ * followed by ellipsis (...), and the last 3 characters.
+ *
+ * @param {string} address - The wallet address to format.
+ * @returns {string} The formatted wallet address.
+ */
+export function formatWalletAddress(address: string): string {
+  if (address.length <= 9) {
+    return address
+  }
+  return `${address.slice(0, 4)}...${address.slice(-3)}`
 }
 
 /**

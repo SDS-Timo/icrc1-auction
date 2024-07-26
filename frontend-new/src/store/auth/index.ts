@@ -7,6 +7,7 @@ import { getAgent } from '../../utils/authUtils'
 interface AuthState {
   userAgent: HttpAgent
   isAuthenticated: boolean
+  isPrincipal: string
 }
 
 const anonymousIdentity = getAgent(new AnonymousIdentity())
@@ -14,6 +15,7 @@ const anonymousIdentity = getAgent(new AnonymousIdentity())
 const initialState: AuthState = {
   userAgent: anonymousIdentity,
   isAuthenticated: false,
+  isPrincipal: '',
 }
 
 const authSlice = createSlice({
@@ -32,6 +34,12 @@ const authSlice = createSlice({
     ) => {
       state.isAuthenticated = action.payload
     },
+    setIsPrincipal: (
+      state: Draft<AuthState>,
+      action: PayloadAction<string>,
+    ) => {
+      state.isPrincipal = action.payload
+    },
     logout: (state: Draft<AuthState>) => {
       state.userAgent = anonymousIdentity
       state.isAuthenticated = false
@@ -39,5 +47,6 @@ const authSlice = createSlice({
   },
 })
 
-export const { setUserAgent, setIsAuthenticated, logout } = authSlice.actions
+export const { setUserAgent, setIsAuthenticated, setIsPrincipal, logout } =
+  authSlice.actions
 export default authSlice.reducer
