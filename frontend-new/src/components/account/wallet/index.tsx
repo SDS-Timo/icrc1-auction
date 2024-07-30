@@ -64,7 +64,6 @@ const WalletContent: React.FC = () => {
     )
     dispatch(setBalances(sortedBalances))
     setLoading(false)
-    return sortedBalances
   }
 
   const copyToClipboard = () => {
@@ -93,7 +92,7 @@ const WalletContent: React.FC = () => {
     loadingNotify(base, true)
 
     const toastId = toast({
-      title: `${base} Notify deposit pending`,
+      title: `Checking new ${base} deposits`,
       description: 'Please wait',
       status: 'loading',
       duration: null,
@@ -103,20 +102,35 @@ const WalletContent: React.FC = () => {
     balanceNotify(userAgent, principal)
       .then(async (response: NotifyResult) => {
         if (Object.keys(response).includes('Ok')) {
-          const newBalances = await fetchBalances()
-          const balance = newBalances.find((balance) => balance.base === base)
+          await fetchBalances()
+          const token = balances.find((balance) => balance.base === base)
 
-          const creditInc = response.Ok?.credit_inc
-          const { volumeInBase } = convertVolumeFromCanister(
-            Number(creditInc),
-            getDecimals(balance),
+          const creditTotalRaw = response.Ok?.credit
+          const depositIncRaw = response.Ok?.deposit_inc
+          const creditIncRaw = response.Ok?.credit_inc
+
+          const { volumeInBase: creditTotal } = convertVolumeFromCanister(
+            Number(creditTotalRaw),
+            getDecimals(token),
+            0,
+          )
+
+          const { volumeInBase: depositInc } = convertVolumeFromCanister(
+            Number(depositIncRaw),
+            getDecimals(token),
+            0,
+          )
+
+          const { volumeInBase: creditInc } = convertVolumeFromCanister(
+            Number(creditIncRaw),
+            getDecimals(token),
             0,
           )
 
           if (toastId) {
             toast.update(toastId, {
-              title: `${base} deposit sucess`,
-              description: `Deposit: ${volumeInBase} | Total: ${balance?.volumeInBase}`,
+              title: `New ${base} deposits found: ${depositInc}`,
+              description: `Credited: ${creditInc} | Total: ${creditTotal.toFixed(token?.volumeInBaseDecimals)}`,
               status: 'success',
               isClosable: true,
             })
@@ -125,7 +139,7 @@ const WalletContent: React.FC = () => {
           if (toastId) {
             const description = getErrorMessageNotifyDeposits(response.Err)
             toast.update(toastId, {
-              title: `${base} Notify deposit finished`,
+              title: `No new ${base} deposits found`,
               description,
               status: 'warning',
               isClosable: true,

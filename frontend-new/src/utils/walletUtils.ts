@@ -8,7 +8,7 @@ import { NotifyResult } from '../types'
  */
 export const getErrorMessageNotifyDeposits = (error: NotifyResult): string => {
   const errorMessages: { [key: string]: string } = {
-    NotAvailable: 'Deposit was not detected',
+    NotAvailable: '',
     CallLedgerError: 'Call Ledger Error',
   }
 
