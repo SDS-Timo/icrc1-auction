@@ -31,31 +31,22 @@ const ChartPlot = () => {
   const priceHistoryData = useSelector(
     (state: RootState) => state.prices.pricesHistory,
   )
+  const symbol = Array.isArray(selectedSymbol)
+    ? selectedSymbol[0]
+    : selectedSymbol
 
   const [chartData, setChartData] = useState<DataItem[]>([])
   const [volumeAxis, setVolumeAxis] = useState('quote')
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState('All')
-  const symbol = Array.isArray(selectedSymbol)
-    ? selectedSymbol[0]
-    : selectedSymbol
 
   async function fetchPrices() {
-    if (
-      selectedSymbol &&
-      selectedQuote &&
-      !Array.isArray(selectedSymbol) &&
-      selectedSymbol.principal
-    ) {
+    if (symbol && symbol.principal && selectedQuote) {
       setLoading(true)
       dispatch(setHeaderInformation(null))
 
       const { getPriceHistory } = usePriceHistory()
-      const prices = await getPriceHistory(
-        userAgent,
-        selectedSymbol,
-        selectedQuote,
-      )
+      const prices = await getPriceHistory(userAgent, symbol, selectedQuote)
 
       const headerInformation = calculateHeaderInformation(prices)
       dispatch(setHeaderInformation(headerInformation))

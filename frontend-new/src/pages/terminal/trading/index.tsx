@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 
-import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -20,8 +19,8 @@ import * as Yup from 'yup'
 
 import TradeTypeSelector from './tradeTypeSelector'
 import LoginButtonComponent from '../../../components/loginButton'
-import useBalances from '../../../hooks/useBalances'
 import useOrders from '../../../hooks/useOrders'
+import useBalances from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
 import { setIsRefreshOpenOrders } from '../../../store/orders'
@@ -54,6 +53,7 @@ const Trading = () => {
     (state: RootState) => state.auth.isAuthenticated,
   )
   const openOrders = useSelector((state: RootState) => state.orders.openOrders)
+  const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const balances = useSelector((state: RootState) => state.balances.balances)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
@@ -139,7 +139,6 @@ const Trading = () => {
         status: 'loading',
         duration: null,
         isClosable: true,
-        icon: <Spinner size="sm" />,
       })
 
       const { placeOrder } = useOrders()
@@ -157,7 +156,6 @@ const Trading = () => {
                 description: 'Order created',
                 status: 'success',
                 isClosable: true,
-                icon: <CheckIcon />,
               })
             }
           } else {
@@ -168,7 +166,6 @@ const Trading = () => {
                 description,
                 status: 'error',
                 isClosable: true,
-                icon: <CloseIcon />,
               })
             }
           }
@@ -182,7 +179,6 @@ const Trading = () => {
               description: `Error: ${message}`,
               status: 'error',
               isClosable: true,
-              icon: <CloseIcon />,
             })
           }
 
@@ -230,7 +226,7 @@ const Trading = () => {
   async function fetchBalances() {
     setLoading(true)
     const { getBalances } = useBalances()
-    const balancesRaw = await getBalances(userAgent)
+    const balancesRaw = await getBalances(userAgent, tokens)
     const sortedBalances = balancesRaw.sort(
       (a, b) => b.volumeInBase - a.volumeInBase,
     )

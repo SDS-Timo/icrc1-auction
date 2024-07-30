@@ -9,7 +9,7 @@ import {
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
-import { getTokenInfo } from '../utils/tokenUtils'
+import { getToken } from '../utils/tokenUtils'
 
 /**
  * Custom hook for managing orders.
@@ -19,14 +19,18 @@ const useOrders = () => {
    * Fetches and returns the open orders.
    *
    * @param userAgent - The HTTP agent to interact with the canister.
+   * @param tokens - An array of token objects.
    * @param selectedQuote - The selected token metadata for the quote currency.
    * @returns A promise that resolves to an array of open TokenDataItem orders.
    */
   const getOpenOrders = async (
     userAgent: HttpAgent,
+    tokens: TokenMetadata[],
     selectedQuote: TokenMetadata,
   ): Promise<TokenDataItem[]> => {
     try {
+      if (!tokens || tokens.length === 0) return []
+
       const serviceActor = getActor(userAgent)
 
       const bidsRaw = await serviceActor.queryBids()
@@ -41,7 +45,7 @@ const useOrders = () => {
         (openOrdersRaw ?? []).map(async (order) => {
           const { id, icrc1Ledger, price, volume, type } = order
 
-          const { token, logo } = await getTokenInfo(userAgent, icrc1Ledger)
+          const token = getToken(tokens, icrc1Ledger)
 
           const formattedPrice = convertPriceFromCanister(
             Number(price),
@@ -64,7 +68,6 @@ const useOrders = () => {
             volumeInQuote,
             volumeInBase,
             ...token,
-            logo,
           }
         }),
       )

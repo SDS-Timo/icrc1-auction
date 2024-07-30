@@ -48,6 +48,7 @@ export interface TokenMetadata {
   principal?: string
 }
 export interface TokensState {
+  tokens: TokenMetadata[] | []
   selectedSymbol: Option | Option[] | null
   selectedQuote: TokenMetadata
 }
@@ -71,10 +72,14 @@ export interface CancelOrder {
   Err?: CancelOrderError
   [key: string]: any
 }
-
 export interface PlaceOrder {
   Ok?: any
   Err?: PlaceOrderError
+  [key: string]: any
+}
+export interface NotifyResult {
+  Ok?: any
+  Err?: any
   [key: string]: any
 }
 export interface Order {

@@ -7,14 +7,19 @@ import { useSelector, useDispatch } from 'react-redux'
 import customStyles from './styles'
 import useTokens from '../../../hooks/useTokens'
 import { RootState, AppDispatch } from '../../../store'
-import { setSelectedSymbol, setSelectedQuote } from '../../../store/tokens'
-import { Option, TokenMetadata } from '../../../types'
+import {
+  setTokens,
+  setSelectedSymbol,
+  setSelectedQuote,
+} from '../../../store/tokens'
+import { Option } from '../../../types'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const [tokens, setTokens] = useState<TokenMetadata[]>([])
   const [loading, setLoading] = useState(true)
   const { userAgent } = useSelector((state: RootState) => state.auth)
+  const quoteSymbol = process.env.ENV_QUOTE_SYMBOL
+  const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -25,17 +30,18 @@ const SymbolSelection: React.FC = () => {
     const { getTokens } = useTokens()
     const data = await getTokens(userAgent)
 
-    const quoteToken = data.find((token) => token.symbol === 'USDC')
+    const quoteToken = data.find((token) => token.symbol === quoteSymbol)
     if (quoteToken) {
       dispatch(setSelectedQuote(quoteToken))
     }
 
     setTokens(data)
+    dispatch(setTokens(data))
     setLoading(false)
   }
 
   const filteredTokens = useMemo(
-    () => tokens.filter((token) => token.symbol !== 'USDC'),
+    () => tokens.filter((token) => token.symbol !== quoteSymbol),
     [tokens],
   )
 

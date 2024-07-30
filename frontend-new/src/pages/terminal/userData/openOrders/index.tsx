@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, useDisclosure, useToast, Spinner } from '@chakra-ui/react'
+import { Box, useDisclosure, useToast } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './openOrdersTable'
@@ -41,6 +40,7 @@ const OpenOrders: React.FC = () => {
     (state: RootState) => state.orders.isRefreshOpenOrders,
   )
   const openOrders = useSelector((state: RootState) => state.orders.openOrders)
+  const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -55,7 +55,11 @@ const OpenOrders: React.FC = () => {
     if (selectedQuote) {
       setLoading(true)
       const { getOpenOrders } = useOpenOrders()
-      const openOrdersRaw = await getOpenOrders(userAgent, selectedQuote)
+      const openOrdersRaw = await getOpenOrders(
+        userAgent,
+        tokens,
+        selectedQuote,
+      )
 
       dispatch(setOpenOrders(openOrdersRaw))
       filterOpenOrders(openOrdersRaw)
@@ -104,7 +108,6 @@ const OpenOrders: React.FC = () => {
       status: 'loading',
       duration: null,
       isClosable: true,
-      icon: <Spinner size="sm" />,
     })
 
     const { cancelOrder } = useOpenOrders()
@@ -117,7 +120,6 @@ const OpenOrders: React.FC = () => {
               description: 'Order cancelled',
               status: 'success',
               isClosable: true,
-              icon: <CheckIcon />,
             })
           }
         } else {
@@ -128,7 +130,6 @@ const OpenOrders: React.FC = () => {
               description,
               status: 'error',
               isClosable: true,
-              icon: <CloseIcon />,
             })
           }
         }
@@ -144,7 +145,6 @@ const OpenOrders: React.FC = () => {
             description: `Error: ${message}`,
             status: 'error',
             isClosable: true,
-            icon: <CloseIcon />,
           })
         }
 

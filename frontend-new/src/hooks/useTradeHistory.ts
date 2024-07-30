@@ -8,7 +8,7 @@ import {
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
-import { getTokenInfo } from '../utils/tokenUtils'
+import { getToken } from '../utils/tokenUtils'
 
 /**
  * Custom hook for fetching and managing transaction history.
@@ -18,14 +18,18 @@ const useTransactionHistory = () => {
    * Fetches and returns the transaction history.
    *
    * @param userAgent - The HTTP agent to interact with the canister.
+   * @param tokens - An array of token objects.
    * @param selectedQuote - The selected token metadata for the quote currency.
    * @returns A promise that resolves to an array of TokenDataItem objects representing the transaction history.
    */
   const getTransactionHistory = async (
     userAgent: HttpAgent,
+    tokens: TokenMetadata[],
     selectedQuote: TokenMetadata,
   ): Promise<TokenDataItem[]> => {
     try {
+      if (!tokens || tokens.length === 0) return []
+
       const serviceActor = getActor(userAgent)
       const transactions = await serviceActor.queryTransactionHistory(
         [],
@@ -36,7 +40,7 @@ const useTransactionHistory = () => {
         (transactions ?? []).map(
           async (
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            [ts, _sessionNumber, kind, ledger, volume, price],
+            [ts, _sessionNumber, kind, principal, volume, price],
             index,
           ) => {
             const date = new Date(Number(ts) / 1_000_000)
@@ -59,7 +63,7 @@ const useTransactionHistory = () => {
             }
             const formattedTime = date.toLocaleTimeString('en-US', optionsTime)
 
-            const { token, logo } = await getTokenInfo(userAgent, ledger)
+            const token = getToken(tokens, principal)
 
             const formattedPrice = convertPriceFromCanister(
               Number(price),
@@ -83,7 +87,6 @@ const useTransactionHistory = () => {
               volumeInQuote,
               volumeInBase,
               ...token,
-              logo,
             }
           },
         ),

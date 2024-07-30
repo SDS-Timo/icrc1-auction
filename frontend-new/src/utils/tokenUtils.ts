@@ -102,3 +102,30 @@ export async function getTokenInfo(
 
   return { token, logo }
 }
+
+/**
+ * Retrieves the token information for a given principal from a list of tokens.
+ *
+ * @param tokens - An array of token objects.
+ * @param principal - The principal object used to identify a specific token.
+ * @returns - The token information matching the given principal, or a standard token object if not found.
+ */
+export function getToken(tokens: TokenMetadata[], principal: Principal) {
+  const standard = {
+    symbol: '',
+    name: '',
+    decimals: 0,
+    logo: '',
+    fee: '',
+    quote: '',
+    base: '',
+    principal: '',
+  }
+
+  if (!tokens || !principal || tokens.length === 0) return standard
+
+  const token =
+    tokens.find((token) => token.principal === principal.toText()) ?? standard
+
+  return { ...token }
+}

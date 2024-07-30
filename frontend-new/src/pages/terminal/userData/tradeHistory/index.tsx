@@ -24,6 +24,7 @@ const TradeHistory: React.FC = () => {
   const [showAllMarkets, setShowAllMarkets] = useState(false)
   const [toggleVolume, setToggleVolume] = useState('quote')
   const { userAgent } = useSelector((state: RootState) => state.auth)
+  const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   )
@@ -44,7 +45,11 @@ const TradeHistory: React.FC = () => {
     if (selectedQuote) {
       setLoading(true)
       const { getTransactionHistory } = useTransactionHistory()
-      const transactions = await getTransactionHistory(userAgent, selectedQuote)
+      const transactions = await getTransactionHistory(
+        userAgent,
+        tokens,
+        selectedQuote,
+      )
 
       setTransactions(transactions)
       filterTransactions(transactions)

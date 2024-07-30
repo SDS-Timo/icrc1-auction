@@ -34,5 +34,6 @@ export default defineConfig({
     environment("all", { prefix: "CANISTER_" }),
     environment("all", { prefix: "HTTP_" }),
     environment("all", { prefix: "DFX_" }),
+    environment("all", { prefix: "ENV_" }),
   ],
 });

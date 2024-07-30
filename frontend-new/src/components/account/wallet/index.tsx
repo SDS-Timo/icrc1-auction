@@ -11,7 +11,6 @@ import {
   Tabs,
   Text,
   VStack,
-  Image,
   useToast,
   useColorModeValue,
   Progress,
@@ -19,44 +18,54 @@ import {
 } from '@chakra-ui/react'
 import { FaWallet, FaCopy } from 'react-icons/fa'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
-import { PiDownloadSimpleBold } from 'react-icons/pi'
 import { useSelector, useDispatch } from 'react-redux'
 
-import useBalances from '../../../hooks/useBalances'
+import TokenRow from './tokenRow'
+import useWallet from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
+import { NotifyResult, TokenDataItem } from '../../../types'
 import { formatWalletAddress } from '../../../utils/authUtils'
+import {
+  convertVolumeFromCanister,
+  getDecimals,
+} from '../../../utils/calculationsUtils'
+import { getErrorMessageNotifyDeposits } from '../../../utils/walletUtils'
 
 const WalletContent: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const toast = useToast({
+    duration: 10000,
+    position: 'top-right',
+    isClosable: true,
+  })
   const dispatch = useDispatch<AppDispatch>()
   const [selectedTab, setSelectedTab] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [localBalances, setLocalBalances] = useState<TokenDataItem[]>([])
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   )
   const isPrincipal = useSelector((state: RootState) => state.auth.isPrincipal)
   const balances = useSelector((state: RootState) => state.balances.balances)
+  const tokens = useSelector((state: RootState) => state.tokens.tokens)
 
   const walletAddress = formatWalletAddress(isPrincipal)
-  const toast = useToast()
 
   async function fetchBalances() {
     setLoading(true)
-    const { getBalances } = useBalances()
-    const balancesRaw = await getBalances(userAgent)
+    const { getBalances } = useWallet()
+
+    const balancesRaw = await getBalances(userAgent, tokens)
     const sortedBalances = balancesRaw.sort(
       (a, b) => b.volumeInBase - a.volumeInBase,
     )
     dispatch(setBalances(sortedBalances))
     setLoading(false)
+    return sortedBalances
   }
-
-  useEffect(() => {
-    if (isAuthenticated) fetchBalances()
-  }, [userAgent])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(isPrincipal).then(() => {
@@ -70,6 +79,84 @@ const WalletContent: React.FC = () => {
       })
     })
   }
+
+  const handleNotify = (principal: string | undefined, base: string) => {
+    const { balanceNotify } = useWallet()
+
+    const loadingNotify = (base: string, action: boolean) => {
+      setLocalBalances((prevBalances) =>
+        prevBalances.map((balance: TokenDataItem) =>
+          balance.base === base ? { ...balance, action } : balance,
+        ),
+      )
+    }
+    loadingNotify(base, true)
+
+    const toastId = toast({
+      title: `${base} Notify deposit pending`,
+      description: 'Please wait',
+      status: 'loading',
+      duration: null,
+      isClosable: true,
+    })
+
+    balanceNotify(userAgent, principal)
+      .then(async (response: NotifyResult) => {
+        if (Object.keys(response).includes('Ok')) {
+          const newBalances = await fetchBalances()
+          const balance = newBalances.find((balance) => balance.base === base)
+
+          const creditInc = response.Ok?.credit_inc
+          const { volumeInBase } = convertVolumeFromCanister(
+            Number(creditInc),
+            getDecimals(balance),
+            0,
+          )
+
+          if (toastId) {
+            toast.update(toastId, {
+              title: `${base} deposit sucess`,
+              description: `Deposit: ${volumeInBase} | Total: ${balance?.volumeInBase}`,
+              status: 'success',
+              isClosable: true,
+            })
+          }
+        } else {
+          if (toastId) {
+            const description = getErrorMessageNotifyDeposits(response.Err)
+            toast.update(toastId, {
+              title: `${base} Notify deposit finished`,
+              description,
+              status: 'warning',
+              isClosable: true,
+            })
+          }
+        }
+        loadingNotify(base, false)
+      })
+      .catch((error) => {
+        const message = error.response ? error.response.data : error.message
+
+        if (toastId) {
+          toast.update(toastId, {
+            title: 'Notify deposit rejected',
+            description: `Error: ${message}`,
+            status: 'error',
+            isClosable: true,
+          })
+        }
+        loadingNotify(base, false)
+        console.error('Cancellation failed:', message)
+      })
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) fetchBalances()
+  }, [userAgent, tokens])
+
+  useEffect(() => {
+    setLocalBalances(balances)
+  }, [balances])
 
   return (
     <VStack spacing={4} align="stretch">
@@ -139,6 +226,13 @@ const WalletContent: React.FC = () => {
             _focus={{ boxShadow: 'none' }}
             _active={{ background: 'transparent' }}
           >
+            My Tokens
+          </Tab>
+          <Tab
+            _selected={{ borderBottom: '2px solid', borderColor: 'blue.500' }}
+            _focus={{ boxShadow: 'none' }}
+            _active={{ background: 'transparent' }}
+          >
             Tokens
           </Tab>
         </TabList>
@@ -149,35 +243,12 @@ const WalletContent: React.FC = () => {
                 <Progress size="xs" isIndeterminate w="90%" />
               </Flex>
             ) : (
-              balances.map((token) => (
-                <Flex
+              localBalances.map((token) => (
+                <TokenRow
                   key={token.id}
-                  justify="space-between"
-                  align="center"
-                  py={2}
-                >
-                  <Flex align="center">
-                    <Image
-                      src={token.logo}
-                      alt={token.symbol}
-                      h="30px"
-                      w="30px"
-                    />
-                    <Text ml={2} fontSize="14px" fontWeight={600}>
-                      {token.symbol}
-                    </Text>
-                  </Flex>
-                  <Flex align="center" ml={2}>
-                    <Text fontSize="13px" mr={2}>
-                      {token.volumeInBase.toFixed(token.volumeInBaseDecimals)}
-                    </Text>
-                    <Tooltip label="Direct Deposit" aria-label="Direct Deposit">
-                      <Button variant="ghost" size="xs">
-                        <Icon as={PiDownloadSimpleBold} boxSize={4} />
-                      </Button>
-                    </Tooltip>
-                  </Flex>
-                </Flex>
+                  token={token}
+                  handleNotify={() => handleNotify(token.principal, token.base)}
+                />
               ))
             )}
           </TabPanel>
