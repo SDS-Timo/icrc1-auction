@@ -7,14 +7,14 @@ import { AppDispatch } from '../store'
 import { setUserAgent, setIsAuthenticated, setIsPrincipal } from '../store/auth'
 
 /**
- * Creates and returns an actor for interacting with the specified canister.
+ * Creates and returns an actor for interacting with the auction canister.
  * @param userAgent - The HTTP agent to be used for creating the actor.
  * @returns The created service actor.
  */
 export function getActor(userAgent: HttpAgent) {
   const serviceActor = Actor.createActor<IcrcxActor>(IcrcxIDLFactory, {
     agent: userAgent,
-    canisterId: `${process.env.CANISTER_ID_ICRC1_AUCTION}`,
+    canisterId: `${process.env.CANISTER_ID_ICRC_AUCTION}`,
   })
 
   return serviceActor

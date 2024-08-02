@@ -1,13 +1,18 @@
 import { HttpAgent } from '@dfinity/agent'
+import { IcrcLedgerCanister } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 
-import { TokenDataItem, TokenMetadata } from '../types'
+import { TokenDataItem, TokenMetadata, TrackedDeposit } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
+import {
+  hexToUint8Array,
+  getSubAccountFromPrincipal,
+} from '../utils/convertionsUtils'
 import { getToken } from '../utils/tokenUtils'
 
 /**
@@ -33,7 +38,7 @@ const useWallet = () => {
       const balancesRaw = await serviceActor.icrc84_all_credits()
 
       const balances: TokenDataItem[] = await Promise.all(
-        (balancesRaw ?? []).map(async ([principal, volume], index) => {
+        (balancesRaw ?? []).map(([principal, volume], index) => {
           const token = getToken(tokens, principal)
 
           const { volumeInBase } = convertVolumeFromCanister(
@@ -64,6 +69,97 @@ const useWallet = () => {
   }
 
   /**
+   * Fetches the balance for a given owner and subaccount.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param tokens - An array of token objects.
+   * @param owner - The principal ID of the owner as a string.
+   * @param subaccount - The subaccount identifier as a hexadecimal string.
+   * @returns The balance or an empty array in case of an error.
+   */
+  const getBalance = async (
+    userAgent: HttpAgent,
+    tokens: TokenMetadata[],
+    owner: string,
+    subaccount: string,
+  ): Promise<number | []> => {
+    try {
+      if (!tokens || tokens.length === 0) return []
+
+      const principal = Principal.fromText(owner)
+      const hexSubAccountId =
+        getSubAccountFromPrincipal(subaccount).subAccountId
+
+      const { balance } = IcrcLedgerCanister.create({
+        agent: userAgent,
+        canisterId: principal,
+      })
+
+      const myBalance = await balance({
+        owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
+        subaccount: new Uint8Array(hexToUint8Array(hexSubAccountId)),
+        certified: false,
+      })
+
+      const token = getToken(tokens, principal)
+
+      const { volumeInBase } = convertVolumeFromCanister(
+        Number(myBalance),
+        getDecimals(token),
+        0,
+      )
+
+      return volumeInBase
+    } catch (error) {
+      console.error('Error fetching balance:', error)
+      return []
+    }
+  }
+
+  /**
+   * Fetches the tracked deposit for a given principal.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param tokens - An array of token objects.
+   * @param principal - The principal ID as a string.
+   * @returns The tracked deposit data or an empty array in case of an error.
+   */
+  const getTrackedDeposit = async (
+    userAgent: HttpAgent,
+    tokens: TokenMetadata[],
+    owner: string,
+  ): Promise<number | TrackedDeposit> => {
+    try {
+      if (!tokens || tokens.length === 0) return 0
+
+      const principal = Principal.fromText(owner)
+
+      const serviceActor = getActor(userAgent)
+      const deposit: TrackedDeposit =
+        await serviceActor.icrc84_trackedDeposit(principal)
+
+      if (deposit.Ok !== undefined) {
+        const token = getToken(tokens, principal)
+
+        const { volumeInBase } = convertVolumeFromCanister(
+          Number(deposit.Ok),
+          getDecimals(token),
+          0,
+        )
+
+        return volumeInBase
+      } else {
+        return deposit
+      }
+    } catch (error) {
+      console.error('Error fetching tracked deposit:', error)
+      return {
+        Err: { NotAvailable: { message: 'Error fetching tracked deposit' } },
+      }
+    }
+  }
+
+  /**
    * Notifies the service actor to update the balance information for a specific token.
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
@@ -89,7 +185,7 @@ const useWallet = () => {
     }
   }
 
-  return { getBalances, balanceNotify }
+  return { getBalances, getBalance, getTrackedDeposit, balanceNotify }
 }
 
 export default useWallet

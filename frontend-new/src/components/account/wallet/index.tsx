@@ -82,10 +82,10 @@ const WalletContent: React.FC = () => {
   const handleNotify = (principal: string | undefined, base: string) => {
     const { balanceNotify } = useWallet()
 
-    const loadingNotify = (base: string, action: boolean) => {
+    const loadingNotify = (base: string, loading: boolean) => {
       setLocalBalances((prevBalances) =>
         prevBalances.map((balance: TokenDataItem) =>
-          balance.base === base ? { ...balance, action } : balance,
+          balance.base === base ? { ...balance, loading } : balance,
         ),
       )
     }
@@ -261,6 +261,8 @@ const WalletContent: React.FC = () => {
                 <TokenRow
                   key={token.id}
                   token={token}
+                  userAgent={userAgent}
+                  isPrincipal={isPrincipal}
                   handleNotify={() => handleNotify(token.principal, token.base)}
                 />
               ))

@@ -87,3 +87,7 @@ export interface Order {
   price: number
   type: string
 }
+export interface TrackedDeposit {
+  Ok?: bigint
+  Err?: { NotAvailable: { message: string } }
+}

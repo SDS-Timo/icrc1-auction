@@ -115,12 +115,12 @@ export default function tableContent(
       accessor: 'actions',
       disableSortBy: true,
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
-        const { id, type, action } = row.original
+        const { id, type, loading } = row.original
         return (
           <Flex justifyContent="center" alignItems="center">
             <IconButton
               aria-label="Cancel Order"
-              icon={action ? <Spinner size="xs" /> : <CloseIcon />}
+              icon={loading ? <Spinner size="xs" /> : <CloseIcon />}
               onClick={() => handleCancel(id, type)}
               variant="ghost"
               size="xs"

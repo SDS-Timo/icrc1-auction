@@ -90,12 +90,12 @@ const OpenOrders: React.FC = () => {
     id: bigint | undefined,
     type: string | undefined,
   ) => {
-    const refreshOpenOrders = (action: boolean) => {
-      if (!action) dispatch(setIsRefreshOpenOrders())
+    const refreshOpenOrders = (loading: boolean) => {
+      if (!loading) dispatch(setIsRefreshOpenOrders())
 
       setOpenOrdersFiltered((prevState) =>
         prevState.map((order) =>
-          order.id === id ? { ...order, action } : order,
+          order.id === id ? { ...order, loading } : order,
         ),
       )
     }
