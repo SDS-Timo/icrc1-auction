@@ -5,6 +5,7 @@ import { useIdentity } from './identity';
 import { Principal } from '@dfinity/principal';
 import { useMemo } from 'react';
 import { canisterId as cid, createActor } from '@declarations/icrc1_auction_legacy';
+import { createActor as createLedgerActor } from '@declarations/icrc1_ledger_mock';
 
 // Custom replacer function for JSON.stringify
 const bigIntReplacer = (key: string, value: any): any => {
@@ -71,14 +72,34 @@ export const useAddAsset = () => {
 export const useListAssets = () => {
   const { auction } = useAuction();
   const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+
   return useQuery(
     'assets',
+    async () => auction.icrc84_supported_tokens(),
+    {
+      onSettled: _ => queryClient.invalidateQueries('assetSymbols'),
+      onError: err => {
+        enqueueSnackbar(`Failed to fetch credits: ${err}`, { variant: 'error' });
+      },
+    },
+  );
+};
+
+export const useTokenSymbolsMap = () => {
+  useListAssets();
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+  return useQuery(
+    'assetSymbols',
     async () => {
-      return auction.icrcX_supported_tokens();
+      const assets = queryClient.getQueryData('assets') as (Principal[] | undefined);
+      const symbols = await Promise.all((assets || []).map(async p => createLedgerActor(p).icrc1_symbol()));
+      return (assets || []).map((p, i) => ([p, symbols[i]])) as [Principal, string][];
     },
     {
       onError: err => {
-        enqueueSnackbar(`Failed to fetch credits: ${err}`, { variant: 'error' });
+        enqueueSnackbar(`Failed to fetch symbols: ${err}`, { variant: 'error' });
       },
     },
   );
@@ -106,7 +127,7 @@ export const useListCredits = () => {
   return useQuery(
     'myCredits',
     async () => {
-      return auction.icrcX_all_credits();
+      return auction.icrc84_all_credits();
     },
     {
       onError: err => {
@@ -139,7 +160,7 @@ export const useNotify = () => {
   const { auction } = useAuction();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
-  return useMutation((icrc1Ledger: Principal) => auction.icrcX_notify({ token: icrc1Ledger }), {
+  return useMutation((icrc1Ledger: Principal) => auction.icrc84_notify({ token: icrc1Ledger }), {
     onSuccess: res => {
       if ('Err' in res) {
         enqueueSnackbar(`Failed to deposit: ${JSON.stringify(res.Err, bigIntReplacer)}`, { variant: 'error' });
@@ -159,11 +180,14 @@ export const useDeposit = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   return useMutation(
-    (arg: { token: Principal; amount: number; subaccount: number[] | null }) =>
-      auction.icrcX_deposit({
+    (arg: { token: Principal; amount: number; owner: Principal, subaccount: Uint8Array | number[] | null }) =>
+      auction.icrc84_deposit({
         token: arg.token,
         amount: BigInt(arg.amount),
-        subaccount: arg.subaccount ? [arg.subaccount] : [],
+        from: {
+          owner: arg.owner,
+          subaccount: arg.subaccount ? [arg.subaccount] : [],
+        },
       }),
     {
       onSuccess: res => {
@@ -270,7 +294,7 @@ export const useWithdrawCredit = () => {
   const { enqueueSnackbar } = useSnackbar();
   return useMutation(
     (formObj: { ledger: string; amount: number; subaccount: Uint8Array | null }) =>
-      auction.icrcX_withdraw({
+      auction.icrc84_withdraw({
         token: Principal.fromText(formObj.ledger),
         to_subaccount: formObj.subaccount ? [formObj.subaccount] : [],
         amount: BigInt(formObj.amount),

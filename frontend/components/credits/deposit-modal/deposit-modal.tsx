@@ -17,19 +17,20 @@ import {
     Typography,
 } from '@mui/joy';
 import ErrorAlert from '../../error-alert';
-import { canisterId, useDeposit, useNotify, usePrincipalToSubaccount } from '@fe/integration';
-import { validatePrincipal } from '@fe/utils';
+import { canisterId, useDeposit, useNotify, usePrincipalToSubaccount, useTokenSymbolsMap } from '@fe/integration';
 import { Principal } from '@dfinity/principal';
 import { useIdentity } from '@fe/integration/identity';
+import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
+import { useSnackbar } from 'notistack';
 
 interface DepositFormValues {
-    icrc1Ledger: string;
+    symbol: string;
 }
 
 interface AllowanceFormValues {
-    icrc1Ledger: string;
+    symbol: string;
     amount: number;
-    subaccount: string;
+    account: string;
 }
 
 interface AddModalProps {
@@ -38,40 +39,48 @@ interface AddModalProps {
 }
 
 const schema = zod.object({
-    icrc1Ledger: zod
+    symbol: zod
       .string()
-      .min(1)
-      .refine(value => validatePrincipal(value)),
+      .min(1),
 });
 
+export const validateICRC1Account = (value: string): boolean => {
+    try {
+        decodeIcrcAccount(value);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
+
 const allowanceSchema = zod.object({
-    icrc1Ledger: zod
+    symbol: zod
       .string()
-      .min(1)
-      .refine(value => validatePrincipal(value)),
+      .min(1),
     amount: zod
       .string()
       .min(1)
       .refine(value => !isNaN(Number(value))),
-    subaccount: zod
+    account: zod
       .string()
-      .transform(value => value.replaceAll(' ', ''))
-      .refine(value => value.length === 0 || value.length === 64),
+      .min(1)
+      .refine(value => validateICRC1Account(value)),
 });
 
 const DepositModal = ({isOpen, onClose}: AddModalProps) => {
     const defaultValues: DepositFormValues = useMemo(
         () => ({
-            icrc1Ledger: '',
+            symbol: '',
         }),
         [],
     );
 
     const defaultAllowanceValues: AllowanceFormValues = useMemo(
       () => ({
-          icrc1Ledger: '',
+          symbol: '',
           amount: 0,
-          subaccount: '',
+          account: '',
       }),
       [],
     );
@@ -111,23 +120,38 @@ const DepositModal = ({isOpen, onClose}: AddModalProps) => {
         reset: resetAllowanceApi,
     } = useDeposit();
 
-    const submit: SubmitHandler<DepositFormValues> = ({icrc1Ledger}) => {
-        notify(Principal.fromText(icrc1Ledger), {
+    const { data: symbols } = useTokenSymbolsMap();
+    const getLedgerPrincipal = (symbol: string): Principal | null => {
+        const mapItem = (symbols || []).find(([p, s]) => s == symbol);
+        return mapItem ? mapItem[0] : null;
+    };
+    const { enqueueSnackbar } = useSnackbar();
+
+    const submit: SubmitHandler<DepositFormValues> = ({ symbol }) => {
+        const p = getLedgerPrincipal(symbol);
+        if (!p) {
+            enqueueSnackbar(`Unknown token symbol: "${symbol}"`, { variant: 'error' });
+            return;
+        }
+        notify(p, {
             onSuccess: () => {
                 onClose();
             },
         });
     };
 
-    const submitAllowance: SubmitHandler<AllowanceFormValues> = ({ icrc1Ledger, amount, subaccount }) => {
-        let subaccountValue: number[] | null = subaccount.match(/.{2}/g)?.map(x => parseInt(x, 16)) || null;
-        if (subaccountValue && subaccountValue.length !== 16) {
-            subaccountValue = null;
+    const submitAllowance: SubmitHandler<AllowanceFormValues> = ({ symbol, amount, account }) => {
+        let icrc1Account = decodeIcrcAccount(account);
+        const p = getLedgerPrincipal(symbol);
+        if (!p) {
+            enqueueSnackbar(`Unknown token symbol: "${symbol}"`, { variant: 'error' });
+            return;
         }
         deposit({
-            token: Principal.fromText(icrc1Ledger),
+            token: p,
             amount,
-            subaccount: subaccountValue,
+            owner: icrc1Account.owner,
+            subaccount: icrc1Account.subaccount || null,
         }, {
             onSuccess: () => {
                 onClose();
@@ -178,17 +202,17 @@ const DepositModal = ({isOpen, onClose}: AddModalProps) => {
                               2. Make a transfer to account <b>{canisterId}</b>, subaccount{' '}
                               <b>{subaccountToText(subaccount.data)}</b> using ledger API
                               <br />
-                              3. Put ICRC1 ledger principal in the input below and click "Notify"
+                              3. Put token symbol in the input below and click "Notify"
                               <br />
                           </Typography>
                           <form onSubmit={handleSubmit(submit)} autoComplete="off">
                               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                   <Controller
-                                    name="icrc1Ledger"
+                                    name="symbol"
                                     control={control}
                                     render={({ field, fieldState }) => (
                                       <FormControl>
-                                          <FormLabel>Ledger principal</FormLabel>
+                                          <FormLabel>Token symbol</FormLabel>
                                           <Input
                                             type="text"
                                             variant="outlined"
@@ -218,11 +242,11 @@ const DepositModal = ({isOpen, onClose}: AddModalProps) => {
                           <form onSubmit={handleAllowanceSubmit(submitAllowance)} autoComplete="off">
                               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                   <Controller
-                                    name="icrc1Ledger"
+                                    name="symbol"
                                     control={allowanceControl}
                                     render={({ field, fieldState }) => (
                                       <FormControl>
-                                          <FormLabel>Ledger principal</FormLabel>
+                                          <FormLabel>Token symbol</FormLabel>
                                           <Input
                                             type="text"
                                             variant="outlined"
@@ -252,14 +276,13 @@ const DepositModal = ({isOpen, onClose}: AddModalProps) => {
                                       </FormControl>
                                     )} />
                                   <Controller
-                                    name="subaccount"
+                                    name="account"
                                     control={allowanceControl}
                                     render={({ field, fieldState }) => (
                                       <FormControl>
-                                          <FormLabel>Subaccount</FormLabel>
+                                          <FormLabel>Account</FormLabel>
                                           <Typography level="body-xs">
-                                              Paste hex string, exactly 64 characters or leave empty to use subaccount
-                                              null. Spaces will be ignored
+                                              Type encoded ICRC-1 account
                                           </Typography>
                                           <Input
                                             type="text"
