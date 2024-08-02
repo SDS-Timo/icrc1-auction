@@ -50,7 +50,7 @@ jspm_packages/
 .mops
 dist/
 dist_legacy/
-declarations/
+#declarations/
 
 # TypeScript v1 declaration files
 typings/
@@ -80,7 +80,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+#.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
