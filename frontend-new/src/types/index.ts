@@ -1,8 +1,8 @@
 import { Option as OptionBymax } from 'bymax-react-select'
 
 import {
-  CancelOrderError,
-  PlaceOrderError,
+  CancelOrderResponse,
+  PlaceOrderResponse,
 } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 
 export interface Language {
@@ -69,12 +69,12 @@ export interface BalancesState {
 }
 export interface CancelOrder {
   Ok?: any
-  Err?: CancelOrderError
+  Err?: CancelOrderResponse
   [key: string]: any
 }
 export interface PlaceOrder {
   Ok?: any
-  Err?: PlaceOrderError
+  Err?: PlaceOrderResponse
   [key: string]: any
 }
 export interface NotifyResult {

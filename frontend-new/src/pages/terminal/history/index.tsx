@@ -32,12 +32,18 @@ const HistoryTabs: React.FC = () => {
 
   useEffect(() => {
     setLoading(true)
-    if (pricesHistory.length > 0) {
-      const pricesFiltered = [...pricesHistory].reverse().slice(0, 19)
-      setPrices(pricesFiltered)
+    const timeout = setTimeout(() => {
+      if (pricesHistory.length > 0) {
+        const pricesFiltered = [...pricesHistory].reverse().slice(0, 19)
+        setPrices(pricesFiltered)
+      } else {
+        setPrices([])
+      }
       setLoading(false)
-    }
-  }, [pricesHistory])
+    }, 500)
+
+    return () => clearTimeout(timeout)
+  }, [pricesHistory, selectedSymbol])
 
   return (
     <Box
