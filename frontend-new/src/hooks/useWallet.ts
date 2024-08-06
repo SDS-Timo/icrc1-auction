@@ -69,6 +69,70 @@ const useWallet = () => {
   }
 
   /**
+   * Fetches and processes balances with credits details for the user.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param tokens - An array of token objects.
+   * @returns A promise that resolves to an array of TokenDataItem objects containing the user's token balances with credits details.
+   */
+  const getBalancesCredits = async (
+    userAgent: HttpAgent,
+    tokens: TokenMetadata[],
+  ): Promise<TokenDataItem[]> => {
+    try {
+      if (!tokens || tokens.length === 0) return []
+
+      const serviceActor = getActor(userAgent)
+
+      const balancesRaw = await serviceActor.queryCredits()
+
+      const balances: TokenDataItem[] = await Promise.all(
+        (balancesRaw ?? []).map(([principal, credits], index) => {
+          const token = getToken(tokens, principal)
+
+          const { volumeInBase: volumeInAvailable } = convertVolumeFromCanister(
+            Number(credits.available),
+            getDecimals(token),
+            0,
+          )
+
+          const { volumeInBase: volumeInLocked } = convertVolumeFromCanister(
+            Number(credits.locked),
+            getDecimals(token),
+            0,
+          )
+
+          const { volumeInBase: volumeInTotal } = convertVolumeFromCanister(
+            Number(credits.total),
+            getDecimals(token),
+            0,
+          )
+
+          return {
+            id: BigInt(index),
+            datetime: '',
+            price: 0,
+            volume: 0,
+            volumeInQuote: 0,
+            volumeInBase: volumeInAvailable,
+            volumeInAvailable,
+            volumeInLocked,
+            volumeInTotal,
+            ...token,
+          }
+        }),
+      )
+
+      const data = addDecimal(balances)
+
+      return data
+    } catch (error) {
+      console.error('Error fetching balances with credits:', error)
+      return []
+    }
+  }
+
+  /**
    * Fetches the balance for a given owner and subaccount.
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
@@ -122,7 +186,7 @@ const useWallet = () => {
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
    * @param tokens - An array of token objects.
    * @param principal - The principal ID as a string.
-   * @returns The tracked deposit data or an empty array in case of an error.
+   * @returns The tracked deposit data or 0 in case of an error.
    */
   const getTrackedDeposit = async (
     userAgent: HttpAgent,
@@ -153,9 +217,7 @@ const useWallet = () => {
       }
     } catch (error) {
       console.error('Error fetching tracked deposit:', error)
-      return {
-        Err: { NotAvailable: { message: 'Error fetching tracked deposit' } },
-      }
+      return 0
     }
   }
 
@@ -185,7 +247,13 @@ const useWallet = () => {
     }
   }
 
-  return { getBalances, getBalance, getTrackedDeposit, balanceNotify }
+  return {
+    getBalances,
+    getBalancesCredits,
+    getBalance,
+    getTrackedDeposit,
+    balanceNotify,
+  }
 }
 
 export default useWallet

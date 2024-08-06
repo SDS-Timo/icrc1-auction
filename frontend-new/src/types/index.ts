@@ -32,6 +32,9 @@ export interface DataItem {
   volume: number
   volumeInBase: number
   volumeInQuote: number
+  volumeInAvailable?: number
+  volumeInLocked?: number
+  volumeInTotal?: number
   priceDecimals?: number
   volumeDecimals?: number
   volumeInBaseDecimals?: number

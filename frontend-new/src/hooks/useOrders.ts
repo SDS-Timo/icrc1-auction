@@ -82,6 +82,35 @@ const useOrders = () => {
   }
 
   /**
+   * Fetches and returns the minimum order size.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @param selectedQuote - The selected token metadata for the quote currency.
+   * @returns A promise that resolves to a minimum order size.
+   */
+  const getMinimumOrderSize = async (
+    userAgent: HttpAgent,
+    selectedQuote: TokenMetadata,
+  ): Promise<number> => {
+    try {
+      const serviceActor = getActor(userAgent)
+
+      const minimumOrderSize = await serviceActor.minimumOrder()
+
+      const { volumeInBase } = convertVolumeFromCanister(
+        Number(minimumOrderSize),
+        getDecimals(selectedQuote),
+        0,
+      )
+
+      return volumeInBase
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      return 0
+    }
+  }
+
+  /**
    * Places an order on the canister.
    *
    * @param userAgent - The HTTP agent to interact with the canister.
@@ -167,7 +196,7 @@ const useOrders = () => {
     }
   }
 
-  return { getOpenOrders, placeOrder, cancelOrder }
+  return { getOpenOrders, getMinimumOrderSize, placeOrder, cancelOrder }
 }
 
 export default useOrders

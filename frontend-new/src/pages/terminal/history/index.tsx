@@ -39,11 +39,11 @@ const HistoryTabs: React.FC = () => {
       } else {
         setPrices([])
       }
-      setLoading(false)
+      if (symbol) setLoading(false)
     }, 500)
 
     return () => clearTimeout(timeout)
-  }, [pricesHistory, selectedSymbol])
+  }, [pricesHistory, symbol])
 
   return (
     <Box

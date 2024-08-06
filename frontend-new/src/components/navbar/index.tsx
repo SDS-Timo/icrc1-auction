@@ -3,6 +3,7 @@ import React from 'react'
 import { Image } from '@chakra-ui/react'
 import { Box, Flex, useDisclosure } from '@chakra-ui/react'
 
+import NavbarInfo from './info'
 import NavbarLanguages from './language'
 import NavbarSettings from './settings'
 import NavbarTheme from './theme'
@@ -25,6 +26,7 @@ const NavbarComponent: React.FC = () => {
       <Flex flexDirection="row" alignItems="center">
         <NavbarLanguages />
         <NavbarTheme />
+        <NavbarInfo />
         <NavbarSettings />
         <NavbarWallet onOpen={onOpen} />
         <AccountComponent isOpen={isOpen} onClose={onClose} />

@@ -10,6 +10,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Button,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -27,6 +28,7 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
   isOpen,
   onClose,
 }) => {
+  const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const dispatch = useDispatch()
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -42,7 +44,11 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="sm">
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerCloseButton />
+          <DrawerCloseButton
+            _hover={{
+              bg: bgColorHover,
+            }}
+          />
           {isAuthenticated ? (
             <DrawerHeader>Account details</DrawerHeader>
           ) : (

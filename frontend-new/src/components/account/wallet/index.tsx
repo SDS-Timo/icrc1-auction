@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import {
   Button,
+  IconButton,
   Flex,
   Icon,
   Tab,
@@ -35,6 +36,7 @@ import { getErrorMessageNotifyDeposits } from '../../../utils/walletUtils'
 const WalletContent: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const toast = useToast({
     duration: 10000,
     position: 'top-right',
@@ -56,11 +58,12 @@ const WalletContent: React.FC = () => {
 
   async function fetchBalances() {
     setLoading(true)
-    const { getBalances } = useWallet()
+    const { getBalancesCredits } = useWallet()
 
-    const balancesRaw = await getBalances(userAgent, tokens)
-    const sortedBalances = balancesRaw.sort(
-      (a, b) => b.volumeInBase - a.volumeInBase,
+    const balancesCredits = await getBalancesCredits(userAgent, tokens)
+
+    const sortedBalances = balancesCredits.sort(
+      (a, b) => (b.volumeInAvailable ?? 0) - (a.volumeInAvailable ?? 0),
     )
     dispatch(setBalances(sortedBalances))
     setLoading(false)
@@ -175,12 +178,20 @@ const WalletContent: React.FC = () => {
   return (
     <VStack spacing={4} align="stretch">
       <Flex align="center">
-        <Icon as={FaWallet} boxSize={6} mr={2} />
+        <Icon as={FaWallet} boxSize={5} mr={2} />
         <Text>{walletAddress}</Text>
         <Tooltip label="Wallet Address" aria-label="Wallet Address">
-          <Button onClick={copyToClipboard} ml={2} variant="ghost" size="xs">
-            <Icon as={FaCopy} boxSize={4} />
-          </Button>
+          <IconButton
+            aria-label="Copy to clipboard"
+            icon={<Icon as={FaCopy} boxSize={3} />}
+            size="xs"
+            ml={2}
+            onClick={copyToClipboard}
+            variant="ghost"
+            _hover={{
+              bg: bgColorHover,
+            }}
+          />
         </Tooltip>
       </Flex>
       <Flex justify="space-between" mt={3}>
@@ -193,6 +204,9 @@ const WalletContent: React.FC = () => {
           width={150}
           height="80px"
           ml={4}
+          _hover={{
+            bg: bgColorHover,
+          }}
         >
           <Flex
             align="center"
@@ -215,6 +229,9 @@ const WalletContent: React.FC = () => {
           width={150}
           height="80px"
           mr={4}
+          _hover={{
+            bg: bgColorHover,
+          }}
         >
           <Flex
             align="center"

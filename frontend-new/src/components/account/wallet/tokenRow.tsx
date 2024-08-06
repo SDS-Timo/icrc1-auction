@@ -7,6 +7,7 @@ import {
   Text,
   IconButton,
   Spinner,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
 import { PiDownloadSimpleBold } from 'react-icons/pi'
@@ -35,6 +36,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
     </>
   )
 
+  const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
   const handleTrackedDeposit = async () => {
@@ -79,30 +81,44 @@ const TokenRow: React.FC<TokenRowProps> = ({
     <Flex key={token.id} justify="space-between" align="center" py={2}>
       <Flex align="center">
         <Image src={token.logo} alt={token.symbol} h="30px" w="30px" />
-        <Text ml={2} fontSize="14px" fontWeight={600}>
+        <Text ml={2} fontSize="15px" fontWeight={600}>
           {token.symbol}
         </Text>
       </Flex>
-      <Flex align="center" ml={2}>
-        <Text fontSize="13px" mr={2}>
-          {token.volumeInBase.toFixed(token.volumeInBaseDecimals)}
-        </Text>
-        <Tooltip label={tooltipText} aria-label="Notify Deposit">
-          <IconButton
-            aria-label="Notify Deposit"
-            icon={
-              token?.loading ? (
-                <Spinner size="xs" />
-              ) : (
-                <PiDownloadSimpleBold size="15px" />
-              )
-            }
-            onClick={() => handleNotify(token.principal, token.base)}
-            onMouseEnter={() => handleTrackedDeposit()}
-            variant="ghost"
-            size="xs"
-          />
-        </Tooltip>
+      <Flex direction="column" align="flex-end" ml={2}>
+        <Flex align="center">
+          <Text mr={2}>
+            {token.volumeInTotal?.toFixed(token.volumeInBaseDecimals)}
+          </Text>
+          <Tooltip label={tooltipText} aria-label="Notify Deposit">
+            <IconButton
+              aria-label="Notify Deposit"
+              icon={
+                token?.loading ? (
+                  <Spinner size="xs" />
+                ) : (
+                  <PiDownloadSimpleBold size="15px" />
+                )
+              }
+              onClick={() => handleNotify(token.principal, token.base)}
+              onMouseEnter={() => handleTrackedDeposit()}
+              variant="ghost"
+              size="xs"
+              _hover={{
+                bg: bgColorHover,
+              }}
+            />
+          </Tooltip>
+        </Flex>
+        <Flex direction="row" justify="space-between" align="center" w="full">
+          <Text fontSize="12px" color="grey.400">
+            {token.volumeInLocked?.toFixed(token.volumeInBaseDecimals)} Locked
+          </Text>
+          <Text ml={2} fontSize="12px" color="grey.400">
+            {token.volumeInAvailable?.toFixed(token.volumeInBaseDecimals)}{' '}
+            Available
+          </Text>
+        </Flex>
       </Flex>
     </Flex>
   )
