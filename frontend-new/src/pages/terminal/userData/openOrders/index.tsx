@@ -9,7 +9,9 @@ import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
 import useOpenOrders from '../../../../hooks/useOrders'
+import useBalances from '../../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../../store'
+import { setBalances } from '../../../../store/balances'
 import { setOpenOrders, setIsRefreshOpenOrders } from '../../../../store/orders'
 import { TokenDataItem, CancelOrder } from '../../../../types'
 import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
@@ -65,6 +67,12 @@ const OpenOrders: React.FC = () => {
       filterOpenOrders(openOrdersRaw)
       setLoading(false)
     }
+  }
+
+  async function fetchBalances() {
+    const { getBalancesCredits } = useBalances()
+    const balancesCredits = await getBalancesCredits(userAgent, tokens)
+    dispatch(setBalances(balancesCredits))
   }
 
   function filterOpenOrders(openOrders: TokenDataItem[]) {
@@ -135,6 +143,7 @@ const OpenOrders: React.FC = () => {
         }
 
         refreshOpenOrders(false)
+        fetchBalances()
       })
       .catch((error) => {
         const message = error.response ? error.response.data : error.message

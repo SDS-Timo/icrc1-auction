@@ -148,6 +148,7 @@ const Trading = () => {
           resetForm({ values: initialValues })
           setMessage(null)
           dispatch(setIsRefreshOpenOrders())
+          fetchBalances()
 
           if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
             if (toastId) {
@@ -225,12 +226,9 @@ const Trading = () => {
 
   async function fetchBalances() {
     setLoading(true)
-    const { getBalances } = useBalances()
-    const balancesRaw = await getBalances(userAgent, tokens)
-    const sortedBalances = balancesRaw.sort(
-      (a, b) => b.volumeInBase - a.volumeInBase,
-    )
-    dispatch(setBalances(sortedBalances))
+    const { getBalancesCredits } = useBalances()
+    const balancesCredits = await getBalancesCredits(userAgent, tokens)
+    dispatch(setBalances(balancesCredits))
     setLoading(false)
   }
 
@@ -426,9 +424,9 @@ const Trading = () => {
           >
             <Text textAlign="center" fontSize="14px">
               Available:
-              {available?.volumeInBase && symbol && tradeType ? (
+              {available?.volumeInAvailable && symbol && tradeType ? (
                 <>
-                  {` ${available.volumeInBase.toFixed(available.volumeInBaseDecimals)} `}
+                  {` ${available.volumeInAvailable.toFixed(available.volumeInBaseDecimals)} `}
                 </>
               ) : (
                 <>{` 0 `}</>

@@ -59,9 +59,7 @@ const WalletContent: React.FC = () => {
   async function fetchBalances() {
     setLoading(true)
     const { getBalancesCredits } = useWallet()
-
     const balancesCredits = await getBalancesCredits(userAgent, tokens)
-
     const sortedBalances = balancesCredits.sort(
       (a, b) => (b.volumeInAvailable ?? 0) - (a.volumeInAvailable ?? 0),
     )

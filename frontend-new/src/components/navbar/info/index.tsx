@@ -60,7 +60,7 @@ const NavbarInfo: React.FC = () => {
   }, [userAgent, selectedQuote])
 
   return (
-    <Flex alignItems="center">
+    <Flex alignItems="center" zIndex="10">
       <Menu>
         <MenuButton
           as={IconButton}
