@@ -1,6 +1,6 @@
 import { MouseEventHandler } from 'react'
 
-import { Flex, Image, Text, Tooltip } from '@chakra-ui/react'
+import { Flex, Image, Text } from '@chakra-ui/react'
 import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
@@ -106,13 +106,13 @@ export default function tableContent(
       },
     },
     {
-      Header: 'Time',
+      Header: 'Date and time',
       accessor: 'datetime',
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
-        const { time, datetime } = row.original
+        const { datetime } = row.original
         return (
-          <Text textAlign="center">
-            <Tooltip label={datetime}>{time?.toUpperCase()}</Tooltip>
+          <Text textAlign="center" fontSize="13px">
+            {datetime}
           </Text>
         )
       },

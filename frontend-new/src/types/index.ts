@@ -26,6 +26,7 @@ export interface HeaderInformation {
 export interface DataItem {
   id?: bigint
   datetime: string
+  date?: string
   time?: string
   price: number
   type?: string

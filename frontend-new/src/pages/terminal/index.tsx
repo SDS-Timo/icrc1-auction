@@ -54,7 +54,7 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '52%' }}
+          w={{ base: '100%', md: '51%' }}
           display="flex"
           flexDirection="column"
           borderRadius="md"
@@ -81,7 +81,7 @@ const Terminal: React.FC = () => {
         </Box>
         <Box
           bg={bgColor}
-          w={{ base: '100%', md: '27%' }}
+          w={{ base: '100%', md: '29%' }}
           p={4}
           borderRadius="md"
         >

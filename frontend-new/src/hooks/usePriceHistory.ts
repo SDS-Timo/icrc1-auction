@@ -63,6 +63,12 @@ const usePriceHistory = () => {
             'en-US',
             optionsDateTime,
           )
+          const optionsDate: Intl.DateTimeFormatOptions = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }
+          const formattedDate = date.toLocaleDateString('en-US', optionsDate)
           const optionsTime: Intl.DateTimeFormatOptions = {
             hour: '2-digit',
             minute: '2-digit',
@@ -85,6 +91,7 @@ const usePriceHistory = () => {
           return {
             id: BigInt(index),
             datetime: formattedDateTime,
+            date: formattedDate,
             time: formattedTime,
             price: formattedPrice,
             volume: volumeInQuote,

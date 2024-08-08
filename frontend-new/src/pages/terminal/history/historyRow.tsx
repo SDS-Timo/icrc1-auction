@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Td, Tr, Tooltip } from '@chakra-ui/react'
+import { Td, Tr, Text } from '@chakra-ui/react'
 
 import { DataItem } from '../../../types'
 
@@ -12,14 +12,7 @@ interface HistoryRowProps {
 const HistoryRow: React.FC<HistoryRowProps> = ({ data, toggleVolume }) => {
   return (
     <Tr key={data.id}>
-      <Td
-        textAlign="center"
-        color={
-          data.type && data.type === 'buy'
-            ? 'green.500'
-            : data.type && 'red.500'
-        }
-      >
+      <Td textAlign="center">
         {data.price.toLocaleString('en-US', {
           minimumFractionDigits: data.priceDecimals,
           maximumFractionDigits: data.priceDecimals,
@@ -31,7 +24,10 @@ const HistoryRow: React.FC<HistoryRowProps> = ({ data, toggleVolume }) => {
           : data.volumeInBase.toFixed(data.volumeInBaseDecimals)}
       </Td>
       <Td textAlign="center" whiteSpace="nowrap">
-        <Tooltip label={data.datetime}>{data.time?.toUpperCase()}</Tooltip>
+        <Text fontSize="14px">{data.date}</Text>
+        <Text fontSize="11px" color="grey.400">
+          {data.time}
+        </Text>
       </Td>
     </Tr>
   )

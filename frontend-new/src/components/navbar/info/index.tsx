@@ -49,15 +49,17 @@ const NavbarInfo: React.FC = () => {
   }
 
   async function getMinimumOrder() {
-    const { getMinimumOrderSize } = useOrder()
+    if (userAgent && selectedQuote) {
+      const { getMinimumOrderSize } = useOrder()
 
-    const result = await getMinimumOrderSize(userAgent, selectedQuote)
-    setMinimumOrderSize(result)
+      const result = await getMinimumOrderSize(userAgent, selectedQuote)
+      setMinimumOrderSize(result)
+    }
   }
 
   useEffect(() => {
     getMinimumOrder()
-  }, [userAgent, selectedQuote])
+  }, [])
 
   return (
     <Flex alignItems="center" zIndex="10">

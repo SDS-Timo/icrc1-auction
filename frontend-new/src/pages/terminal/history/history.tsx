@@ -33,7 +33,7 @@ const TradeHistory: React.FC<HistoryProps> = ({
               onClick={handleToggleVolume}
               _hover={{ textDecoration: 'underline' }}
             >
-              Amount
+              Volume
               <Text as="span" fontSize="10px">
                 {' '}
                 (
@@ -43,7 +43,9 @@ const TradeHistory: React.FC<HistoryProps> = ({
                 )
               </Text>
             </Th>
-            <Th textAlign="center">Time</Th>
+            <Th textAlign="center" whiteSpace="nowrap">
+              Date
+            </Th>
           </Tr>
         </Thead>
         <Tbody>

@@ -2,7 +2,6 @@ import React from 'react'
 
 import { IconButton, Flex } from '@chakra-ui/react'
 import { SlWallet } from 'react-icons/sl'
-
 interface NavbarWalletProps {
   onOpen: () => void
 }

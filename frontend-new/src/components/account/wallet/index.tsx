@@ -17,8 +17,9 @@ import {
   Progress,
   Tooltip,
 } from '@chakra-ui/react'
-import { FaWallet, FaCopy } from 'react-icons/fa'
+import { FaCopy } from 'react-icons/fa'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
+import { SlWallet } from 'react-icons/sl'
 import { useSelector, useDispatch } from 'react-redux'
 
 import TokenRow from './tokenRow'
@@ -176,7 +177,7 @@ const WalletContent: React.FC = () => {
   return (
     <VStack spacing={4} align="stretch">
       <Flex align="center">
-        <Icon as={FaWallet} boxSize={5} mr={2} />
+        <Icon as={SlWallet} boxSize={4} mr={2} />
         <Text>{walletAddress}</Text>
         <Tooltip label="Wallet Address" aria-label="Wallet Address">
           <IconButton
