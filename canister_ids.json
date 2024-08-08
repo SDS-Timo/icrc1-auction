@@ -1,9 +1,12 @@
 {
   "frontend": {
-    "ic": "pfsv3-oiaaa-aaaao-a3mza-cai"
+    "ic": "scenk-2qaaa-aaaao-a3o7q-cai"
   },
   "frontend_legacy": {
-    "ic": "scenk-2qaaa-aaaao-a3o7q-cai"
+    "ic": "pfsv3-oiaaa-aaaao-a3mza-cai"
+  },
+  "frontend-new": {
+    "ic": "i4tvh-qyaaa-aaaap-ahmea-cai"
   },
   "icrc1_auction": {
     "ic": "pmr6h-yaaaa-aaaao-a3myq-cai"

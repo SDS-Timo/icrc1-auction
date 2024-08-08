@@ -8,9 +8,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  root: "frontend",
+  root: "frontend-new/src",
   build: {
-    outDir: "../dist",
+    outDir: "../../dist",
     emptyOutDir: true,
   },
   optimizeDeps: {
@@ -32,6 +32,8 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
     environment("all", { prefix: "CANISTER_" }),
+    environment("all", { prefix: "HTTP_" }),
     environment("all", { prefix: "DFX_" }),
+    environment("all", { prefix: "ENV_" }),
   ],
 });
