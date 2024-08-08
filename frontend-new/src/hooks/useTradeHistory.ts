@@ -36,60 +36,58 @@ const useTransactionHistory = () => {
         BigInt(10000),
         BigInt(0),
       )
-      const formattedData: TokenDataItem[] = await Promise.all(
-        (transactions ?? []).map(
-          async (
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            [ts, _sessionNumber, kind, principal, volume, price],
-            index,
-          ) => {
-            const date = new Date(Number(ts) / 1_000_000)
-            const optionsDateTime: Intl.DateTimeFormatOptions = {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-              second: 'numeric',
-            }
-            const formattedDateTime = date.toLocaleDateString(
-              'en-US',
-              optionsDateTime,
-            )
-            const optionsTime: Intl.DateTimeFormatOptions = {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true,
-            }
-            const formattedTime = date.toLocaleTimeString('en-US', optionsTime)
+      const formattedData: TokenDataItem[] = (transactions ?? []).map(
+        (
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          [ts, _sessionNumber, kind, principal, volume, price],
+          index,
+        ) => {
+          const date = new Date(Number(ts) / 1_000_000)
+          const optionsDateTime: Intl.DateTimeFormatOptions = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+          }
+          const formattedDateTime = date.toLocaleDateString(
+            'en-US',
+            optionsDateTime,
+          )
+          const optionsTime: Intl.DateTimeFormatOptions = {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          }
+          const formattedTime = date.toLocaleTimeString('en-US', optionsTime)
 
-            const token = getToken(tokens, principal)
+          const token = getToken(tokens, principal)
 
-            const formattedPrice = convertPriceFromCanister(
-              Number(price),
-              getDecimals(token),
-              getDecimals(selectedQuote),
-            )
+          const formattedPrice = convertPriceFromCanister(
+            Number(price),
+            getDecimals(token),
+            getDecimals(selectedQuote),
+          )
 
-            const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
-              Number(volume),
-              getDecimals(token),
-              formattedPrice,
-            )
+          const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
+            Number(volume),
+            getDecimals(token),
+            formattedPrice,
+          )
 
-            return {
-              id: BigInt(index),
-              datetime: formattedDateTime,
-              time: formattedTime,
-              price: formattedPrice,
-              type: 'ask' in kind ? 'buy' : 'sell',
-              volume: volumeInQuote,
-              volumeInQuote,
-              volumeInBase,
-              ...token,
-            }
-          },
-        ),
+          return {
+            id: BigInt(index),
+            datetime: formattedDateTime,
+            time: formattedTime,
+            price: formattedPrice,
+            type: 'ask' in kind ? 'buy' : 'sell',
+            volume: volumeInQuote,
+            volumeInQuote,
+            volumeInBase,
+            ...token,
+          }
+        },
       )
 
       const data = addDecimal(formattedData)

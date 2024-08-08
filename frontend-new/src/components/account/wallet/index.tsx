@@ -14,7 +14,6 @@ import {
   VStack,
   useToast,
   useColorModeValue,
-  Progress,
   Tooltip,
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
@@ -22,7 +21,7 @@ import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
 import { SlWallet } from 'react-icons/sl'
 import { useSelector, useDispatch } from 'react-redux'
 
-import TokenRow from './tokenRow'
+import TokenTab from './tokenTab'
 import useWallet from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
@@ -268,21 +267,26 @@ const WalletContent: React.FC = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            {loading ? (
-              <Flex justify="center" align="center" h="100px">
-                <Progress size="xs" isIndeterminate w="90%" />
-              </Flex>
-            ) : (
-              localBalances.map((token) => (
-                <TokenRow
-                  key={token.id}
-                  token={token}
-                  userAgent={userAgent}
-                  isPrincipal={isPrincipal}
-                  handleNotify={() => handleNotify(token.principal, token.base)}
-                />
-              ))
-            )}
+            <TokenTab
+              balances={localBalances.filter(
+                (token) => token?.volumeInTotal && token.volumeInTotal > 0,
+              )}
+              userAgent={userAgent}
+              isPrincipal={isPrincipal}
+              handleNotify={handleNotify}
+              showSearch={true}
+              loading={loading}
+            />
+          </TabPanel>
+          <TabPanel>
+            <TokenTab
+              balances={localBalances}
+              userAgent={userAgent}
+              isPrincipal={isPrincipal}
+              handleNotify={handleNotify}
+              showSearch={true}
+              loading={loading}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

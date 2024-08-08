@@ -41,36 +41,34 @@ const useOrders = () => {
         ...asksRaw.map(([id, ask]) => ({ ...ask, id, type: 'sell' })),
       ]
 
-      const openOrders: TokenDataItem[] = await Promise.all(
-        (openOrdersRaw ?? []).map(async (order) => {
-          const { id, icrc1Ledger, price, volume, type } = order
+      const openOrders: TokenDataItem[] = (openOrdersRaw ?? []).map((order) => {
+        const { id, icrc1Ledger, price, volume, type } = order
 
-          const token = getToken(tokens, icrc1Ledger)
+        const token = getToken(tokens, icrc1Ledger)
 
-          const formattedPrice = convertPriceFromCanister(
-            Number(price),
-            getDecimals(token),
-            getDecimals(selectedQuote),
-          )
+        const formattedPrice = convertPriceFromCanister(
+          Number(price),
+          getDecimals(token),
+          getDecimals(selectedQuote),
+        )
 
-          const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
-            Number(volume),
-            getDecimals(token),
-            formattedPrice,
-          )
+        const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
+          Number(volume),
+          getDecimals(token),
+          formattedPrice,
+        )
 
-          return {
-            id,
-            datetime: '',
-            price: formattedPrice,
-            type,
-            volume: volumeInQuote,
-            volumeInQuote,
-            volumeInBase,
-            ...token,
-          }
-        }),
-      )
+        return {
+          id,
+          datetime: '',
+          price: formattedPrice,
+          type,
+          volume: volumeInQuote,
+          volumeInQuote,
+          volumeInBase,
+          ...token,
+        }
+      })
 
       const data = addDecimal(openOrders)
 

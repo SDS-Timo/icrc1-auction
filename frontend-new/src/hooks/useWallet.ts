@@ -20,55 +20,6 @@ import { getToken } from '../utils/tokenUtils'
  */
 const useWallet = () => {
   /**
-   * Fetches and processes balances for the user.
-   *
-   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
-   * @param tokens - An array of token objects.
-   * @returns A promise that resolves to an array of TokenDataItem objects containing the user's token balances.
-   */
-  const getBalances = async (
-    userAgent: HttpAgent,
-    tokens: TokenMetadata[],
-  ): Promise<TokenDataItem[]> => {
-    try {
-      if (!tokens || tokens.length === 0) return []
-
-      const serviceActor = getActor(userAgent)
-
-      const balancesRaw = await serviceActor.icrc84_all_credits()
-
-      const balances: TokenDataItem[] = await Promise.all(
-        (balancesRaw ?? []).map(([principal, volume], index) => {
-          const token = getToken(tokens, principal)
-
-          const { volumeInBase } = convertVolumeFromCanister(
-            Number(volume),
-            getDecimals(token),
-            0,
-          )
-
-          return {
-            id: BigInt(index),
-            datetime: '',
-            price: 0,
-            volume: 0,
-            volumeInQuote: 0,
-            volumeInBase,
-            ...token,
-          }
-        }),
-      )
-
-      const data = addDecimal(balances)
-
-      return data
-    } catch (error) {
-      console.error('Error fetching balances:', error)
-      return []
-    }
-  }
-
-  /**
    * Fetches and processes balances with credits details for the user.
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
@@ -86,42 +37,53 @@ const useWallet = () => {
 
       const balancesRaw = await serviceActor.queryCredits()
 
-      const balances: TokenDataItem[] = await Promise.all(
-        (balancesRaw ?? []).map(([principal, credits], index) => {
-          const token = getToken(tokens, principal)
-
-          const { volumeInBase: volumeInAvailable } = convertVolumeFromCanister(
-            Number(credits.available),
-            getDecimals(token),
-            0,
-          )
-
-          const { volumeInBase: volumeInLocked } = convertVolumeFromCanister(
-            Number(credits.locked),
-            getDecimals(token),
-            0,
-          )
-
-          const { volumeInBase: volumeInTotal } = convertVolumeFromCanister(
-            Number(credits.total),
-            getDecimals(token),
-            0,
-          )
-
-          return {
-            id: BigInt(index),
-            datetime: '',
-            price: 0,
-            volume: 0,
-            volumeInQuote: 0,
-            volumeInBase: volumeInAvailable,
-            volumeInAvailable,
-            volumeInLocked,
-            volumeInTotal,
-            ...token,
-          }
-        }),
+      const creditsMap = (balancesRaw ?? []).reduce(
+        (acc, [principal, credits]) => {
+          acc[principal.toText()] = credits
+          return acc
+        },
+        {} as Record<string, any>,
       )
+
+      const balances: TokenDataItem[] = tokens.map((token, index) => {
+        const principal = token.principal || ''
+        const credits = creditsMap[principal] || {
+          available: 0,
+          locked: 0,
+          total: 0,
+        }
+
+        const { volumeInBase: volumeInAvailable } = convertVolumeFromCanister(
+          Number(credits.available),
+          getDecimals(token),
+          0,
+        )
+
+        const { volumeInBase: volumeInLocked } = convertVolumeFromCanister(
+          Number(credits.locked),
+          getDecimals(token),
+          0,
+        )
+
+        const { volumeInBase: volumeInTotal } = convertVolumeFromCanister(
+          Number(credits.total),
+          getDecimals(token),
+          0,
+        )
+
+        return {
+          id: BigInt(index),
+          datetime: '',
+          price: 0,
+          volume: 0,
+          volumeInQuote: 0,
+          volumeInBase: volumeInAvailable,
+          volumeInAvailable,
+          volumeInLocked,
+          volumeInTotal,
+          ...token,
+        }
+      })
 
       const data = addDecimal(balances)
 
@@ -248,7 +210,6 @@ const useWallet = () => {
   }
 
   return {
-    getBalances,
     getBalancesCredits,
     getBalance,
     getTrackedDeposit,
