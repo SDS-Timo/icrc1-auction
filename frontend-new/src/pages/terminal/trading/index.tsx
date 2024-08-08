@@ -4,6 +4,8 @@ import {
   Box,
   Button,
   Input,
+  InputGroup,
+  InputRightElement,
   VStack,
   Flex,
   Text,
@@ -44,6 +46,7 @@ const Trading = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [tradeType, setTradeType] = useState('buy')
+  const [amountType, setAmountType] = useState('quote')
   const [loading, setLoading] = useState(true)
   const [available, setAvailable] = useState<TokenDataItem | null>(null)
   const [selectedPercentage, setSelectedPercentage] = useState(null)
@@ -317,70 +320,114 @@ const Trading = () => {
         </FormControl>
       </Flex>
       <Flex direction="column">
-        <FormControl variant="floating">
-          <Input
-            h="58px"
-            placeholder=" "
-            name="quoteAmount"
-            sx={{ borderRadius: '5px' }}
-            isDisabled={
-              !formik.values.price || !selectedSymbol || !isAuthenticated
-            }
-            value={formik.values.quoteAmount}
-            onChange={(e) => {
-              formik.handleChange(e)
-              if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                formik.setFieldValue(
-                  'baseAmount',
-                  (
-                    parseFloat(e.target.value) / parseFloat(formik.values.price)
-                  ).toFixed(symbol?.decimals),
-                )
+        <InputGroup>
+          <FormControl variant="floating">
+            <Input
+              h="58px"
+              placeholder=" "
+              name="quoteAmount"
+              sx={{ borderRadius: '5px' }}
+              isDisabled={
+                !formik.values.price || !selectedSymbol || !isAuthenticated
               }
-            }}
-          />
-          <FormLabel color="grey.500" fontSize="15px">
-            Amount {symbol?.quote}
-          </FormLabel>
-          {!!formik.errors.quoteAmount && formik.touched.quoteAmount && (
-            <Text color="red.500" fontSize="12px">
-              {formik.errors.quoteAmount}
-            </Text>
+              value={formik.values.quoteAmount}
+              onChange={(e) => {
+                formik.handleChange(e)
+                if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                  formik.setFieldValue(
+                    'baseAmount',
+                    (
+                      parseFloat(e.target.value) /
+                      parseFloat(formik.values.price)
+                    ).toFixed(symbol?.decimals),
+                  )
+                }
+              }}
+            />
+            <FormLabel color="grey.500" fontSize="15px">
+              Amount {tradeType === 'sell' ? symbol?.quote : ''}
+            </FormLabel>
+          </FormControl>
+
+          {tradeType === 'buy' && (
+            <InputRightElement h="58px">
+              <Button
+                h="58px"
+                fontSize="11px"
+                borderRadius="0 5px 5px 0"
+                bgColor={amountType === 'quote' ? 'green.500' : 'grey.500'}
+                color="grey.25"
+                _hover={{
+                  bg: amountType === 'quote' ? 'green.400' : 'grey.400',
+                  color: 'grey.25',
+                }}
+                onClick={() => setAmountType('quote')}
+              >
+                {symbol?.quote}
+              </Button>
+            </InputRightElement>
           )}
-        </FormControl>
+        </InputGroup>
+        {!!formik.errors.quoteAmount && formik.touched.quoteAmount && (
+          <Text color="red.500" fontSize="12px">
+            {formik.errors.quoteAmount}
+          </Text>
+        )}
       </Flex>
       <Flex direction="column">
-        <FormControl variant="floating">
-          <Input
-            h="58px"
-            placeholder=" "
-            name="baseAmount"
-            sx={{ borderRadius: '5px' }}
-            isDisabled={
-              !formik.values.price || !selectedSymbol || !isAuthenticated
-            }
-            value={formik.values.baseAmount}
-            onChange={(e) => {
-              formik.handleChange(e)
-              if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                formik.setFieldValue(
-                  'quoteAmount',
-                  (
-                    parseFloat(e.target.value) * parseFloat(formik.values.price)
-                  ).toFixed(selectedQuote.decimals),
-                )
+        <InputGroup>
+          <FormControl variant="floating">
+            <Input
+              h="58px"
+              placeholder=" "
+              name="baseAmount"
+              sx={{ borderRadius: '5px' }}
+              isDisabled={
+                !formik.values.price || !selectedSymbol || !isAuthenticated
               }
-            }}
-          />
-          <FormLabel color="grey.500" fontSize="15px">
-            Amount {symbol?.base}
-          </FormLabel>
-          {formik.errors.baseAmount && formik.touched.baseAmount && (
-            <Text color="red.500" fontSize="12px">
-              {formik.errors.baseAmount}
-            </Text>
+              value={formik.values.baseAmount}
+              onChange={(e) => {
+                formik.handleChange(e)
+                if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                  formik.setFieldValue(
+                    'quoteAmount',
+                    (
+                      parseFloat(e.target.value) *
+                      parseFloat(formik.values.price)
+                    ).toFixed(selectedQuote.decimals),
+                  )
+                }
+              }}
+            />
+            <FormLabel color="grey.500" fontSize="15px">
+              Amount {tradeType === 'sell' ? symbol?.base : ''}
+            </FormLabel>
+          </FormControl>
+
+          {tradeType === 'buy' && (
+            <InputRightElement h="58px">
+              <Button
+                h="58px"
+                fontSize="11px"
+                borderRadius="0 5px 5px 0"
+                bgColor={amountType === 'base' ? 'green.500' : 'grey.500'}
+                color="grey.25"
+                _hover={{
+                  bg: amountType === 'base' ? 'green.400' : 'grey.400',
+                  color: 'grey.25',
+                }}
+                onClick={() => setAmountType('base')}
+              >
+                {symbol?.base}
+              </Button>
+            </InputRightElement>
           )}
-        </FormControl>
+        </InputGroup>
+        {formik.errors.baseAmount && formik.touched.baseAmount && (
+          <Text color="red.500" fontSize="12px">
+            {formik.errors.baseAmount}
+          </Text>
+        )}
       </Flex>
       <Flex justify="space-between" borderBottom="1px solid gray" pb={2}>
         {[25, 50, 75, 100].map((percentage) => (
