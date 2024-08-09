@@ -103,7 +103,7 @@ const Trading = () => {
           then: (schema) =>
             schema.max(
               available?.volumeInAvailable || 0,
-              `Quote amount must be <= ${available?.volumeInAvailable}`,
+              `Quote amount must be <= ${available?.volumeInAvailable?.toFixed(selectedQuote.decimals)}`,
             ),
         })
         .when('baseAmount', (baseAmount, schema) =>
@@ -124,7 +124,7 @@ const Trading = () => {
           then: (schema) =>
             schema.max(
               available?.volumeInAvailable || 0,
-              `Quote amount must be <= ${available?.volumeInAvailable}`,
+              `Base amount must be <= ${available?.volumeInAvailable?.toFixed(symbol?.decimals)}`,
             ),
         })
         .when('price', ([price], schema) => {
@@ -134,7 +134,7 @@ const Trading = () => {
               : minimumOrderSize
           return schema.min(
             minimumBaseAmount,
-            `Base amount must be >= ${minimumBaseAmount}`,
+            `Base amount must be >= ${minimumBaseAmount.toFixed(symbol?.decimals)}`,
           )
         })
         .when('quoteAmount', (quoteAmount, schema) =>
