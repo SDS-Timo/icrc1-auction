@@ -66,6 +66,7 @@ export interface TokenDataItem extends DataItem, TokenMetadata {
 }
 export interface TokenDataItemState {
   isRefreshOpenOrders: boolean
+  minimumOrderSize: number
   openOrders: TokenDataItem[] | []
 }
 export interface BalancesState {

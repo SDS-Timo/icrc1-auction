@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import { InfoIcon } from '@chakra-ui/icons'
 import {
@@ -14,10 +14,11 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import useOrder from '../../../hooks/useOrders'
-import { RootState } from '../../../store'
+import { RootState, AppDispatch } from '../../../store'
+import { setMinimumOrderSize } from '../../../store/orders'
 
 const NavbarInfo: React.FC = () => {
   const toast = useToast({
@@ -25,16 +26,18 @@ const NavbarInfo: React.FC = () => {
     position: 'top-right',
     isClosable: true,
   })
-
+  const dispatch = useDispatch<AppDispatch>()
   const principal = process.env.CANISTER_ID_ICRC_AUCTION
 
   const bgColor = useColorModeValue('grey.100', 'grey.900')
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
 
-  const [minimumOrderSize, setMinimumOrderSize] = useState(0)
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
+  )
+  const minimumOrderSize = useSelector(
+    (state: RootState) => state.orders.minimumOrderSize,
   )
 
   const copyToClipboard = () => {
@@ -53,7 +56,7 @@ const NavbarInfo: React.FC = () => {
       const { getMinimumOrderSize } = useOrder()
 
       const result = await getMinimumOrderSize(userAgent, selectedQuote)
-      setMinimumOrderSize(result)
+      dispatch(setMinimumOrderSize(result))
     }
   }
 

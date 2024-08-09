@@ -64,6 +64,9 @@ const Trading = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
+  const minimumOrderSize = useSelector(
+    (state: RootState) => state.orders.minimumOrderSize,
+  )
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
@@ -72,23 +75,68 @@ const Trading = () => {
     price: '',
     quoteAmount: '',
     baseAmount: '',
+    tradeType: tradeType,
+    available: available?.volumeInAvailable,
     submit: false,
   }
 
   const validationSchema = Yup.object().shape(
     {
+      tradeType: Yup.string(),
+      available: Yup.number(),
       price: Yup.number()
         .required('Price is required')
         .typeError('Must be a number'),
       quoteAmount: Yup.number()
         .typeError('Must be a number')
-        .min(0, 'Quote amount must be >= 0')
+        .min(minimumOrderSize, `Quote amount must be >= ${minimumOrderSize}`)
+        .when(['tradeType', 'available'], {
+          is: (tradeType: string, available: number) =>
+            tradeType === 'buy' && available <= 0,
+          then: (schema) =>
+            schema.test('no-credit', 'No credit', function () {
+              return false
+            }),
+        })
+        .when('tradeType', {
+          is: 'buy',
+          then: (schema) =>
+            schema.max(
+              available?.volumeInAvailable || 0,
+              `Quote amount must be <= ${available?.volumeInAvailable}`,
+            ),
+        })
         .when('baseAmount', (baseAmount, schema) =>
           baseAmount ? schema.required('Quote amount is required') : schema,
         ),
       baseAmount: Yup.number()
         .typeError('Must be a number')
-        .min(0, 'Base amount must be >= 0')
+        .when(['tradeType', 'available'], {
+          is: (tradeType: string, available: number) =>
+            tradeType === 'sell' && available <= 0,
+          then: (schema) =>
+            schema.test('no-credit', 'No credit', function () {
+              return false
+            }),
+        })
+        .when('tradeType', {
+          is: 'sell',
+          then: (schema) =>
+            schema.max(
+              available?.volumeInAvailable || 0,
+              `Quote amount must be <= ${available?.volumeInAvailable}`,
+            ),
+        })
+        .when('price', ([price], schema) => {
+          const minimumBaseAmount =
+            typeof price === 'number' && price > 0
+              ? minimumOrderSize / price
+              : minimumOrderSize
+          return schema.min(
+            minimumBaseAmount,
+            `Base amount must be >= ${minimumBaseAmount}`,
+          )
+        })
         .when('quoteAmount', (quoteAmount, schema) =>
           quoteAmount ? schema.required('Base amount is required') : schema,
         ),
@@ -194,13 +242,16 @@ const Trading = () => {
   })
 
   const handleTradeTypeChange = (type: string) => {
-    setMessage(null)
-    setTradeType(type)
-    updateAvailable(type)
-    setSelectedPercentage(null)
-    formik.setFieldValue('price', '')
-    formik.setFieldValue('quoteAmount', '')
-    formik.setFieldValue('baseAmount', '')
+    if (!formik.isSubmitting) {
+      setMessage(null)
+      setTradeType(type)
+      updateAvailable(type)
+      setSelectedPercentage(null)
+      formik.resetForm({ values: initialValues })
+      formik.setFieldValue('price', '')
+      formik.setFieldValue('quoteAmount', '')
+      formik.setFieldValue('baseAmount', '')
+    }
   }
 
   const updateAvailable = (type: string) => {
@@ -247,7 +298,15 @@ const Trading = () => {
 
   useEffect(() => {
     fetchBalances()
-  }, [userAgent])
+  }, [userAgent, selectedSymbol])
+
+  useEffect(() => {
+    formik.setFieldValue('tradeType', tradeType)
+  }, [tradeType])
+
+  useEffect(() => {
+    formik.setFieldValue('available', available?.volumeInAvailable)
+  }, [available])
 
   useEffect(() => {
     if (
@@ -345,28 +404,32 @@ const Trading = () => {
               }}
             />
             <FormLabel color="grey.500" fontSize="15px">
-              Amount {tradeType === 'sell' ? symbol?.quote : ''}
+              Amount
             </FormLabel>
           </FormControl>
-
-          {tradeType === 'buy' && (
-            <InputRightElement h="58px">
-              <Button
-                h="58px"
-                fontSize="11px"
-                borderRadius="0 5px 5px 0"
-                bgColor={amountType === 'quote' ? 'green.500' : 'grey.500'}
-                color="grey.25"
-                _hover={{
-                  bg: amountType === 'quote' ? 'green.400' : 'grey.400',
-                  color: 'grey.25',
-                }}
-                onClick={() => setAmountType('quote')}
-              >
-                {symbol?.quote}
-              </Button>
-            </InputRightElement>
-          )}
+          <InputRightElement h="58px">
+            <Button
+              h="58px"
+              fontSize="11px"
+              borderRadius="0 5px 5px 0"
+              bgColor={
+                amountType === 'quote' && tradeType === 'buy'
+                  ? 'green.500'
+                  : 'grey.500'
+              }
+              color="grey.25"
+              _hover={{
+                bg:
+                  amountType === 'quote' && tradeType === 'buy'
+                    ? 'green.400'
+                    : 'grey.400',
+                color: 'grey.25',
+              }}
+              onClick={() => tradeType === 'buy' && setAmountType('quote')}
+            >
+              {symbol?.quote}
+            </Button>
+          </InputRightElement>
         </InputGroup>
         {!!formik.errors.quoteAmount && formik.touched.quoteAmount && (
           <Text color="red.500" fontSize="12px">
@@ -400,28 +463,36 @@ const Trading = () => {
               }}
             />
             <FormLabel color="grey.500" fontSize="15px">
-              Amount {tradeType === 'sell' ? symbol?.base : ''}
+              Amount
             </FormLabel>
           </FormControl>
-
-          {tradeType === 'buy' && (
-            <InputRightElement h="58px">
-              <Button
-                h="58px"
-                fontSize="11px"
-                borderRadius="0 5px 5px 0"
-                bgColor={amountType === 'base' ? 'green.500' : 'grey.500'}
-                color="grey.25"
-                _hover={{
-                  bg: amountType === 'base' ? 'green.400' : 'grey.400',
-                  color: 'grey.25',
-                }}
-                onClick={() => setAmountType('base')}
-              >
-                {symbol?.base}
-              </Button>
-            </InputRightElement>
-          )}
+          <InputRightElement h="58px">
+            <Button
+              h="58px"
+              fontSize="11px"
+              borderRadius="0 5px 5px 0"
+              bgColor={
+                amountType === 'base' && tradeType === 'buy'
+                  ? 'green.500'
+                  : tradeType === 'sell'
+                    ? 'red.500'
+                    : 'grey.500'
+              }
+              color="grey.25"
+              _hover={{
+                bg:
+                  amountType === 'base' && tradeType === 'buy'
+                    ? 'green.400'
+                    : tradeType === 'sell'
+                      ? 'red.500'
+                      : 'grey.400',
+                color: 'grey.25',
+              }}
+              onClick={() => tradeType === 'buy' && setAmountType('base')}
+            >
+              {symbol?.base}
+            </Button>
+          </InputRightElement>
         </InputGroup>
         {formik.errors.baseAmount && formik.touched.baseAmount && (
           <Text color="red.500" fontSize="12px">
