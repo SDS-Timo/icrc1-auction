@@ -31,7 +31,6 @@ import {
   convertPriceToCanister,
   convertVolumeToCanister,
 } from '../../../utils/calculationsUtils'
-import { toFixedWithoutRounding } from '../../../utils/convertionsUtils'
 import {
   validationPlaceOrder,
   getErrorMessagePlaceOrder,
@@ -76,71 +75,88 @@ const Trading = () => {
     price: '',
     quoteAmount: '',
     baseAmount: '',
-    tradeType: tradeType,
+    amountType: amountType,
     available: available?.volumeInAvailable,
     submit: false,
   }
 
   const validationSchema = Yup.object().shape(
     {
-      tradeType: Yup.string(),
       available: Yup.number(),
       price: Yup.number()
         .required('Price is required')
         .typeError('Must be a number'),
       quoteAmount: Yup.number()
         .typeError('Must be a number')
-        .min(minimumOrderSize, `Quote amount must be >= ${minimumOrderSize}`)
-        .when(['tradeType', 'available'], {
-          is: (tradeType: string, available: number) =>
-            tradeType === 'buy' && available <= 0,
+        .when('baseAmount', (baseAmount, schema) =>
+          baseAmount ? schema.required('Quote amount is required') : schema,
+        )
+        .when(['amountType', 'available'], {
+          is: (amountType: string, available: number) =>
+            amountType === 'quote' && available <= 0,
           then: (schema) =>
             schema.test('no-credit', 'No credit', function () {
               return false
             }),
         })
-        .when('tradeType', {
-          is: 'buy',
+        .when('amountType', {
+          is: 'quote',
+          then: (schema) =>
+            schema.min(
+              minimumOrderSize,
+              `Quote amount must be >= ${minimumOrderSize}`,
+            ),
+        })
+        .when('amountType', {
+          is: 'quote',
           then: (schema) =>
             schema.max(
               available?.volumeInAvailable || 0,
               `Quote amount must be <= ${available?.volumeInAvailable?.toFixed(selectedQuote.decimals)}`,
             ),
-        })
-        .when('baseAmount', (baseAmount, schema) =>
-          baseAmount ? schema.required('Quote amount is required') : schema,
-        ),
+        }),
       baseAmount: Yup.number()
         .typeError('Must be a number')
-        .when(['tradeType', 'available'], {
-          is: (tradeType: string, available: number) =>
-            tradeType === 'sell' && available <= 0,
+        .when('quoteAmount', (quoteAmount, schema) =>
+          quoteAmount ? schema.required('Base amount is required') : schema,
+        )
+        .when(['amountType', 'available'], {
+          is: (amountType: string, available: number) =>
+            amountType === 'base' && available <= 0,
           then: (schema) =>
             schema.test('no-credit', 'No credit', function () {
               return false
             }),
         })
-        .when('tradeType', {
-          is: 'sell',
-          then: (schema) =>
-            schema.max(
-              available?.volumeInAvailable || 0,
-              `Base amount must be <= ${available?.volumeInAvailable?.toFixed(symbol?.decimals)}`,
-            ),
+        .when('amountType', {
+          is: 'base',
+          then: (schema) => {
+            const minimumBaseAmount: number =
+              parseFloat(formik.values.price) > 0
+                ? minimumOrderSize / parseFloat(formik.values.price)
+                : minimumOrderSize
+            return schema.min(
+              minimumBaseAmount,
+              `Base amount must be >= ${minimumBaseAmount.toFixed(symbol?.decimals)}`,
+            )
+          },
         })
-        .when('price', ([price], schema) => {
-          const minimumBaseAmount =
-            typeof price === 'number' && price > 0
-              ? minimumOrderSize / price
-              : minimumOrderSize
-          return schema.min(
-            minimumBaseAmount,
-            `Base amount must be >= ${minimumBaseAmount.toFixed(symbol?.decimals)}`,
-          )
-        })
-        .when('quoteAmount', (quoteAmount, schema) =>
-          quoteAmount ? schema.required('Base amount is required') : schema,
-        ),
+        .when('amountType', {
+          is: 'base',
+          then: (schema) => {
+            const volumeInAvailable = parseFloat(
+              `${available?.volumeInAvailable}`,
+            )
+            const price = parseFloat(formik.values.price)
+            const maximumBaseAmount: number =
+              volumeInAvailable > 0 && price > 0 ? volumeInAvailable / price : 0
+
+            return schema.max(
+              maximumBaseAmount,
+              `Base amount must be <= ${maximumBaseAmount.toFixed(symbol?.decimals)}`,
+            )
+          },
+        }),
     },
     [['baseAmount', 'quoteAmount']],
   )
@@ -302,8 +318,8 @@ const Trading = () => {
   }, [userAgent, selectedSymbol])
 
   useEffect(() => {
-    formik.setFieldValue('tradeType', tradeType)
-  }, [tradeType])
+    formik.setFieldValue('amountType', amountType)
+  }, [amountType])
 
   useEffect(() => {
     formik.setFieldValue('available', available?.volumeInAvailable)
@@ -396,11 +412,10 @@ const Trading = () => {
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'baseAmount',
-                    toFixedWithoutRounding(
+                    (
                       parseFloat(e.target.value) /
-                        parseFloat(formik.values.price),
-                      symbol?.decimals || 0,
-                    ),
+                      parseFloat(formik.values.price)
+                    ).toFixed(symbol?.decimals),
                   )
                 }
               }}
@@ -456,11 +471,10 @@ const Trading = () => {
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'quoteAmount',
-                    toFixedWithoutRounding(
+                    (
                       parseFloat(e.target.value) *
-                        parseFloat(formik.values.price),
-                      selectedQuote.decimals,
-                    ),
+                      parseFloat(formik.values.price)
+                    ).toFixed(selectedQuote.decimals),
                   )
                 }
               }}
@@ -545,10 +559,10 @@ const Trading = () => {
           >
             <Text textAlign="center" fontSize="14px">
               Available:
+            </Text>
+            <Text textAlign="center" fontSize="12px">
               {available?.volumeInAvailable && symbol && tradeType ? (
-                <>
-                  {` ${available.volumeInAvailable.toFixed(available.volumeInBaseDecimals)} `}
-                </>
+                <>{` ${available.volumeInAvailable} `}</>
               ) : (
                 <>{` 0 `}</>
               )}

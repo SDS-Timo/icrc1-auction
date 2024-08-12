@@ -72,6 +72,10 @@ const TradeHistory: React.FC = () => {
     setShowAllMarkets(e)
   }
 
+  const handleRefreshClick = () => {
+    fetchTransactions()
+  }
+
   const handleToggleVolume = () => {
     setToggleVolume((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
   }
@@ -118,7 +122,7 @@ const TradeHistory: React.FC = () => {
             pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}
             onClickAllMarkets={handleCheckboxChange}
-            onClickRefresh={() => {}}
+            onClickRefresh={handleRefreshClick}
           />
         </Box>
       )}
