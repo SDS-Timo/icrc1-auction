@@ -31,6 +31,7 @@ import {
   convertPriceToCanister,
   convertVolumeToCanister,
 } from '../../../utils/calculationsUtils'
+import { toFixedWithoutRounding } from '../../../utils/convertionsUtils'
 import {
   validationPlaceOrder,
   getErrorMessagePlaceOrder,
@@ -395,10 +396,11 @@ const Trading = () => {
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'baseAmount',
-                    (
+                    toFixedWithoutRounding(
                       parseFloat(e.target.value) /
-                      parseFloat(formik.values.price)
-                    ).toFixed(symbol?.decimals),
+                        parseFloat(formik.values.price),
+                      symbol?.decimals || 0,
+                    ),
                   )
                 }
               }}
@@ -454,10 +456,11 @@ const Trading = () => {
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'quoteAmount',
-                    (
+                    toFixedWithoutRounding(
                       parseFloat(e.target.value) *
-                      parseFloat(formik.values.price)
-                    ).toFixed(selectedQuote.decimals),
+                        parseFloat(formik.values.price),
+                      selectedQuote.decimals,
+                    ),
                   )
                 }
               }}

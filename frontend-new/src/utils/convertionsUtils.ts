@@ -61,3 +61,27 @@ export function getSubAccountFromPrincipal(principal: string) {
     subAccountId: `0x${lengthHex + hex}`,
   }
 }
+
+/**
+ * Truncates a number to the specified number of decimal places without rounding.
+ *
+ * @param num - The number to be truncated.
+ * @param decimalPlaces - The number of decimal places to keep.
+ * @returns The truncated number as a string with the specified number of decimal places.
+ */
+export function toFixedWithoutRounding(num: number, decimalPlaces: number) {
+  const numStr = num.toString()
+  const decimalIndex = numStr.indexOf('.')
+
+  if (decimalIndex === -1) {
+    return numStr + '.' + '0'.repeat(decimalPlaces)
+  }
+
+  const desiredLength = decimalIndex + decimalPlaces + 1
+
+  if (numStr.length <= desiredLength) {
+    return numStr
+  }
+
+  return numStr.slice(0, desiredLength)
+}
