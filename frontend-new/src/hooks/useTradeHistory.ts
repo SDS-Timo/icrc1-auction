@@ -55,6 +55,12 @@ const useTransactionHistory = () => {
             'en-US',
             optionsDateTime,
           )
+          const optionsDate: Intl.DateTimeFormatOptions = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }
+          const formattedDate = date.toLocaleDateString('en-US', optionsDate)
           const optionsTime: Intl.DateTimeFormatOptions = {
             hour: '2-digit',
             minute: '2-digit',
@@ -79,6 +85,7 @@ const useTransactionHistory = () => {
           return {
             id: BigInt(index),
             datetime: formattedDateTime,
+            date: formattedDate,
             time: formattedTime,
             price: formattedPrice,
             type: 'ask' in kind ? 'buy' : 'sell',
@@ -90,7 +97,7 @@ const useTransactionHistory = () => {
         },
       )
 
-      const data = addDecimal(formattedData)
+      const data = addDecimal(formattedData, 2)
 
       return data
     } catch (error) {

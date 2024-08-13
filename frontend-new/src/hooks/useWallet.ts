@@ -85,7 +85,7 @@ const useWallet = () => {
         }
       })
 
-      const data = addDecimal(balances)
+      const data = addDecimal(balances, 4)
 
       return data
     } catch (error) {

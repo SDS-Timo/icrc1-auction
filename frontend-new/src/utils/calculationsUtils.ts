@@ -93,6 +93,7 @@ export function getDecimals(symbol: any): number {
  */
 export function addDecimal<T extends DataItem | TokenDataItem>(
   objects: T[],
+  significantDigits: number,
 ): T[] {
   function getDecimalPlaces(num: { toString: () => string }) {
     // Convert the number to a string and handle exponential notation
@@ -110,7 +111,7 @@ export function addDecimal<T extends DataItem | TokenDataItem>(
       return 0
     }
 
-    return firstSignificantDigitIndex + 2
+    return firstSignificantDigitIndex + significantDigits
   }
 
   let maxPriceDecimals = 0

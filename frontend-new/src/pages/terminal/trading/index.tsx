@@ -260,15 +260,19 @@ const Trading = () => {
 
   const handleTradeTypeChange = (type: string) => {
     if (!formik.isSubmitting) {
-      setMessage(null)
       setTradeType(type)
       updateAvailable(type)
-      setSelectedPercentage(null)
-      formik.resetForm({ values: initialValues })
-      formik.setFieldValue('price', '')
-      formik.setFieldValue('quoteAmount', '')
-      formik.setFieldValue('baseAmount', '')
+      handleClearForm()
     }
+  }
+
+  const handleClearForm = () => {
+    setMessage(null)
+    setSelectedPercentage(null)
+    formik.resetForm({ values: initialValues })
+    formik.setFieldValue('price', '')
+    formik.setFieldValue('quoteAmount', '')
+    formik.setFieldValue('baseAmount', '')
   }
 
   const updateAvailable = (type: string) => {
@@ -314,6 +318,7 @@ const Trading = () => {
   }, [balances])
 
   useEffect(() => {
+    handleClearForm()
     fetchBalances()
   }, [userAgent, selectedSymbol])
 

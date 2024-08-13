@@ -70,7 +70,7 @@ const useOrders = () => {
         }
       })
 
-      const data = addDecimal(openOrders)
+      const data = addDecimal(openOrders, 2)
 
       return data
     } catch (error) {

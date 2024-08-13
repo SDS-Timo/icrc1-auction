@@ -242,7 +242,11 @@ const PaginationTable = <T extends object>({
                     )}
                     key={columnIndex}
                   >
-                    <Flex justifyContent="center" alignItems="center">
+                    <Flex
+                      justifyContent="center"
+                      alignItems="center"
+                      textAlign="center"
+                    >
                       {column.render('Header')}
                       {(column as any).isSorted ? (
                         (column as any).isSortedDesc ? (
@@ -307,7 +311,8 @@ const PaginationTable = <T extends object>({
       >
         <Flex flexDirection="column">
           <Text>
-            Page {pageIndex + 1} of {pageOptions.length}
+            Page {pageIndex + 1} of{' '}
+            {pageOptions.length > 0 ? pageOptions.length : 1}
           </Text>
           <Text>Total: {data.length}</Text>
         </Flex>

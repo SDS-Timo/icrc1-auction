@@ -1,6 +1,6 @@
 import { MouseEventHandler } from 'react'
 
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Flex, Image, Text, HStack } from '@chakra-ui/react'
 import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
@@ -106,14 +106,33 @@ export default function tableContent(
       },
     },
     {
-      Header: 'Date and time',
+      Header: 'Date',
       accessor: 'datetime',
+      sortType: (rowA, rowB, columnId) => {
+        const dateA = new Date(rowA.values[columnId])
+        const dateB = new Date(rowB.values[columnId])
+
+        if (dateA < dateB) {
+          return -1
+        } else if (dateA > dateB) {
+          return 1
+        } else {
+          return 0
+        }
+      },
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
-        const { datetime } = row.original
+        const { date, time } = row.original
         return (
-          <Text textAlign="center" fontSize="13px">
-            {datetime}
-          </Text>
+          <HStack
+            justifyContent="flex-end"
+            w="95%"
+            textAlign="right"
+            whiteSpace="nowrap"
+          >
+            <Text fontSize="13px" w="100%" textAlign="right">
+              {`${date}, ${time}`}
+            </Text>
+          </HStack>
         )
       },
     },

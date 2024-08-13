@@ -100,7 +100,7 @@ const usePriceHistory = () => {
           }
         })
 
-      const data = addDecimal(formattedData)
+      const data = addDecimal(formattedData, 2)
       data.reverse()
 
       return data

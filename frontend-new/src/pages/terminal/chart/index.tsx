@@ -145,7 +145,14 @@ const ChartPlot = () => {
                 isChecked={volumeAxis === 'base'}
                 onChange={handleToggleVolumeAxis}
                 size="sm"
-                colorScheme="green"
+                sx={{
+                  '& .chakra-switch__track': {
+                    bg: 'grey.500',
+                  },
+                  '& .chakra-switch__track[data-checked]': {
+                    bg: 'grey.500',
+                  },
+                }}
               />
               <FormLabel
                 htmlFor="volume-axis-switch"
