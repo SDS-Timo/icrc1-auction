@@ -14,6 +14,7 @@ import { PiDownloadSimpleBold } from 'react-icons/pi'
 
 import useWallet from '../../../hooks/useWallet'
 import { TokenDataItem } from '../../../types'
+import { fixDecimal } from '../../../utils/calculationsUtils'
 
 interface TokenRowProps {
   token: TokenDataItem
@@ -71,7 +72,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
         <>
           {`Notify deposit`}
           <br />
-          {`${(balanceOf - deposit).toFixed(token.volumeInBaseDecimals)} ${token.base} available`}
+          {`${fixDecimal(balanceOf - deposit, token.decimals)} ${token.base} available`}
         </>,
       )
     }
@@ -87,9 +88,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
       </Flex>
       <Flex direction="column" align="flex-end" ml={2}>
         <Flex align="center">
-          <Text mr={2}>
-            {token.volumeInTotal?.toFixed(token.volumeInBaseDecimals)}
-          </Text>
+          <Text mr={2}>{fixDecimal(token.volumeInTotal, token.decimals)}</Text>
           <Tooltip label={tooltipText} aria-label="Notify Deposit">
             <IconButton
               aria-label="Notify Deposit"
@@ -112,11 +111,10 @@ const TokenRow: React.FC<TokenRowProps> = ({
         </Flex>
         <Flex direction="row" justify="space-between" align="center" w="full">
           <Text fontSize="12px" color="grey.400">
-            {token.volumeInLocked?.toFixed(token.volumeInBaseDecimals)} Locked
+            {fixDecimal(token.volumeInLocked, token.decimals)} Locked
           </Text>
           <Text ml={2} fontSize="12px" color="grey.400">
-            {token.volumeInAvailable?.toFixed(token.volumeInBaseDecimals)}{' '}
-            Available
+            {fixDecimal(token.volumeInAvailable, token.decimals)} Available
           </Text>
         </Flex>
       </Flex>

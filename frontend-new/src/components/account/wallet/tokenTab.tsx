@@ -33,7 +33,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
   const [filter, setFilter] = useState('')
 
   const filteredBalances = balances.filter((token) =>
-    token.name.toLowerCase().includes(filter.toLowerCase()),
+    token.base.toLowerCase().includes(filter.toLowerCase()),
   )
 
   return (
@@ -43,7 +43,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
           <InputGroup size="xs" width="50%">
             <Input
               placeholder="Search"
-              value={filter}
+              value={filter || ''}
               onChange={(e) => setFilter(e.target.value)}
               pr="2.5rem"
             />

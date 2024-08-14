@@ -30,6 +30,7 @@ import { PlaceOrder, TokenDataItem } from '../../../types'
 import {
   convertPriceToCanister,
   convertVolumeToCanister,
+  fixDecimal,
 } from '../../../utils/calculationsUtils'
 import {
   validationPlaceOrder,
@@ -89,7 +90,9 @@ const Trading = () => {
       quoteAmount: Yup.number()
         .typeError('Must be a number')
         .when('baseAmount', (baseAmount, schema) =>
-          baseAmount ? schema.required('Quote amount is required') : schema,
+          baseAmount
+            ? schema.required(`${symbol?.quote} amount is required`)
+            : schema,
         )
         .when(['amountType', 'available'], {
           is: (amountType: string, available: number) =>
@@ -104,21 +107,20 @@ const Trading = () => {
           then: (schema) =>
             schema.min(
               minimumOrderSize,
-              `Quote amount must be >= ${minimumOrderSize}`,
+              `Amount must be ≥ ${minimumOrderSize} ${symbol?.quote}`,
             ),
         })
         .when('amountType', {
           is: 'quote',
           then: (schema) =>
-            schema.max(
-              available?.volumeInAvailable || 0,
-              `Quote amount must be <= ${available?.volumeInAvailable?.toFixed(selectedQuote.decimals)}`,
-            ),
+            schema.max(available?.volumeInAvailable || 0, `Not enough funds`),
         }),
       baseAmount: Yup.number()
         .typeError('Must be a number')
         .when('quoteAmount', (quoteAmount, schema) =>
-          quoteAmount ? schema.required('Base amount is required') : schema,
+          quoteAmount
+            ? schema.required(`${symbol?.base} amount is required`)
+            : schema,
         )
         .when(['amountType', 'available'], {
           is: (amountType: string, available: number) =>
@@ -137,7 +139,7 @@ const Trading = () => {
                 : minimumOrderSize
             return schema.min(
               minimumBaseAmount,
-              `Base amount must be >= ${minimumBaseAmount.toFixed(symbol?.decimals)}`,
+              `Amount must be ≥ ${minimumBaseAmount.toFixed(symbol?.decimals)} ${symbol?.base}`,
             )
           },
         })
@@ -151,10 +153,7 @@ const Trading = () => {
             const maximumBaseAmount: number =
               volumeInAvailable > 0 && price > 0 ? volumeInAvailable / price : 0
 
-            return schema.max(
-              maximumBaseAmount,
-              `Base amount must be <= ${maximumBaseAmount.toFixed(symbol?.decimals)}`,
-            )
+            return schema.max(maximumBaseAmount, `Not enough funds`)
           },
         }),
     },
@@ -566,8 +565,11 @@ const Trading = () => {
               Available:
             </Text>
             <Text textAlign="center" fontSize="12px">
-              {available?.volumeInAvailable && symbol && tradeType ? (
-                <>{` ${available.volumeInAvailable} `}</>
+              {available?.volumeInAvailable &&
+              symbol &&
+              selectedQuote &&
+              tradeType ? (
+                <>{` ${tradeType === 'buy' ? fixDecimal(available.volumeInAvailable, selectedQuote?.decimals) : fixDecimal(available.volumeInAvailable, symbol?.decimals)} `}</>
               ) : (
                 <>{` 0 `}</>
               )}

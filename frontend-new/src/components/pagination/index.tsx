@@ -16,7 +16,7 @@ import {
   HStack,
   Checkbox,
   InputGroup,
-  InputRightElement,
+  InputLeftElement,
   useColorModeValue,
   useBreakpointValue,
 } from '@chakra-ui/react'
@@ -129,20 +129,17 @@ function GlobalFilter({
           <Input
             placeholder="Search"
             value={value || ''}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value)
+              onChange(e.target.value)
+            }}
             pr="2.5rem"
           />
-          <InputRightElement>
-            <IconButton
-              aria-label="Search"
-              icon={<SearchIcon />}
-              onClick={() => onChange(value)}
-              size="xs"
-              variant="ghost"
-              borderRadius="0px"
-            />
-          </InputRightElement>
+          <InputLeftElement>
+            <SearchIcon />
+          </InputLeftElement>
         </InputGroup>
+
         <IconButton
           aria-label="Reset"
           icon={<RepeatIcon />}

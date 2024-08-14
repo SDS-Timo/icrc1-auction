@@ -147,3 +147,25 @@ export function addDecimal<T extends DataItem | TokenDataItem>(
 
   return objects
 }
+
+/**
+ * Fixes the decimal places of a number and trims trailing zeros
+ * @param number - The number to be processed.
+ * @param decimalPlaces - The number of decimal places to fix.
+ * @returns A string representation of the number with the specified decimal places and without trailing zeros.
+ */
+export function fixDecimal(number?: number, decimalPlaces?: number): string {
+  if (number === undefined || decimalPlaces === undefined) {
+    return '0'
+  }
+
+  const fixedNumber = number.toFixed(decimalPlaces)
+
+  let trimmedNumber = fixedNumber.replace(/\.?0+$/, '')
+
+  if (trimmedNumber.includes('.') === false) {
+    trimmedNumber += '.0'
+  }
+
+  return trimmedNumber
+}
