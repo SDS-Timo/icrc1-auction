@@ -322,6 +322,10 @@ const Trading = () => {
   }, [userAgent, selectedSymbol])
 
   useEffect(() => {
+    if (tradeType === 'sell') setAmountType('base')
+  }, [tradeType])
+
+  useEffect(() => {
     formik.setFieldValue('amountType', amountType)
   }, [amountType])
 

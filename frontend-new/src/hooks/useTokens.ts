@@ -2,7 +2,7 @@ import { HttpAgent } from '@dfinity/agent'
 
 import { TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
-import { getTokenInfo } from '../utils/tokenUtils'
+import { getTokenInfo, getToken } from '../utils/tokenUtils'
 
 /**
  * Custom hook for fetching and managing tokens.
@@ -33,7 +33,34 @@ const useTokens = () => {
     }
   }
 
-  return { getTokens }
+  /**
+   * Fetches and returns the quote token.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @param tokens - An array of token objects.
+   * @returns A promise that resolves to the quote token.
+   */
+  const getQuoteToken = async (
+    userAgent: HttpAgent,
+    tokens: TokenMetadata[],
+  ): Promise<TokenMetadata | []> => {
+    try {
+      if (!tokens || tokens.length === 0) return []
+
+      const serviceActor = getActor(userAgent)
+
+      const principal = await serviceActor.getQuoteLedger()
+
+      const token = getToken(tokens, principal)
+
+      return token
+    } catch (error) {
+      console.error('Error fetching quote token:', error)
+      return []
+    }
+  }
+
+  return { getTokens, getQuoteToken }
 }
 
 export default useTokens

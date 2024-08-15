@@ -17,8 +17,8 @@ import { Option } from '../../../types'
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loading, setLoading] = useState(true)
+  const [quoteSymbol, setQuoteSymbol] = useState('')
   const { userAgent } = useSelector((state: RootState) => state.auth)
-  const quoteSymbol = process.env.ENV_QUOTE_SYMBOL
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
@@ -30,19 +30,20 @@ const SymbolSelection: React.FC = () => {
     const { getTokens } = useTokens()
     const data = await getTokens(userAgent)
 
-    const quoteToken = data.find((token) => token.symbol === quoteSymbol)
-    if (quoteToken) {
-      dispatch(setSelectedQuote(quoteToken))
-    }
-
     setTokens(data)
     dispatch(setTokens(data))
     setLoading(false)
   }
 
+  async function fetchQuoteToken() {
+    const { getQuoteToken } = useTokens()
+    const quote = await getQuoteToken(userAgent, tokens)
+    setQuoteSymbol(quote.base)
+  }
+
   const filteredTokens = useMemo(
     () => tokens.filter((token) => token.symbol !== quoteSymbol),
-    [tokens],
+    [tokens, quoteSymbol],
   )
 
   const options: Option[] = useMemo(
@@ -63,6 +64,17 @@ const SymbolSelection: React.FC = () => {
   const handleChange = (option: Option | Option[] | null) => {
     dispatch(setSelectedSymbol(option))
   }
+
+  useEffect(() => {
+    const quoteToken = tokens.find((token) => token.symbol === quoteSymbol)
+    if (quoteToken) {
+      dispatch(setSelectedQuote(quoteToken))
+    }
+  }, [quoteSymbol])
+
+  useEffect(() => {
+    fetchQuoteToken()
+  }, [tokens])
 
   useEffect(() => {
     fetchTokens()

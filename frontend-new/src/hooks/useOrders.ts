@@ -1,7 +1,13 @@
 import { HttpAgent } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
 
-import { TokenDataItem, TokenMetadata, Option, Order } from '../types'
+import {
+  TokenDataItem,
+  TokenMetadata,
+  Option,
+  Order,
+  SettingsState,
+} from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
@@ -80,31 +86,44 @@ const useOrders = () => {
   }
 
   /**
-   * Fetches and returns the minimum order size.
+   * Fetches and returns the order settings.
    *
    * @param userAgent - The HTTP agent to interact with the canister.
    * @param selectedQuote - The selected token metadata for the quote currency.
-   * @returns A promise that resolves to a minimum order size.
+   * @returns A promise that resolves to a order settings.
    */
-  const getMinimumOrderSize = async (
+  const getOrderSettings = async (
     userAgent: HttpAgent,
     selectedQuote: TokenMetadata,
-  ): Promise<number> => {
+  ): Promise<SettingsState> => {
     try {
       const serviceActor = getActor(userAgent)
 
-      const minimumOrderSize = await serviceActor.minimumOrder()
+      const { orderQuoteVolumeMinimum, orderQuoteVolumeStep } =
+        await serviceActor.settings()
 
-      const { volumeInBase } = convertVolumeFromCanister(
-        Number(minimumOrderSize),
+      const { volumeInBase: minimumOrderSize } = convertVolumeFromCanister(
+        Number(orderQuoteVolumeMinimum),
         getDecimals(selectedQuote),
         0,
       )
 
-      return volumeInBase
+      const { volumeInBase: stepSize } = convertVolumeFromCanister(
+        Number(orderQuoteVolumeStep),
+        getDecimals(selectedQuote),
+        0,
+      )
+
+      return {
+        orderQuoteVolumeMinimum: minimumOrderSize,
+        orderQuoteVolumeStep: stepSize,
+      }
     } catch (error) {
       console.error('Error fetching orders:', error)
-      return 0
+      return {
+        orderQuoteVolumeMinimum: 0,
+        orderQuoteVolumeStep: 0,
+      }
     }
   }
 
@@ -194,7 +213,7 @@ const useOrders = () => {
     }
   }
 
-  return { getOpenOrders, getMinimumOrderSize, placeOrder, cancelOrder }
+  return { getOpenOrders, getOrderSettings, placeOrder, cancelOrder }
 }
 
 export default useOrders

@@ -62,6 +62,7 @@ export const getErrorMessagePlaceOrder = (error: PlaceOrder): string => {
     UnknownAsset: 'Unknown Asset',
     NoCredit: 'No Credit',
     UnknownPrincipal: 'Unknown Principal',
+    VolumeStepViolated: 'Volume Step Violated',
   }
 
   for (const key in error) {

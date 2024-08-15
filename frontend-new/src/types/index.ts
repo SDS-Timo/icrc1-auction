@@ -1,8 +1,8 @@
 import { Option as OptionBymax } from 'bymax-react-select'
 
 import {
-  CancelOrderResponse,
-  PlaceOrderResponse,
+  CancelOrderError,
+  PlaceOrderError,
 } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 
 export interface Language {
@@ -67,19 +67,24 @@ export interface TokenDataItem extends DataItem, TokenMetadata {
 export interface TokenDataItemState {
   isRefreshOpenOrders: boolean
   minimumOrderSize: number
+  orderStepSize: number
   openOrders: TokenDataItem[] | []
 }
 export interface BalancesState {
   balances: TokenDataItem[] | []
 }
+export interface SettingsState {
+  orderQuoteVolumeMinimum: number
+  orderQuoteVolumeStep: number
+}
 export interface CancelOrder {
   Ok?: any
-  Err?: CancelOrderResponse
+  Err?: CancelOrderError
   [key: string]: any
 }
 export interface PlaceOrder {
   Ok?: any
-  Err?: PlaceOrderResponse
+  Err?: PlaceOrderError
   [key: string]: any
 }
 export interface NotifyResult {

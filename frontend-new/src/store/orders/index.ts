@@ -5,6 +5,7 @@ import { TokenDataItem, TokenDataItemState } from '../../types'
 const initialState: TokenDataItemState = {
   isRefreshOpenOrders: false,
   minimumOrderSize: 0,
+  orderStepSize: 0,
   openOrders: [],
 }
 
@@ -18,13 +19,20 @@ const openOrdersSlice = createSlice({
     setMinimumOrderSize: (state, action) => {
       state.minimumOrderSize = action.payload
     },
+    setOrderStepSize: (state, action) => {
+      state.orderStepSize = action.payload
+    },
     setOpenOrders: (state, action: PayloadAction<TokenDataItem[] | []>) => {
       state.openOrders = action.payload
     },
   },
 })
 
-export const { setIsRefreshOpenOrders, setMinimumOrderSize, setOpenOrders } =
-  openOrdersSlice.actions
+export const {
+  setIsRefreshOpenOrders,
+  setMinimumOrderSize,
+  setOrderStepSize,
+  setOpenOrders,
+} = openOrdersSlice.actions
 
 export default openOrdersSlice.reducer

@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import useOrder from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
-import { setMinimumOrderSize } from '../../../store/orders'
+import { setMinimumOrderSize, setOrderStepSize } from '../../../store/orders'
 
 const NavbarInfo: React.FC = () => {
   const toast = useToast({
@@ -40,12 +40,12 @@ const NavbarInfo: React.FC = () => {
     (state: RootState) => state.orders.minimumOrderSize,
   )
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${principal}`).then(() => {
+  const copyToClipboard = (text: string, description: string) => {
+    navigator.clipboard.writeText(text).then(() => {
       toast({
         position: 'top-right',
         title: 'Copied',
-        description: 'Auction principal copied to clipboard',
+        description,
         status: 'success',
       })
     })
@@ -53,10 +53,11 @@ const NavbarInfo: React.FC = () => {
 
   async function getMinimumOrder() {
     if (userAgent && selectedQuote) {
-      const { getMinimumOrderSize } = useOrder()
+      const { getOrderSettings } = useOrder()
 
-      const result = await getMinimumOrderSize(userAgent, selectedQuote)
-      dispatch(setMinimumOrderSize(result))
+      const settings = await getOrderSettings(userAgent, selectedQuote)
+      dispatch(setMinimumOrderSize(settings.orderQuoteVolumeMinimum))
+      dispatch(setOrderStepSize(settings.orderQuoteVolumeStep))
     }
   }
 
@@ -89,7 +90,38 @@ const NavbarInfo: React.FC = () => {
                 icon={<Icon as={FaCopy} boxSize={3} />}
                 size="xs"
                 ml={2}
-                onClick={copyToClipboard}
+                onClick={() =>
+                  copyToClipboard(
+                    principal || '',
+                    'Auction principal copied to clipboard',
+                  )
+                }
+                variant="ghost"
+                _hover={{
+                  bg: bgColorHover,
+                }}
+              />
+            </Flex>
+          </Box>
+          <Box mb={2}>
+            <Text as="strong" fontSize="14px">
+              Quote token Principal:
+            </Text>
+            <Flex alignItems="center">
+              <Text ml={1} fontSize="13px">
+                {selectedQuote.principal}
+              </Text>
+              <IconButton
+                aria-label="Copy to clipboard"
+                icon={<Icon as={FaCopy} boxSize={3} />}
+                size="xs"
+                ml={2}
+                onClick={() =>
+                  copyToClipboard(
+                    selectedQuote.principal || '',
+                    'Quote token principal copied to clipboard',
+                  )
+                }
                 variant="ghost"
                 _hover={{
                   bg: bgColorHover,
