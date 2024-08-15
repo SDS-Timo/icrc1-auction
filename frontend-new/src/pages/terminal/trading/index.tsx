@@ -115,6 +115,7 @@ const Trading = () => {
           then: (schema) =>
             schema.max(available?.volumeInAvailable || 0, `Not enough funds`),
         }),
+
       baseAmount: Yup.number()
         .typeError('Must be a number')
         .when('quoteAmount', (quoteAmount, schema) =>
@@ -133,27 +134,37 @@ const Trading = () => {
         .when('amountType', {
           is: 'base',
           then: (schema) => {
-            const minimumBaseAmount: number =
-              parseFloat(formik.values.price) > 0
-                ? minimumOrderSize / parseFloat(formik.values.price)
-                : minimumOrderSize
-            return schema.min(
-              minimumBaseAmount,
-              `Amount must be ≥ ${minimumBaseAmount.toFixed(symbol?.decimals)} ${symbol?.base}`,
-            )
-          },
-        })
-        .when('amountType', {
-          is: 'base',
-          then: (schema) => {
-            const volumeInAvailable = parseFloat(
-              `${available?.volumeInAvailable}`,
-            )
-            const price = parseFloat(formik.values.price)
-            const maximumBaseAmount: number =
-              volumeInAvailable > 0 && price > 0 ? volumeInAvailable / price : 0
+            return schema.test('valid-amount', function (value) {
+              const { path, createError } = this
+              const minimumBaseAmount: number =
+                parseFloat(formik.values.price) > 0
+                  ? minimumOrderSize / parseFloat(formik.values.price)
+                  : minimumOrderSize
 
-            return schema.max(maximumBaseAmount, `Not enough funds`)
+              const volumeInAvailable = parseFloat(
+                `${available?.volumeInAvailable}`,
+              )
+              const price = parseFloat(formik.values.price)
+              const maximumBaseAmount: number =
+                volumeInAvailable > 0 && price > 0
+                  ? tradeType === 'buy'
+                    ? volumeInAvailable / price
+                    : volumeInAvailable
+                  : 0
+
+              if (value && value > maximumBaseAmount) {
+                return createError({ path, message: 'Not enough funds' })
+              } else if (value && value < minimumBaseAmount) {
+                return createError({
+                  path,
+                  message: `Amount must be ≥ ${minimumBaseAmount.toFixed(
+                    symbol?.decimals,
+                  )} ${symbol?.base}`,
+                })
+              }
+
+              return true
+            })
           },
         }),
     },
