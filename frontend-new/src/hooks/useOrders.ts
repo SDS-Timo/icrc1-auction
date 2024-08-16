@@ -72,6 +72,7 @@ const useOrders = () => {
           volume: volumeInQuote,
           volumeInQuote,
           volumeInBase,
+          quoteDecimals: selectedQuote.decimals,
           ...token,
         }
       })

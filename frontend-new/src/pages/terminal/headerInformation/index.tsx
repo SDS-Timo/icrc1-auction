@@ -32,26 +32,52 @@ const HeaderInformation = () => {
     ? selectedSymbol[0]
     : selectedSymbol
 
-  const [loading, setLoading] = useState(true)
+  const tooltipTextStandard = (
+    <>
+      {`Checking statistics`}
+      <br />
+      {`Please wait...`}
+    </>
+  )
+
+  const [loadingStatistics, setLoadingStatistics] = useState(true)
   const [statistics, setStatistics] = useState<Statistics | null>(null)
+  const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
-  const isLoading = !headerInformation || loading
+  const isLoading = !headerInformation
 
-  async function fetchPrices() {
+  async function fetchStatistics(loading: boolean) {
     if (symbol && symbol.principal && selectedQuote) {
-      setLoading(true)
+      setTooltipText(tooltipTextStandard)
+
+      if (loading) setLoadingStatistics(true)
 
       const { getStatistics } = usePriceHistory()
 
       const stats = await getStatistics(userAgent, symbol, selectedQuote)
-      if (stats) setStatistics(stats)
+      if (stats) {
+        setStatistics(stats)
 
-      setLoading(false)
+        setTooltipText(
+          <>
+            {`Clearing Price: ${fixDecimal(stats?.clearingPrice, symbol?.decimals)} ${symbol?.quote}`}
+            <br />
+            {`Clearing Volume: ${fixDecimal(stats?.clearingVolume, symbol?.decimals)} ${symbol?.base}`}
+            <br />
+            {`Total Ask Volume: ${fixDecimal(stats?.totalAskVolume, symbol?.decimals)} ${symbol?.base}`}
+            <br />
+            {`Total Bid Volume: ${fixDecimal(stats?.totalBidVolume, symbol?.decimals)} ${symbol?.base}`}
+            <br />
+          </>,
+        )
+      }
+
+      setLoadingStatistics(false)
     }
   }
 
   useEffect(() => {
-    fetchPrices()
+    fetchStatistics(true)
   }, [selectedSymbol, selectedQuote])
 
   return (
@@ -157,25 +183,11 @@ const HeaderInformation = () => {
         ml={-2}
         borderRadius="md"
         flex="1"
-        filter={isLoading ? 'blur(5px)' : 'none'}
+        filter={loadingStatistics ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
-          <Tooltip
-            label={
-              <>
-                {`Clearing Price: ${fixDecimal(statistics?.clearingPrice, symbol?.decimals)} ${symbol?.quote}`}
-                <br />
-                {`Clearing Volume: ${fixDecimal(statistics?.clearingVolume, symbol?.decimals)} ${symbol?.base}`}
-                <br />
-                {`Total Ask Volume: ${fixDecimal(statistics?.totalAskVolume, symbol?.decimals)} ${symbol?.base}`}
-                <br />
-                {`Total Bid Volume: ${fixDecimal(statistics?.totalBidVolume, symbol?.decimals)} ${symbol?.base}`}
-                <br />
-              </>
-            }
-            aria-label="Statistics"
-          >
-            <Stat size="sm">
+          <Tooltip label={tooltipText} aria-label="Statistics">
+            <Stat size="sm" onMouseEnter={() => fetchStatistics(false)}>
               <StatLabel>Next Auction</StatLabel>
               <StatNumber>
                 {statistics ? statistics.remainingTime : '--'}

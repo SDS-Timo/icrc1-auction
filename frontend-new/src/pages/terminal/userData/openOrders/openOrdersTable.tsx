@@ -1,11 +1,19 @@
 import { MouseEventHandler } from 'react'
 
 import { CloseIcon } from '@chakra-ui/icons'
-import { Flex, Image, Text, IconButton, Spinner } from '@chakra-ui/react'
+import {
+  Flex,
+  Image,
+  Text,
+  IconButton,
+  Spinner,
+  Tooltip,
+} from '@chakra-ui/react'
 import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
 import { TokenDataItem } from '../../../../types'
+import { fixDecimal } from '../../../../utils/calculationsUtils'
 
 export default function tableContent(
   toggleVolume: string,
@@ -45,7 +53,7 @@ export default function tableContent(
       },
     },
     {
-      Header: 'Price',
+      Header: 'Limit',
       accessor: 'price',
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
         const { price, priceDecimals } = row.original
@@ -78,6 +86,7 @@ export default function tableContent(
           quote,
           base,
           decimals,
+          quoteDecimals,
           volumeInQuote,
           volumeInBase,
           volumeInQuoteDecimals,
@@ -90,21 +99,31 @@ export default function tableContent(
             sx={{ cursor: 'pointer' }}
           >
             {toggleVolume === 'quote' ? (
-              <>
-                {volumeInQuote.toFixed(volumeInQuoteDecimals)}{' '}
-                <Text as="span" fontSize="10px">
-                  {quote}
+              <Tooltip
+                label={`${fixDecimal(volumeInQuote, quoteDecimals)} ${quote}`}
+                aria-label="Base value"
+              >
+                <Text as="span">
+                  {volumeInQuote.toFixed(volumeInQuoteDecimals)}{' '}
+                  <Text as="span" fontSize="10px">
+                    {quote}
+                  </Text>
                 </Text>
-              </>
+              </Tooltip>
             ) : (
-              <>
-                {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
-                  ? volumeInBase.toFixed(volumeInBaseDecimals)
-                  : volumeInBase.toFixed(decimals)}{' '}
-                <Text as="span" fontSize="10px">
-                  {base}
+              <Tooltip
+                label={`${fixDecimal(volumeInBase, decimals)} ${base}`}
+                aria-label="Base value"
+              >
+                <Text as="span">
+                  {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
+                    ? volumeInBase.toFixed(volumeInBaseDecimals)
+                    : volumeInBase.toFixed(decimals)}{' '}
+                  <Text as="span" fontSize="10px">
+                    {base}
+                  </Text>
                 </Text>
-              </>
+              </Tooltip>
             )}
           </Text>
         )

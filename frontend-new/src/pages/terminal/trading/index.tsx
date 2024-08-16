@@ -279,6 +279,7 @@ const Trading = () => {
   const handleClearForm = () => {
     setMessage(null)
     setSelectedPercentage(null)
+    setAmountType('quote')
     formik.resetForm({ values: initialValues })
     formik.setFieldValue('price', '')
     formik.setFieldValue('quoteAmount', '')
@@ -330,6 +331,7 @@ const Trading = () => {
   useEffect(() => {
     handleClearForm()
     fetchBalances()
+    setTradeType('buy')
   }, [userAgent, selectedSymbol])
 
   useEffect(() => {

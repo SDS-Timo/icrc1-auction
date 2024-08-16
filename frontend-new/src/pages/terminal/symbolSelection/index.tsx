@@ -20,6 +20,7 @@ const SymbolSelection: React.FC = () => {
   const [quoteSymbol, setQuoteSymbol] = useState('')
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
+  const tokenDefault = process.env.ENV_TOKEN_SELECTED_DEFAULT
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
   )
@@ -27,18 +28,14 @@ const SymbolSelection: React.FC = () => {
   async function fetchTokens() {
     setLoading(true)
 
-    const { getTokens } = useTokens()
+    const { getTokens, getQuoteToken } = useTokens()
     const data = await getTokens(userAgent)
+    const quote = await getQuoteToken(userAgent, data)
 
     setTokens(data)
+    if (quote) setQuoteSymbol(quote.base)
     dispatch(setTokens(data))
     setLoading(false)
-  }
-
-  async function fetchQuoteToken() {
-    const { getQuoteToken } = useTokens()
-    const quote = await getQuoteToken(userAgent, tokens)
-    if (quote) setQuoteSymbol(quote.base)
   }
 
   const filteredTokens = useMemo(
@@ -73,31 +70,33 @@ const SymbolSelection: React.FC = () => {
   }, [quoteSymbol])
 
   useEffect(() => {
-    fetchQuoteToken()
-  }, [tokens])
-
-  useEffect(() => {
     fetchTokens()
   }, [])
 
   useEffect(() => {
     if (filteredTokens.length > 0) {
-      const initialSymbol = filteredTokens[0].symbol
+      let initialSymbol = filteredTokens.find(
+        (token) => token.base === tokenDefault,
+      )
+      initialSymbol =
+        initialSymbol && initialSymbol?.base === tokenDefault
+          ? initialSymbol
+          : filteredTokens[0]
       const initialOption: Option = {
-        id: initialSymbol,
-        value: initialSymbol,
-        label: filteredTokens[0].name,
-        image: filteredTokens[0].logo || '',
-        base: filteredTokens[0].base,
-        quote: filteredTokens[0].quote,
-        decimals: filteredTokens[0].decimals,
-        principal: filteredTokens[0].principal,
+        id: initialSymbol.symbol,
+        value: initialSymbol.symbol,
+        label: initialSymbol.name,
+        image: initialSymbol.logo,
+        base: initialSymbol.base,
+        quote: initialSymbol.quote,
+        decimals: initialSymbol.decimals,
+        principal: initialSymbol.principal,
       }
       dispatch(setSelectedSymbol(initialOption))
     } else {
       dispatch(setSelectedSymbol(null))
     }
-  }, [filteredTokens])
+  }, [userAgent, filteredTokens])
 
   return (
     <Box w="100%" zIndex="9">

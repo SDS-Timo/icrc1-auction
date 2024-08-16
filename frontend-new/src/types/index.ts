@@ -38,6 +38,7 @@ export interface DataItem {
   volumeInTotal?: number
   priceDecimals?: number
   volumeDecimals?: number
+  quoteDecimals?: number
   volumeInBaseDecimals?: number
   volumeInQuoteDecimals?: number
 }
