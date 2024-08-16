@@ -105,7 +105,10 @@ const NavbarInfo: React.FC = () => {
           </Box>
           <Box mb={2}>
             <Text as="strong" fontSize="14px">
-              Quote token Principal:
+              Quote token Principal{' '}
+            </Text>
+            <Text as="strong" fontSize="11px">
+              ({selectedQuote.base}):
             </Text>
             <Flex alignItems="center">
               <Text ml={1} fontSize="13px">

@@ -70,7 +70,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
     } else {
       setTooltipText(
         <>
-          {`Notify deposit`}
+          {`Claim deposit`}
           <br />
           {`${fixDecimal(balanceOf - deposit, token.decimals)} ${token.base} available`}
         </>,
@@ -89,9 +89,9 @@ const TokenRow: React.FC<TokenRowProps> = ({
       <Flex direction="column" align="flex-end" ml={2}>
         <Flex align="center">
           <Text mr={2}>{fixDecimal(token.volumeInTotal, token.decimals)}</Text>
-          <Tooltip label={tooltipText} aria-label="Notify Deposit">
+          <Tooltip label={tooltipText} aria-label="Claim Deposit">
             <IconButton
-              aria-label="Notify Deposit"
+              aria-label="Claim Deposit"
               icon={
                 token?.loading ? (
                   <Spinner size="xs" />

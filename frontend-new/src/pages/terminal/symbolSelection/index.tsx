@@ -38,7 +38,7 @@ const SymbolSelection: React.FC = () => {
   async function fetchQuoteToken() {
     const { getQuoteToken } = useTokens()
     const quote = await getQuoteToken(userAgent, tokens)
-    setQuoteSymbol(quote.base)
+    if (quote) setQuoteSymbol(quote.base)
   }
 
   const filteredTokens = useMemo(

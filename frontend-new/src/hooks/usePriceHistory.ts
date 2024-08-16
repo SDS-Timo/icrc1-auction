@@ -1,7 +1,7 @@
 import { HttpAgent } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
 
-import { DataItem, Option, TokenMetadata } from '../types'
+import { DataItem, Option, TokenMetadata, Statistics } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
@@ -28,13 +28,10 @@ const usePriceHistory = () => {
     selectedQuote: TokenMetadata,
   ): Promise<DataItem[]> => {
     try {
-      const serviceActor = getActor(userAgent)
-
-      const principal = Array.isArray(selectedSymbol)
-        ? selectedSymbol[0]?.principal
-        : selectedSymbol?.principal
-
+      const principal = selectedSymbol?.principal
       if (!principal) return []
+
+      const serviceActor = getActor(userAgent)
 
       const prices = await serviceActor.queryPriceHistory(
         [Principal.fromText(principal)],
@@ -110,7 +107,71 @@ const usePriceHistory = () => {
     }
   }
 
-  return { getPriceHistory }
+  /**
+   * Fetches and returns the statistics.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @param selectedSymbol - The selected token option, which may include the principal.
+   * @param selectedQuote - The selected token metadata for the quote currency.
+   * @returns A promise that resolves to the statistics.
+   */
+  const getStatistics = async (
+    userAgent: HttpAgent,
+    selectedSymbol: Option,
+    selectedQuote: TokenMetadata,
+  ): Promise<Statistics | null> => {
+    try {
+      const principal = selectedSymbol?.principal
+      if (!principal) return null
+
+      const serviceActor = getActor(userAgent)
+
+      const { clearingPrice, clearingVolume, totalAskVolume, totalBidVolume } =
+        await serviceActor.indicativeStats(Principal.fromText(principal))
+
+      //const remainingTime = await serviceActor.sessionRemainingTime()
+
+      const formattedClearingPrice = convertPriceFromCanister(
+        Number(clearingPrice),
+        getDecimals(selectedSymbol),
+        getDecimals(selectedQuote),
+      )
+
+      const { volumeInBase: formattedClearingVolume } =
+        convertVolumeFromCanister(
+          Number(clearingVolume),
+          getDecimals(selectedSymbol),
+          0,
+        )
+
+      const { volumeInBase: formattedTotalAskVolume } =
+        convertVolumeFromCanister(
+          Number(totalAskVolume),
+          getDecimals(selectedSymbol),
+          0,
+        )
+
+      const { volumeInBase: formattedTotalBidVolume } =
+        convertVolumeFromCanister(
+          Number(totalBidVolume),
+          getDecimals(selectedSymbol),
+          0,
+        )
+
+      return {
+        clearingPrice: formattedClearingPrice,
+        clearingVolume: formattedClearingVolume,
+        totalAskVolume: formattedTotalAskVolume,
+        totalBidVolume: formattedTotalBidVolume,
+        remainingTime: 'Aug 20, 09:00:00',
+      }
+    } catch (error) {
+      console.error('Error fetching statistics:', error)
+      return null
+    }
+  }
+
+  return { getPriceHistory, getStatistics }
 }
 
 export default usePriceHistory

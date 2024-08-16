@@ -43,9 +43,9 @@ const useTokens = () => {
   const getQuoteToken = async (
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
-  ): Promise<TokenMetadata | []> => {
+  ): Promise<TokenMetadata | null> => {
     try {
-      if (!tokens || tokens.length === 0) return []
+      if (!tokens || tokens.length === 0) return null
 
       const serviceActor = getActor(userAgent)
 
@@ -56,7 +56,7 @@ const useTokens = () => {
       return token
     } catch (error) {
       console.error('Error fetching quote token:', error)
-      return []
+      return null
     }
   }
 
