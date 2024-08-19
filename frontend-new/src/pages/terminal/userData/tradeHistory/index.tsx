@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { Box, useDisclosure } from '@chakra-ui/react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './tradeHistoryTable'
 import LoginButtonComponent from '../../../../components/loginButton'
@@ -9,12 +9,14 @@ import PaginationTable, {
   pgSizeDinamic,
 } from '../../../../components/pagination'
 import useTransactionHistory from '../../../../hooks/useTradeHistory'
-import { RootState } from '../../../../store'
+import { RootState, AppDispatch } from '../../../../store'
+import { setIsRefreshUserData } from '../../../../store/orders'
 import { TokenDataItem } from '../../../../types'
 
 const TradeHistory: React.FC = () => {
   const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const dispatch = useDispatch<AppDispatch>()
 
   const [transactions, setTransactions] = useState<TokenDataItem[]>([])
   const [transactionsFiltered, setTransactionsFiltered] = useState<
@@ -30,6 +32,9 @@ const TradeHistory: React.FC = () => {
   )
   const isResizeUserData = useSelector(
     (state: RootState) => state.uiSettings.isResizeUserData,
+  )
+  const isRefreshUserData = useSelector(
+    (state: RootState) => state.orders.isRefreshUserData,
   )
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
@@ -73,7 +78,7 @@ const TradeHistory: React.FC = () => {
   }
 
   const handleRefreshClick = () => {
-    fetchTransactions()
+    dispatch(setIsRefreshUserData())
   }
 
   const handleToggleVolume = () => {
@@ -93,7 +98,7 @@ const TradeHistory: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchTransactions()
     else setShowAllMarkets(false)
-  }, [selectedQuote, selectedSymbol, userAgent])
+  }, [selectedQuote, selectedSymbol, userAgent, isRefreshUserData])
 
   return (
     <Box

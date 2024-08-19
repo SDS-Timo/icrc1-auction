@@ -25,7 +25,7 @@ import useOrders from '../../../hooks/useOrders'
 import useBalances from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
-import { setIsRefreshOpenOrders } from '../../../store/orders'
+import { setIsRefreshUserData } from '../../../store/orders'
 import { PlaceOrder, TokenDataItem } from '../../../types'
 import {
   convertPriceToCanister,
@@ -225,7 +225,7 @@ const Trading = () => {
           setStatus({ success: true })
           resetForm({ values: initialValues })
           setMessage(null)
-          dispatch(setIsRefreshOpenOrders())
+          dispatch(setIsRefreshUserData())
           fetchBalances()
 
           if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
@@ -360,11 +360,11 @@ const Trading = () => {
       let quoteAmount = 0
 
       if (tradeType === 'buy') {
-        baseAmount = percentageAvailable / parseFloat(formik.values.price)
-        quoteAmount = baseAmount * parseFloat(formik.values.price)
+        quoteAmount = percentageAvailable
+        baseAmount = quoteAmount / parseFloat(formik.values.price)
       } else {
-        baseAmount = percentageAvailable * parseFloat(formik.values.price)
-        quoteAmount = baseAmount / parseFloat(formik.values.price)
+        baseAmount = percentageAvailable
+        quoteAmount = baseAmount * parseFloat(formik.values.price)
       }
 
       formik.setFieldValue('baseAmount', baseAmount.toFixed(symbol?.decimals))

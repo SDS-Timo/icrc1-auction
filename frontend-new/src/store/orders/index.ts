@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { TokenDataItem, TokenDataItemState } from '../../types'
 
 const initialState: TokenDataItemState = {
-  isRefreshOpenOrders: false,
+  isRefreshUserData: false,
   minimumOrderSize: 0,
   orderStepSize: 0,
   openOrders: [],
@@ -13,8 +13,8 @@ const openOrdersSlice = createSlice({
   name: 'openOrders',
   initialState,
   reducers: {
-    setIsRefreshOpenOrders: (state) => {
-      state.isRefreshOpenOrders = !state.isRefreshOpenOrders
+    setIsRefreshUserData: (state) => {
+      state.isRefreshUserData = !state.isRefreshUserData
     },
     setMinimumOrderSize: (state, action) => {
       state.minimumOrderSize = action.payload
@@ -29,7 +29,7 @@ const openOrdersSlice = createSlice({
 })
 
 export const {
-  setIsRefreshOpenOrders,
+  setIsRefreshUserData,
   setMinimumOrderSize,
   setOrderStepSize,
   setOpenOrders,

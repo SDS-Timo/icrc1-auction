@@ -5,6 +5,7 @@ import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
 import { TokenDataItem } from '../../../../types'
+import { fixDecimal } from '../../../../utils/calculationsUtils'
 
 export default function tableContent(
   toggleVolume: string,
@@ -88,14 +89,14 @@ export default function tableContent(
           >
             {toggleVolume === 'quote' ? (
               <>
-                {volumeInQuote.toFixed(volumeInQuoteDecimals)}{' '}
+                {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
                 <Text as="span" fontSize="10px">
                   {quote}
                 </Text>
               </>
             ) : (
               <>
-                {volumeInBase.toFixed(volumeInBaseDecimals)}{' '}
+                {fixDecimal(volumeInBase, volumeInBaseDecimals)}{' '}
                 <Text as="span" fontSize="10px">
                   {base}
                 </Text>

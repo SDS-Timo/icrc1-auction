@@ -88,7 +88,7 @@ const useTransactionHistory = () => {
             date: formattedDate,
             time: formattedTime,
             price: formattedPrice,
-            type: 'ask' in kind ? 'buy' : 'sell',
+            type: 'bid' in kind ? 'buy' : 'sell',
             volume: volumeInQuote,
             volumeInQuote,
             volumeInBase,

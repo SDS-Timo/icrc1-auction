@@ -12,7 +12,7 @@ import useOpenOrders from '../../../../hooks/useOrders'
 import useBalances from '../../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../../store'
 import { setBalances } from '../../../../store/balances'
-import { setOpenOrders, setIsRefreshOpenOrders } from '../../../../store/orders'
+import { setOpenOrders, setIsRefreshUserData } from '../../../../store/orders'
 import { TokenDataItem, CancelOrder } from '../../../../types'
 import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
 
@@ -38,8 +38,8 @@ const OpenOrders: React.FC = () => {
   const isResizeUserData = useSelector(
     (state: RootState) => state.uiSettings.isResizeUserData,
   )
-  const isRefreshOpenOrders = useSelector(
-    (state: RootState) => state.orders.isRefreshOpenOrders,
+  const isRefreshUserData = useSelector(
+    (state: RootState) => state.orders.isRefreshUserData,
   )
   const openOrders = useSelector((state: RootState) => state.orders.openOrders)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
@@ -91,7 +91,7 @@ const OpenOrders: React.FC = () => {
   }
 
   const handleRefreshClick = () => {
-    dispatch(setIsRefreshOpenOrders())
+    dispatch(setIsRefreshUserData())
   }
 
   const handleCancelOrderClick = async (
@@ -99,7 +99,7 @@ const OpenOrders: React.FC = () => {
     type: string | undefined,
   ) => {
     const refreshOpenOrders = (loading: boolean) => {
-      if (!loading) dispatch(setIsRefreshOpenOrders())
+      if (!loading) dispatch(setIsRefreshUserData())
 
       setOpenOrdersFiltered((prevState) =>
         prevState.map((order) =>
@@ -180,7 +180,7 @@ const OpenOrders: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchOpenOrders()
     else setShowAllMarkets(false)
-  }, [selectedQuote, selectedSymbol, userAgent, isRefreshOpenOrders])
+  }, [selectedQuote, selectedSymbol, userAgent, isRefreshUserData])
 
   return (
     <Box

@@ -104,7 +104,7 @@ export default function tableContent(
                 aria-label="Base value"
               >
                 <Text as="span">
-                  {volumeInQuote.toFixed(volumeInQuoteDecimals)}{' '}
+                  {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
                   <Text as="span" fontSize="10px">
                     {quote}
                   </Text>
@@ -117,8 +117,8 @@ export default function tableContent(
               >
                 <Text as="span">
                   {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
-                    ? volumeInBase.toFixed(volumeInBaseDecimals)
-                    : volumeInBase.toFixed(decimals)}{' '}
+                    ? fixDecimal(volumeInBase, volumeInBaseDecimals)
+                    : fixDecimal(volumeInBase, decimals)}{' '}
                   <Text as="span" fontSize="10px">
                     {base}
                   </Text>

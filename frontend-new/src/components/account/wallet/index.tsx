@@ -30,6 +30,7 @@ import { formatWalletAddress } from '../../../utils/authUtils'
 import {
   convertVolumeFromCanister,
   getDecimals,
+  fixDecimal,
 } from '../../../utils/calculationsUtils'
 import { getErrorMessageNotifyDeposits } from '../../../utils/walletUtils'
 
@@ -130,8 +131,8 @@ const WalletContent: React.FC = () => {
 
           if (toastId) {
             toast.update(toastId, {
-              title: `New ${base} deposits found: ${depositInc}`,
-              description: `Credited: ${creditInc} | Total: ${creditTotal.toFixed(token?.volumeInBaseDecimals)}`,
+              title: `New ${base} deposits found: ${fixDecimal(depositInc, token?.decimals)}`,
+              description: `Credited: ${fixDecimal(creditInc, token?.decimals)} | Total: ${fixDecimal(creditTotal, token?.decimals)}`,
               status: 'success',
               isClosable: true,
             })
