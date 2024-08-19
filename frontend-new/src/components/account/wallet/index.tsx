@@ -65,8 +65,6 @@ const WalletContent: React.FC = () => {
       (a, b) => (b.volumeInAvailable ?? 0) - (a.volumeInAvailable ?? 0),
     )
     dispatch(setBalances(sortedBalances))
-
-    console.log(fixDecimal(100010000101, 3))
     setLoading(false)
   }
 
