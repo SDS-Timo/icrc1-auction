@@ -159,13 +159,15 @@ export function fixDecimal(number?: number, decimalPlaces?: number): string {
     return '0'
   }
 
-  const fixedNumber = number.toFixed(decimalPlaces)
+  let fixedNumber = number.toFixed(decimalPlaces)
 
-  let trimmedNumber = fixedNumber.replace(/\.?0+$/, '')
-
-  if (trimmedNumber.includes('.') === false) {
-    trimmedNumber += '.0'
+  if (fixedNumber.includes('.')) {
+    fixedNumber = fixedNumber.replace(/\.?0+$/, '')
   }
 
-  return trimmedNumber
+  if (fixedNumber.includes('.') === false && number.toString().includes('.')) {
+    fixedNumber += '.0'
+  }
+
+  return fixedNumber
 }
