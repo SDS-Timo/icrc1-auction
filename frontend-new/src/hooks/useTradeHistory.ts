@@ -92,6 +92,7 @@ const useTransactionHistory = () => {
             volume: volumeInQuote,
             volumeInQuote,
             volumeInBase,
+            quoteDecimals: selectedQuote.decimals,
             ...token,
           }
         },

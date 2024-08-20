@@ -1,6 +1,6 @@
 import { MouseEventHandler } from 'react'
 
-import { Flex, Image, Text, HStack } from '@chakra-ui/react'
+import { Flex, Image, Text, HStack, Tooltip } from '@chakra-ui/react'
 import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
@@ -76,6 +76,8 @@ export default function tableContent(
         const {
           quote,
           base,
+          decimals,
+          quoteDecimals,
           volumeInQuote,
           volumeInBase,
           volumeInQuoteDecimals,
@@ -88,19 +90,31 @@ export default function tableContent(
             sx={{ cursor: 'pointer' }}
           >
             {toggleVolume === 'quote' ? (
-              <>
-                {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
-                <Text as="span" fontSize="10px">
-                  {quote}
+              <Tooltip
+                label={`${fixDecimal(volumeInQuote, quoteDecimals)} ${quote}`}
+                aria-label="Quote value"
+              >
+                <Text as="span">
+                  {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
+                  <Text as="span" fontSize="10px">
+                    {quote}
+                  </Text>
                 </Text>
-              </>
+              </Tooltip>
             ) : (
-              <>
-                {fixDecimal(volumeInBase, volumeInBaseDecimals)}{' '}
-                <Text as="span" fontSize="10px">
-                  {base}
+              <Tooltip
+                label={`${fixDecimal(volumeInBase, decimals)} ${base}`}
+                aria-label="Base value"
+              >
+                <Text as="span">
+                  {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
+                    ? fixDecimal(volumeInBase, volumeInBaseDecimals)
+                    : fixDecimal(volumeInBase, decimals)}{' '}
+                  <Text as="span" fontSize="10px">
+                    {base}
+                  </Text>
                 </Text>
-              </>
+              </Tooltip>
             )}
           </Text>
         )

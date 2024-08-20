@@ -101,7 +101,7 @@ export default function tableContent(
             {toggleVolume === 'quote' ? (
               <Tooltip
                 label={`${fixDecimal(volumeInQuote, quoteDecimals)} ${quote}`}
-                aria-label="Base value"
+                aria-label="Quote value"
               >
                 <Text as="span">
                   {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
