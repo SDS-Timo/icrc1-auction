@@ -71,6 +71,75 @@ export function convertVolumeToCanister(
 }
 
 /**
+ * Calculates the number of decimal places for volume based in step size.
+ * @param price - The price of the asset in the base currency.
+ * @param amount - The amount of the asset in the base currency.
+ * @param stepSize - The step size allowed for volume adjustments.
+ * @param decimalsBase - The number of decimals allowed in the base currency.
+ * @param decimalsQuote - The number of decimals allowed in the quote currency.
+ * @returns The number of decimal places to use for volume calculation.
+ */
+export function volumeStepSizeDecimals(
+  price: number,
+  amount: number,
+  stepSize: number,
+  decimalsBase: number,
+  decimalsQuote: number,
+): number {
+  const quoteVolumeStepLog10 = Math.abs(Math.log10(stepSize))
+  const quoteVolumeStep = 10 ** quoteVolumeStepLog10
+  const log10_down = 2.302585092994045
+  let decimalPlaces = decimalsBase
+
+  const priceNat = convertPriceToCanister(price, decimalsBase, decimalsQuote)
+
+  const p = priceNat / quoteVolumeStep
+
+  if (p >= 1) return decimalPlaces
+
+  const zf = -Math.log(p) / log10_down
+  const z = Math.trunc(zf)
+
+  let addDecimal = 99
+  const amountStr = amount.toString()
+  if (amountStr.includes('.')) {
+    const indexOfPoint = amountStr.indexOf('.')
+    addDecimal = indexOfPoint + 1
+  }
+
+  decimalPlaces = decimalsBase - z + addDecimal
+
+  return decimalPlaces
+}
+
+/**
+ * Calculates the volume based in step size.
+ * @param price - The price of the asset in the base currency.
+ * @param amount - The amount of the asset in the base currency.
+ * @param decimals - The number of decimals allowed in the base currency.
+ * @param stepConstantInQuote - The constant that defines the minimum order size in the quote currency.
+ * @returns The calculated volume rounded to the appropriate step size.
+ */
+export function volumeCalculateStepSize(
+  price: number,
+  amount: number,
+  decimals: number,
+  stepConstantInQuote: number,
+): { volume: string; stepSize: number } {
+  const minimumOrderSizeRaw = stepConstantInQuote / price
+
+  let decimalPlaces = -Math.floor(Math.log10(minimumOrderSizeRaw))
+  decimalPlaces = decimalPlaces > 0 ? decimalPlaces : 0
+
+  const stepSize = parseFloat(
+    (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces),
+  )
+
+  const volume = fixDecimal(stepSize * Math.round(amount / stepSize), decimals)
+  return { volume, stepSize }
+}
+
+/**
  * Retrieves the decimal places from the provided symbol object.
  *
  * @param symbol - The object containing the decimals property. If the property is not found or the input is invalid, a default value is returned.

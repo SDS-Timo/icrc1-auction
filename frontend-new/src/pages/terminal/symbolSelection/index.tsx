@@ -17,7 +17,7 @@ import { Option } from '../../../types'
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loading, setLoading] = useState(true)
-  const [quoteSymbol, setQuoteSymbol] = useState('')
+  const [quoteSymbol, setQuoteSymbol] = useState('USDC')
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const tokenDefault = process.env.ENV_TOKEN_SELECTED_DEFAULT

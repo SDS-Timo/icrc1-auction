@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import useOrder from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
-import { setMinimumOrderSize, setOrderStepSize } from '../../../store/orders'
+import { setMinimumOrderSize, setVolumeStepSize } from '../../../store/orders'
 
 const NavbarInfo: React.FC = () => {
   const toast = useToast({
@@ -57,7 +57,7 @@ const NavbarInfo: React.FC = () => {
 
       const settings = await getOrderSettings(userAgent, selectedQuote)
       dispatch(setMinimumOrderSize(settings.orderQuoteVolumeMinimum))
-      dispatch(setOrderStepSize(settings.orderQuoteVolumeStep))
+      dispatch(setVolumeStepSize(settings.orderQuoteVolumeStep))
     }
   }
 

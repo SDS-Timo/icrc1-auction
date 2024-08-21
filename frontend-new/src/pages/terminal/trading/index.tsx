@@ -30,6 +30,8 @@ import { PlaceOrder, TokenDataItem } from '../../../types'
 import {
   convertPriceToCanister,
   convertVolumeToCanister,
+  volumeStepSizeDecimals,
+  volumeCalculateStepSize,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
 import {
@@ -49,6 +51,7 @@ const Trading = () => {
   const [tradeType, setTradeType] = useState('buy')
   const [amountType, setAmountType] = useState('quote')
   const [loading, setLoading] = useState(true)
+  const [baseStepSize, setBaseStepSize] = useState<number | null>(null)
   const [available, setAvailable] = useState<TokenDataItem | null>(null)
   const [selectedPercentage, setSelectedPercentage] = useState(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -68,9 +71,16 @@ const Trading = () => {
   const minimumOrderSize = useSelector(
     (state: RootState) => state.orders.minimumOrderSize,
   )
+  const volumeStepSize = useSelector(
+    (state: RootState) => state.orders.volumeStepSize,
+  )
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
+
+  const [baseStepSizeDecimal, setBaseStepSizeDecimal] = useState(
+    symbol?.decimals,
+  )
 
   const initialValues = {
     price: '',
@@ -284,6 +294,7 @@ const Trading = () => {
     formik.setFieldValue('price', '')
     formik.setFieldValue('quoteAmount', '')
     formik.setFieldValue('baseAmount', '')
+    setBaseStepSize(null)
   }
 
   const updateAvailable = (type: string) => {
@@ -308,6 +319,17 @@ const Trading = () => {
         ? null
         : percentage,
     )
+  }
+
+  const handleBaseVolumeCalculate = (value: number) => {
+    const { volume, stepSize } = volumeCalculateStepSize(
+      parseFloat(formik.values.price),
+      value,
+      Number(baseStepSizeDecimal),
+      volumeStepSize,
+    )
+    setBaseStepSize(stepSize)
+    return volume
   }
 
   async function fetchBalances() {
@@ -348,6 +370,27 @@ const Trading = () => {
 
   useEffect(() => {
     if (
+      Number(formik.values.price) > 0 &&
+      Number(formik.values.baseAmount) > 0
+    ) {
+      const decimal = volumeStepSizeDecimals(
+        Number(formik.values.price),
+        Number(formik.values.baseAmount),
+        volumeStepSize,
+        Number(symbol?.decimals),
+        selectedQuote.decimals,
+      )
+      setBaseStepSizeDecimal(decimal)
+    }
+  }, [
+    formik.values.price,
+    formik.values.baseAmount,
+    volumeStepSize,
+    symbol?.decimals,
+  ])
+
+  useEffect(() => {
+    if (
       available &&
       selectedPercentage &&
       formik.values.price &&
@@ -367,7 +410,7 @@ const Trading = () => {
         quoteAmount = baseAmount * parseFloat(formik.values.price)
       }
 
-      formik.setFieldValue('baseAmount', baseAmount.toFixed(symbol?.decimals))
+      formik.setFieldValue('baseAmount', handleBaseVolumeCalculate(baseAmount))
       formik.setFieldValue(
         'quoteAmount',
         quoteAmount.toFixed(selectedQuote.decimals),
@@ -404,6 +447,7 @@ const Trading = () => {
               formik.handleChange(e)
               formik.setFieldValue('baseAmount', '')
               formik.setFieldValue('quoteAmount', '')
+              setBaseStepSize(null)
             }}
           />
           <FormLabel color="grey.500" fontSize="15px">
@@ -433,10 +477,10 @@ const Trading = () => {
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'baseAmount',
-                    (
+                    handleBaseVolumeCalculate(
                       parseFloat(e.target.value) /
-                      parseFloat(formik.values.price)
-                    ).toFixed(symbol?.decimals),
+                        parseFloat(formik.values.price),
+                    ),
                   )
                 }
               }}
@@ -486,6 +530,7 @@ const Trading = () => {
               isDisabled={
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
+              maxLength={baseStepSizeDecimal}
               value={formik.values.baseAmount}
               onChange={(e) => {
                 formik.handleChange(e)
@@ -532,6 +577,11 @@ const Trading = () => {
             </Button>
           </InputRightElement>
         </InputGroup>
+        {baseStepSize && (
+          <Text color="red.500" fontSize="11px">
+            Step Size: {baseStepSize}
+          </Text>
+        )}
         {formik.errors.baseAmount && formik.touched.baseAmount && (
           <Text color="red.500" fontSize="12px">
             {formik.errors.baseAmount}
