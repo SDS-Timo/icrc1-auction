@@ -67,7 +67,7 @@ const SymbolSelection: React.FC = () => {
     if (quoteToken) {
       dispatch(setSelectedQuote(quoteToken))
     }
-  }, [quoteSymbol])
+  }, [tokens, quoteSymbol])
 
   useEffect(() => {
     fetchTokens()

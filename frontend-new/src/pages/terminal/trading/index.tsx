@@ -52,6 +52,9 @@ const Trading = () => {
   const [amountType, setAmountType] = useState('quote')
   const [loading, setLoading] = useState(true)
   const [baseStepSize, setBaseStepSize] = useState<number | null>(null)
+  const [baseStepSizeDecimal, setBaseStepSizeDecimal] = useState<
+    number | undefined
+  >(undefined)
   const [available, setAvailable] = useState<TokenDataItem | null>(null)
   const [selectedPercentage, setSelectedPercentage] = useState(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -77,10 +80,6 @@ const Trading = () => {
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
-
-  const [baseStepSizeDecimal, setBaseStepSizeDecimal] = useState(
-    symbol?.decimals,
-  )
 
   const initialValues = {
     price: '',
@@ -332,6 +331,20 @@ const Trading = () => {
     return volume
   }
 
+  const handleBaseVolumeDecimal = () => {
+    if (Number(formik.values.price) > 0) {
+      const decimal = volumeStepSizeDecimals(
+        Number(formik.values.price),
+        Number(formik.values.baseAmount),
+        volumeStepSize,
+        Number(symbol?.decimals),
+        selectedQuote.decimals,
+      )
+      setBaseStepSizeDecimal(decimal)
+      return decimal
+    }
+  }
+
   async function fetchBalances() {
     setLoading(true)
     const { getBalancesCredits } = useBalances()
@@ -369,25 +382,12 @@ const Trading = () => {
   }, [available])
 
   useEffect(() => {
-    if (
-      Number(formik.values.price) > 0 &&
-      Number(formik.values.baseAmount) > 0
-    ) {
-      const decimal = volumeStepSizeDecimals(
-        Number(formik.values.price),
-        Number(formik.values.baseAmount),
-        volumeStepSize,
-        Number(symbol?.decimals),
-        selectedQuote.decimals,
-      )
-      setBaseStepSizeDecimal(decimal)
-    }
-  }, [
-    formik.values.price,
-    formik.values.baseAmount,
-    volumeStepSize,
-    symbol?.decimals,
-  ])
+    setBaseStepSizeDecimal(symbol?.decimals)
+  }, [symbol])
+
+  useEffect(() => {
+    handleBaseVolumeDecimal()
+  }, [formik.values.quoteAmount, formik.values.baseAmount])
 
   useEffect(() => {
     if (
@@ -542,6 +542,10 @@ const Trading = () => {
                       parseFloat(formik.values.price)
                     ).toFixed(selectedQuote.decimals),
                   )
+                  handleBaseVolumeCalculate(
+                    parseFloat(formik.values.baseAmount) /
+                      parseFloat(formik.values.price),
+                  )
                 }
               }}
             />
@@ -578,8 +582,8 @@ const Trading = () => {
           </InputRightElement>
         </InputGroup>
         {baseStepSize && (
-          <Text color="red.500" fontSize="11px">
-            Step Size: {baseStepSize}
+          <Text color="grey.200" fontSize="11px">
+            Step Size: {fixDecimal(baseStepSize, baseStepSizeDecimal)}
           </Text>
         )}
         {formik.errors.baseAmount && formik.touched.baseAmount && (

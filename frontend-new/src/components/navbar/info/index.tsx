@@ -103,35 +103,37 @@ const NavbarInfo: React.FC = () => {
               />
             </Flex>
           </Box>
-          <Box mb={2}>
-            <Text as="strong" fontSize="14px">
-              Quote token Principal{' '}
-            </Text>
-            <Text as="strong" fontSize="11px">
-              ({selectedQuote.base}):
-            </Text>
-            <Flex alignItems="center">
-              <Text ml={1} fontSize="13px">
-                {selectedQuote.principal}
+          {selectedQuote.principal && (
+            <Box mb={2}>
+              <Text as="strong" fontSize="14px">
+                Quote token Principal{' '}
               </Text>
-              <IconButton
-                aria-label="Copy to clipboard"
-                icon={<Icon as={FaCopy} boxSize={3} />}
-                size="xs"
-                ml={2}
-                onClick={() =>
-                  copyToClipboard(
-                    selectedQuote.principal || '',
-                    'Quote token principal copied to clipboard',
-                  )
-                }
-                variant="ghost"
-                _hover={{
-                  bg: bgColorHover,
-                }}
-              />
-            </Flex>
-          </Box>
+              <Text as="strong" fontSize="11px">
+                ({selectedQuote.base}):
+              </Text>
+              <Flex alignItems="center">
+                <Text ml={1} fontSize="13px">
+                  {selectedQuote.principal}
+                </Text>
+                <IconButton
+                  aria-label="Copy to clipboard"
+                  icon={<Icon as={FaCopy} boxSize={3} />}
+                  size="xs"
+                  ml={2}
+                  onClick={() =>
+                    copyToClipboard(
+                      selectedQuote.principal || '',
+                      'Quote token principal copied to clipboard',
+                    )
+                  }
+                  variant="ghost"
+                  _hover={{
+                    bg: bgColorHover,
+                  }}
+                />
+              </Flex>
+            </Box>
+          )}
           <Box>
             <Text as="strong" fontSize="14px">
               Minimum order size:

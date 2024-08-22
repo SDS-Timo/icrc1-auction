@@ -93,22 +93,25 @@ export function volumeStepSizeDecimals(
 
   const priceNat = convertPriceToCanister(price, decimalsBase, decimalsQuote)
 
-  const p = priceNat / quoteVolumeStep
+  let addDecimal = decimalsBase
+  const amountStr = amount.toFixed(decimalsBase)
 
-  if (p >= 1) return decimalPlaces
-
-  const zf = -Math.log(p) / log10_down
-  const z = Math.trunc(zf)
-
-  let addDecimal = 99
-  const amountStr = amount.toString()
   if (amountStr.includes('.')) {
     const indexOfPoint = amountStr.indexOf('.')
     addDecimal = indexOfPoint + 1
   }
 
-  decimalPlaces = decimalsBase - z + addDecimal
+  const p = priceNat / quoteVolumeStep
+  if (p >= 1) {
+    decimalPlaces = decimalsBase + addDecimal
+    return decimalPlaces
+  }
 
+  const zf = -Math.log(p) / log10_down
+  const z = Math.trunc(zf)
+
+  decimalPlaces = decimalsBase - z + addDecimal
+  decimalPlaces = decimalPlaces > 100 ? decimalsBase : decimalPlaces
   return decimalPlaces
 }
 
@@ -134,7 +137,6 @@ export function volumeCalculateStepSize(
   const stepSize = parseFloat(
     (1 / Math.pow(10, decimalPlaces)).toFixed(decimalPlaces),
   )
-
   const volume = fixDecimal(stepSize * Math.round(amount / stepSize), decimals)
   return { volume, stepSize }
 }
