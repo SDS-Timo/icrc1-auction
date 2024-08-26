@@ -32,6 +32,8 @@ import {
   convertVolumeToCanister,
   volumeStepSizeDecimals,
   volumeCalculateStepSize,
+  priceDigitLimitValidate,
+  volumeDecimalsValidate,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
 import {
@@ -73,6 +75,9 @@ const Trading = () => {
   )
   const minimumOrderSize = useSelector(
     (state: RootState) => state.orders.minimumOrderSize,
+  )
+  const priceDigitsLimit = useSelector(
+    (state: RootState) => state.orders.priceDigitsLimit,
   )
   const volumeStepSize = useSelector(
     (state: RootState) => state.orders.volumeStepSize,
@@ -345,6 +350,15 @@ const Trading = () => {
     }
   }
 
+  const handlePriceInputChange = (e: { target: { value: any } }) => {
+    const newValue = e.target.value
+    const numericValue = parseFloat(newValue)
+
+    if (!newValue || priceDigitLimitValidate(numericValue, priceDigitsLimit)) {
+      formik.setFieldValue('price', newValue)
+    }
+  }
+
   async function fetchBalances() {
     setLoading(true)
     const { getBalancesCredits } = useBalances()
@@ -444,7 +458,7 @@ const Trading = () => {
             isDisabled={!selectedSymbol || !isAuthenticated}
             value={formik.values.price}
             onChange={(e) => {
-              formik.handleChange(e)
+              handlePriceInputChange(e)
               formik.setFieldValue('baseAmount', '')
               formik.setFieldValue('quoteAmount', '')
               setBaseStepSize(null)
@@ -530,11 +544,17 @@ const Trading = () => {
               isDisabled={
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
-              maxLength={baseStepSizeDecimal}
               value={formik.values.baseAmount}
               onChange={(e) => {
                 formik.handleChange(e)
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
+                  formik.setFieldValue(
+                    'baseAmount',
+                    volumeDecimalsValidate(
+                      e.target.value,
+                      Number(baseStepSizeDecimal),
+                    ),
+                  )
                   formik.setFieldValue(
                     'quoteAmount',
                     (

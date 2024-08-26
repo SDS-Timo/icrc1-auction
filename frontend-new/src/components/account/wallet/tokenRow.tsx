@@ -10,7 +10,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
-import { PiDownloadSimpleBold } from 'react-icons/pi'
+import { LuDownload, LuUpload } from 'react-icons/lu'
 
 import useWallet from '../../../hooks/useWallet'
 import { TokenDataItem } from '../../../types'
@@ -96,11 +96,22 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 token?.loading ? (
                   <Spinner size="xs" />
                 ) : (
-                  <PiDownloadSimpleBold size="15px" />
+                  <LuDownload size="15px" />
                 )
               }
               onClick={() => handleNotify(token.principal, token.base)}
               onMouseEnter={() => handleTrackedDeposit()}
+              variant="ghost"
+              size="xs"
+              _hover={{
+                bg: bgColorHover,
+              }}
+            />
+          </Tooltip>
+          <Tooltip label="Withdraw" aria-label="Withdraw">
+            <IconButton
+              aria-label="Withdraw"
+              icon={<LuUpload size="15px" />}
               variant="ghost"
               size="xs"
               _hover={{

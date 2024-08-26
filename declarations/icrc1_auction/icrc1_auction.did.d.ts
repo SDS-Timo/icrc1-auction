@@ -79,7 +79,8 @@ export type ManageOrdersError =
           | { UnknownAsset: null }
           | { NoCredit: null }
           | { VolumeStepViolated: { baseVolumeStep: bigint } }
-          | { TooLowOrder: null };
+          | { TooLowOrder: null }
+          | { PriceDigitsOverflow: { maxDigits: bigint } };
         index: bigint;
       };
     }
@@ -114,7 +115,8 @@ export type PlaceOrderError =
   | { NoCredit: null }
   | { UnknownPrincipal: null }
   | { VolumeStepViolated: { baseVolumeStep: bigint } }
-  | { TooLowOrder: null };
+  | { TooLowOrder: null }
+  | { PriceDigitsOverflow: { maxDigits: bigint } };
 export type PriceHistoryItem = [bigint, bigint, Principal, bigint, number];
 export type RegisterAssetError = { AlreadyRegistered: bigint };
 export type ReplaceOrderError =
@@ -126,7 +128,8 @@ export type ReplaceOrderError =
   | { NoCredit: null }
   | { UnknownPrincipal: null }
   | { VolumeStepViolated: { baseVolumeStep: bigint } }
-  | { TooLowOrder: null };
+  | { TooLowOrder: null }
+  | { PriceDigitsOverflow: { maxDigits: bigint } };
 export type Subaccount = Uint8Array | number[];
 export interface TokenInfo {
   allowance_fee: bigint;
@@ -186,7 +189,6 @@ export interface _SERVICE {
   addAdmin: ActorMethod<[Principal], undefined>;
   cancelAsks: ActorMethod<[Array<OrderId>], Array<UpperResult_4>>;
   cancelBids: ActorMethod<[Array<OrderId>], Array<UpperResult_4>>;
-  debugLastBidProcessingInstructions: ActorMethod<[], bigint>;
   getQuoteLedger: ActorMethod<[], Principal>;
   http_request: ActorMethod<[HttpRequest], HttpResponse>;
   icrc84_all_credits: ActorMethod<[], Array<[Principal, bigint]>>;
@@ -292,7 +294,11 @@ export interface _SERVICE {
   sessionsCounter: ActorMethod<[], bigint>;
   settings: ActorMethod<
     [],
-    { orderQuoteVolumeMinimum: bigint; orderQuoteVolumeStep: bigint }
+    {
+      orderQuoteVolumeMinimum: bigint;
+      orderPriceDigitsLimit: bigint;
+      orderQuoteVolumeStep: bigint;
+    }
   >;
 }
 export declare const idlFactory: IDL.InterfaceFactory;

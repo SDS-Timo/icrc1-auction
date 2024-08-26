@@ -74,6 +74,7 @@ export const idlFactory = ({ IDL }) => {
         NoCredit: IDL.Null,
         VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
         TooLowOrder: IDL.Null,
+        PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
       }),
       index: IDL.Nat,
     }),
@@ -101,6 +102,7 @@ export const idlFactory = ({ IDL }) => {
     UnknownPrincipal: IDL.Null,
     VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
     TooLowOrder: IDL.Null,
+    PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
   });
   const UpperResult_2 = IDL.Variant({
     Ok: OrderId,
@@ -213,6 +215,7 @@ export const idlFactory = ({ IDL }) => {
     UnknownPrincipal: IDL.Null,
     VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
     TooLowOrder: IDL.Null,
+    PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
   });
   const UpperResult = IDL.Variant({
     Ok: OrderId,
@@ -222,7 +225,6 @@ export const idlFactory = ({ IDL }) => {
     addAdmin: IDL.Func([IDL.Principal], [], []),
     cancelAsks: IDL.Func([IDL.Vec(OrderId)], [IDL.Vec(UpperResult_4)], []),
     cancelBids: IDL.Func([IDL.Vec(OrderId)], [IDL.Vec(UpperResult_4)], []),
-    debugLastBidProcessingInstructions: IDL.Func([], [IDL.Nat64], ["query"]),
     getQuoteLedger: IDL.Func([], [IDL.Principal], ["query"]),
     http_request: IDL.Func([HttpRequest], [HttpResponse], ["query"]),
     icrc84_all_credits: IDL.Func(
@@ -378,6 +380,7 @@ export const idlFactory = ({ IDL }) => {
       [
         IDL.Record({
           orderQuoteVolumeMinimum: IDL.Nat,
+          orderPriceDigitsLimit: IDL.Nat,
           orderQuoteVolumeStep: IDL.Nat,
         }),
       ],

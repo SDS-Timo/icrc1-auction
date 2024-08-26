@@ -100,8 +100,11 @@ const useOrders = () => {
     try {
       const serviceActor = getActor(userAgent)
 
-      const { orderQuoteVolumeMinimum, orderQuoteVolumeStep } =
-        await serviceActor.settings()
+      const {
+        orderQuoteVolumeMinimum,
+        orderPriceDigitsLimit,
+        orderQuoteVolumeStep,
+      } = await serviceActor.settings()
 
       const { volumeInBase: minimumOrderSize } = convertVolumeFromCanister(
         Number(orderQuoteVolumeMinimum),
@@ -117,12 +120,14 @@ const useOrders = () => {
 
       return {
         orderQuoteVolumeMinimum: minimumOrderSize,
+        orderPriceDigitsLimit: Number(orderPriceDigitsLimit),
         orderQuoteVolumeStep: stepSize,
       }
     } catch (error) {
       console.error('Error fetching orders:', error)
       return {
         orderQuoteVolumeMinimum: 0,
+        orderPriceDigitsLimit: 0,
         orderQuoteVolumeStep: 0,
       }
     }

@@ -69,6 +69,7 @@ export interface TokenDataItemState {
   isRefreshUserData: boolean
   minimumOrderSize: number
   volumeStepSize: number
+  priceDigitsLimit: number
   openOrders: TokenDataItem[] | []
 }
 export interface BalancesState {
@@ -76,6 +77,7 @@ export interface BalancesState {
 }
 export interface SettingsState {
   orderQuoteVolumeMinimum: number
+  orderPriceDigitsLimit: number
   orderQuoteVolumeStep: number
 }
 export interface CancelOrder {
