@@ -145,6 +145,16 @@ const Trading = () => {
               return false
             }),
         })
+        .test('is-valid-step-size', function (value) {
+          const calculatedBaseVolume = handleBaseVolumeCalculate(Number(value))
+          return (
+            value === Number(calculatedBaseVolume) ||
+            this.createError({
+              path: this.path,
+              message: `The amount is outside the step size range: ${fixDecimal(baseStepSize || 0, baseStepSizeDecimal)}`,
+            })
+          )
+        })
         .when('amountType', {
           is: 'base',
           then: (schema) => {
@@ -457,6 +467,7 @@ const Trading = () => {
             sx={{ borderRadius: '5px' }}
             isDisabled={!selectedSymbol || !isAuthenticated}
             value={formik.values.price}
+            onKeyUp={() => formik.validateField('price')}
             onChange={(e) => {
               handlePriceInputChange(e)
               formik.setFieldValue('baseAmount', '')
@@ -486,6 +497,7 @@ const Trading = () => {
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
               value={formik.values.quoteAmount}
+              onKeyUp={() => formik.validateField('quoteAmount')}
               onChange={(e) => {
                 formik.handleChange(e)
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
@@ -545,8 +557,8 @@ const Trading = () => {
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
               value={formik.values.baseAmount}
+              onKeyUp={() => formik.validateField('baseAmount')}
               onChange={(e) => {
-                formik.handleChange(e)
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
                   formik.setFieldValue(
                     'baseAmount',
@@ -562,10 +574,7 @@ const Trading = () => {
                       parseFloat(formik.values.price)
                     ).toFixed(selectedQuote.decimals),
                   )
-                  handleBaseVolumeCalculate(
-                    parseFloat(formik.values.baseAmount) /
-                      parseFloat(formik.values.price),
-                  )
+                  handleBaseVolumeCalculate(parseFloat(e.target.value))
                 }
               }}
             />

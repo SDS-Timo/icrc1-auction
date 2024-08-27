@@ -209,11 +209,52 @@ const useWallet = () => {
     }
   }
 
+  /**
+   * Withdraws credit from the user's account using the ICRC-84 protocol.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param principal - The principal identifier of the token.
+   * @param subaccount - The subaccount identifier as a hexadecimal string.
+   * @param amount - The amount of credit to withdraw.
+   * @returns The result of the withdrawal transaction.
+   */
+  const withdrawCredit = async (
+    userAgent: HttpAgent,
+    principal: string | undefined,
+    subaccount: string | undefined,
+    amount: number,
+  ) => {
+    try {
+      if (!principal) return null
+
+      let subaccountId = null
+      if (subaccount) {
+        const hexSubAccountId =
+          getSubAccountFromPrincipal(subaccount).subAccountId
+        subaccountId = new Uint8Array(hexToUint8Array(hexSubAccountId))
+      }
+
+      const serviceActor = getActor(userAgent)
+      const result = await serviceActor.icrc84_withdraw({
+        token: Principal.fromText(principal),
+        to_subaccount: subaccountId ? [subaccountId] : [],
+        amount: BigInt(amount),
+        expected_fee: [],
+      })
+
+      return result
+    } catch (error) {
+      console.error('Error withdraw credit:', error)
+      return null
+    }
+  }
+
   return {
     getBalancesCredits,
     getBalance,
     getTrackedDeposit,
     balanceNotify,
+    withdrawCredit,
   }
 }
 
