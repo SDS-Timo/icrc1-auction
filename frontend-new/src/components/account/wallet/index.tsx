@@ -25,14 +25,23 @@ import TokenTab from './tokenTab'
 import useWallet from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
-import { NotifyResult, TokenDataItem } from '../../../types'
+import {
+  NotifyResult,
+  TokenDataItem,
+  TokenMetadata,
+  Withdraw,
+} from '../../../types'
 import { formatWalletAddress } from '../../../utils/authUtils'
 import {
   convertVolumeFromCanister,
+  convertVolumeToCanister,
   getDecimals,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
-import { getErrorMessageNotifyDeposits } from '../../../utils/walletUtils'
+import {
+  getErrorMessageNotifyDeposits,
+  getErrorMessageWithdraw,
+} from '../../../utils/walletUtils'
 
 const WalletContent: React.FC = () => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
@@ -84,10 +93,10 @@ const WalletContent: React.FC = () => {
   const handleNotify = (principal: string | undefined, base: string) => {
     const { balanceNotify } = useWallet()
 
-    const loadingNotify = (base: string, loading: boolean) => {
+    const loadingNotify = (base: string, notifyLoading: boolean) => {
       setLocalBalances((prevBalances) =>
         prevBalances.map((balance: TokenDataItem) =>
-          balance.base === base ? { ...balance, loading } : balance,
+          balance.base === base ? { ...balance, notifyLoading } : balance,
         ),
       )
     }
@@ -163,6 +172,94 @@ const WalletContent: React.FC = () => {
         }
         loadingNotify(base, false)
         console.error('Cancellation failed:', message)
+      })
+  }
+
+  const handleWithdraw = (
+    amount: number,
+    account: string | undefined,
+    token: TokenMetadata,
+  ) => {
+    const withdrawStatus = (base: string, withdrawStatus: string) => {
+      setLocalBalances((prevBalances) =>
+        prevBalances.map((balance: TokenDataItem) =>
+          balance.base === base ? { ...balance, withdrawStatus } : balance,
+        ),
+      )
+    }
+    withdrawStatus(token.base, 'loading')
+
+    const volume = convertVolumeToCanister(
+      Number(amount),
+      Number(token.decimals),
+    )
+
+    const toastId = toast({
+      title: `Withdraw ${token.base} pending`,
+      description: 'Please wait',
+      status: 'loading',
+      duration: null,
+      isClosable: true,
+    })
+
+    const { withdrawCredit } = useWallet()
+    withdrawCredit(userAgent, `${token.principal}`, account, Number(volume))
+      .then((response: Withdraw | null) => {
+        if (response && Object.keys(response).includes('Ok')) {
+          fetchBalances()
+          withdrawStatus(token.base, 'sucess')
+
+          const { volumeInBase } = convertVolumeFromCanister(
+            Number(response.Ok?.amount),
+            Number(token.decimals),
+            0,
+          )
+
+          if (toastId) {
+            toast.update(toastId, {
+              title: `Withdraw ${token.base} Sucess`,
+              description: `Amount: ${volumeInBase} | Txid: ${response.Ok?.txid}`,
+              status: 'success',
+              isClosable: true,
+            })
+          }
+        } else if (response && Object.keys(response).includes('Err')) {
+          withdrawStatus(token.base, 'error')
+          if (toastId) {
+            const description = getErrorMessageWithdraw(response.Err)
+            toast.update(toastId, {
+              title: `Withdraw ${token.base} rejected`,
+              description,
+              status: 'error',
+              isClosable: true,
+            })
+          }
+        } else {
+          withdrawStatus(token.base, 'error')
+          if (toastId) {
+            toast.update(toastId, {
+              title: `Withdraw ${token.base} rejected`,
+              description: 'Something went wrong',
+              status: 'error',
+              isClosable: true,
+            })
+          }
+        }
+      })
+      .catch((error) => {
+        const message = error.response ? error.response.data : error.message
+
+        withdrawStatus(token.base, 'error')
+
+        if (toastId) {
+          toast.update(toastId, {
+            title: 'Withdraw rejected',
+            description: `Error: ${message}`,
+            status: 'error',
+            isClosable: true,
+          })
+        }
+        console.error('Withdraw failed:', message)
       })
   }
 
@@ -275,6 +372,7 @@ const WalletContent: React.FC = () => {
               userAgent={userAgent}
               isPrincipal={isPrincipal}
               handleNotify={handleNotify}
+              handleWithdraw={handleWithdraw}
               showSearch={true}
               loading={loading}
             />
@@ -285,6 +383,7 @@ const WalletContent: React.FC = () => {
               userAgent={userAgent}
               isPrincipal={isPrincipal}
               handleNotify={handleNotify}
+              handleWithdraw={handleWithdraw}
               showSearch={true}
               loading={loading}
             />

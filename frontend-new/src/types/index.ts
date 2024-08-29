@@ -95,6 +95,11 @@ export interface NotifyResult {
   Err?: any
   [key: string]: any
 }
+export interface Withdraw {
+  Ok?: any
+  Err?: any
+  [key: string]: any
+}
 export interface Order {
   volume: bigint
   price: number

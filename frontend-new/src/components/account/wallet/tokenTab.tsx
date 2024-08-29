@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { SearchIcon } from '@chakra-ui/icons'
 import {
@@ -11,13 +11,18 @@ import {
 import { HttpAgent } from '@dfinity/agent'
 
 import TokenRow from './tokenRow'
-import { TokenDataItem } from '../../../types'
+import { TokenDataItem, TokenMetadata } from '../../../types'
 
 interface TokenTabProps {
   balances: TokenDataItem[]
   userAgent: HttpAgent
   isPrincipal: string
-  handleNotify: (principal: string, base: string) => void
+  handleNotify: (principal: string | undefined, base: string) => void
+  handleWithdraw: (
+    amount: number,
+    account: string | undefined,
+    token: TokenMetadata,
+  ) => void
   showSearch?: boolean
   loading: boolean
 }
@@ -27,14 +32,24 @@ const TokenTab: React.FC<TokenTabProps> = ({
   userAgent,
   isPrincipal,
   handleNotify,
+  handleWithdraw,
   showSearch = false,
   loading,
 }) => {
   const [filter, setFilter] = useState('')
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const filteredBalances = balances.filter((token) =>
     token.base.toLowerCase().includes(filter.toLowerCase()),
   )
+
+  const handleAccordionChange = (index: number) => {
+    setActiveIndex(index === activeIndex ? undefined : index)
+  }
+
+  useEffect(() => {
+    if (loading) setActiveIndex(undefined)
+  }, [loading])
 
   return (
     <>
@@ -59,13 +74,16 @@ const TokenTab: React.FC<TokenTabProps> = ({
           <Progress size="xs" isIndeterminate w="90%" />
         </Flex>
       ) : (
-        filteredBalances.map((token) => (
+        filteredBalances.map((token, index) => (
           <TokenRow
             key={token.id}
             token={token}
             userAgent={userAgent}
             isPrincipal={isPrincipal}
-            handleNotify={() => handleNotify(token.principal || '', token.base)}
+            handleNotify={handleNotify}
+            handleWithdraw={handleWithdraw}
+            currentIndex={activeIndex === index ? 0 : undefined}
+            onAccordionChange={() => handleAccordionChange(index)}
           />
         ))
       )}

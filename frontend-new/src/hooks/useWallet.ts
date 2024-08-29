@@ -1,5 +1,5 @@
 import { HttpAgent } from '@dfinity/agent'
-import { IcrcLedgerCanister } from '@dfinity/ledger-icrc'
+import { IcrcLedgerCanister, decodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 
 import { TokenDataItem, TokenMetadata, TrackedDeposit } from '../types'
@@ -214,30 +214,30 @@ const useWallet = () => {
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
    * @param principal - The principal identifier of the token.
-   * @param subaccount - The subaccount identifier as a hexadecimal string.
+   * @param account - The account identifier as a hexadecimal string.
    * @param amount - The amount of credit to withdraw.
    * @returns The result of the withdrawal transaction.
    */
   const withdrawCredit = async (
     userAgent: HttpAgent,
     principal: string | undefined,
-    subaccount: string | undefined,
+    account: string | undefined,
     amount: number,
   ) => {
     try {
       if (!principal) return null
 
-      let subaccountId = null
-      if (subaccount) {
-        const hexSubAccountId =
-          getSubAccountFromPrincipal(subaccount).subAccountId
-        subaccountId = new Uint8Array(hexToUint8Array(hexSubAccountId))
+      let decodeAccount = null
+      if (account) {
+        decodeAccount = decodeIcrcAccount(account)
       }
 
       const serviceActor = getActor(userAgent)
       const result = await serviceActor.icrc84_withdraw({
         token: Principal.fromText(principal),
-        to_subaccount: subaccountId ? [subaccountId] : [],
+        to_subaccount: decodeAccount?.subaccount
+          ? [decodeAccount.subaccount]
+          : [],
         amount: BigInt(amount),
         expected_fee: [],
       })

@@ -98,15 +98,11 @@ const Trading = () => {
   const validationSchema = Yup.object().shape(
     {
       available: Yup.number(),
-      price: Yup.number()
-        .required('Price is required')
-        .typeError('Must be a number'),
+      price: Yup.number().required('').typeError(''),
       quoteAmount: Yup.number()
-        .typeError('Must be a number')
+        .typeError('')
         .when('baseAmount', (baseAmount, schema) =>
-          baseAmount
-            ? schema.required(`${symbol?.quote} amount is required`)
-            : schema,
+          baseAmount ? schema.required('') : schema,
         )
         .when(['amountType', 'available'], {
           is: (amountType: string, available: number) =>
@@ -131,11 +127,9 @@ const Trading = () => {
         }),
 
       baseAmount: Yup.number()
-        .typeError('Must be a number')
+        .typeError('')
         .when('quoteAmount', (quoteAmount, schema) =>
-          quoteAmount
-            ? schema.required(`${symbol?.base} amount is required`)
-            : schema,
+          quoteAmount ? schema.required('') : schema,
         )
         .when(['amountType', 'available'], {
           is: (amountType: string, available: number) =>
@@ -151,7 +145,7 @@ const Trading = () => {
             value === Number(calculatedBaseVolume) ||
             this.createError({
               path: this.path,
-              message: `The amount is outside the step size range: ${fixDecimal(baseStepSize || 0, baseStepSizeDecimal)}`,
+              message: `Amount must be a multiple of ${fixDecimal(baseStepSize || 0, baseStepSizeDecimal)}`,
             })
           )
         })
@@ -350,7 +344,6 @@ const Trading = () => {
     if (Number(formik.values.price) > 0) {
       const decimal = volumeStepSizeDecimals(
         Number(formik.values.price),
-        Number(formik.values.baseAmount),
         volumeStepSize,
         Number(symbol?.decimals),
         selectedQuote.decimals,
@@ -465,6 +458,7 @@ const Trading = () => {
             placeholder=" "
             name="price"
             sx={{ borderRadius: '5px' }}
+            isInvalid={!!formik.errors.price && formik.touched.price}
             isDisabled={!selectedSymbol || !isAuthenticated}
             value={formik.values.price}
             onKeyUp={() => formik.validateField('price')}
@@ -493,6 +487,9 @@ const Trading = () => {
               placeholder=" "
               name="quoteAmount"
               sx={{ borderRadius: '5px' }}
+              isInvalid={
+                !!formik.errors.quoteAmount && formik.touched.quoteAmount
+              }
               isDisabled={
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
@@ -553,26 +550,29 @@ const Trading = () => {
               placeholder=" "
               name="baseAmount"
               sx={{ borderRadius: '5px' }}
+              isInvalid={
+                !!formik.errors.baseAmount && formik.touched.baseAmount
+              }
               isDisabled={
                 !formik.values.price || !selectedSymbol || !isAuthenticated
               }
               value={formik.values.baseAmount}
               onKeyUp={() => formik.validateField('baseAmount')}
               onChange={(e) => {
+                formik.handleChange(e)
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                  formik.setFieldValue(
-                    'baseAmount',
-                    volumeDecimalsValidate(
-                      e.target.value,
-                      Number(baseStepSizeDecimal),
-                    ),
+                  const valueValidate = volumeDecimalsValidate(
+                    e.target.value,
+                    Number(baseStepSizeDecimal),
                   )
+                  formik.setFieldValue('baseAmount', valueValidate)
                   formik.setFieldValue(
                     'quoteAmount',
-                    (
-                      parseFloat(e.target.value) *
-                      parseFloat(formik.values.price)
-                    ).toFixed(selectedQuote.decimals),
+                    fixDecimal(
+                      parseFloat(valueValidate) *
+                        parseFloat(formik.values.price),
+                      selectedQuote.decimals,
+                    ),
                   )
                   handleBaseVolumeCalculate(parseFloat(e.target.value))
                 }
@@ -615,7 +615,7 @@ const Trading = () => {
             Step Size: {fixDecimal(baseStepSize, baseStepSizeDecimal)}
           </Text>
         )}
-        {formik.errors.baseAmount && formik.touched.baseAmount && (
+        {!!formik.errors.baseAmount && formik.touched.baseAmount && (
           <Text color="red.500" fontSize="12px">
             {formik.errors.baseAmount}
           </Text>

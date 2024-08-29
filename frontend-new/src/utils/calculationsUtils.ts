@@ -73,7 +73,6 @@ export function convertVolumeToCanister(
 /**
  * Calculates the number of decimal places for volume based in step size.
  * @param price - The price of the asset in the base currency.
- * @param amount - The amount of the asset in the base currency.
  * @param stepSize - The step size allowed for volume adjustments.
  * @param decimalsBase - The number of decimals allowed in the base currency.
  * @param decimalsQuote - The number of decimals allowed in the quote currency.
@@ -81,7 +80,6 @@ export function convertVolumeToCanister(
  */
 export function volumeStepSizeDecimals(
   price: number,
-  amount: number,
   stepSize: number,
   decimalsBase: number,
   decimalsQuote: number,
@@ -93,24 +91,16 @@ export function volumeStepSizeDecimals(
 
   const priceNat = convertPriceToCanister(price, decimalsBase, decimalsQuote)
 
-  let addDecimal = decimalsBase
-  const amountStr = amount.toFixed(decimalsBase)
-
-  if (amountStr.includes('.')) {
-    const indexOfPoint = amountStr.indexOf('.')
-    addDecimal = indexOfPoint + 1
-  }
-
   const p = priceNat / quoteVolumeStep
   if (p >= 1) {
-    decimalPlaces = decimalsBase + addDecimal
+    decimalPlaces = decimalsBase
     return decimalPlaces
   }
 
   const zf = -Math.log(p) / log10_down
   const z = Math.trunc(zf)
 
-  decimalPlaces = decimalsBase - z + addDecimal
+  decimalPlaces = decimalsBase - z
   decimalPlaces = decimalPlaces > 100 ? decimalsBase : decimalPlaces
   return decimalPlaces
 }
