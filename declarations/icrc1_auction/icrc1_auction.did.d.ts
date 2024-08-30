@@ -245,6 +245,7 @@ export interface _SERVICE {
     ],
     UpperResult_3
   >;
+  nextSession: ActorMethod<[], { counter: bigint; timestamp: bigint }>;
   placeAsks: ActorMethod<
     [Array<[Principal, bigint, number]>],
     Array<UpperResult_2>
@@ -289,9 +290,6 @@ export interface _SERVICE {
   removeAdmin: ActorMethod<[Principal], undefined>;
   replaceAsk: ActorMethod<[OrderId, bigint, number], UpperResult>;
   replaceBid: ActorMethod<[OrderId, bigint, number], UpperResult>;
-  runAuctionImmediately: ActorMethod<[], undefined>;
-  sessionRemainingTime: ActorMethod<[], bigint>;
-  sessionsCounter: ActorMethod<[], bigint>;
   settings: ActorMethod<
     [],
     {

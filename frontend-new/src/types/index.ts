@@ -109,11 +109,13 @@ export interface TrackedDeposit {
   Ok?: bigint
   Err?: { NotAvailable: { message: string } }
 }
-
 export interface Statistics {
   clearingPrice: number
   clearingVolume: number
   totalAskVolume: number
   totalBidVolume: number
-  remainingTime: string
+}
+export interface NextSession {
+  nextSession: string
+  counter: string
 }

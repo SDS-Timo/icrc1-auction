@@ -1,7 +1,13 @@
 import { HttpAgent } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
 
-import { DataItem, Option, TokenMetadata, Statistics } from '../types'
+import {
+  DataItem,
+  Option,
+  TokenMetadata,
+  Statistics,
+  NextSession,
+} from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
@@ -129,8 +135,6 @@ const usePriceHistory = () => {
       const { clearingPrice, clearingVolume, totalAskVolume, totalBidVolume } =
         await serviceActor.indicativeStats(Principal.fromText(principal))
 
-      //const remainingTime = await serviceActor.sessionRemainingTime()
-
       const formattedClearingPrice = convertPriceFromCanister(
         Number(clearingPrice),
         getDecimals(selectedSymbol),
@@ -163,7 +167,6 @@ const usePriceHistory = () => {
         clearingVolume: formattedClearingVolume,
         totalAskVolume: formattedTotalAskVolume,
         totalBidVolume: formattedTotalBidVolume,
-        remainingTime: 'Aug 20, 09:00:00',
       }
     } catch (error) {
       console.error('Error fetching statistics:', error)
@@ -171,7 +174,42 @@ const usePriceHistory = () => {
     }
   }
 
-  return { getPriceHistory, getStatistics }
+  /**
+   * Fetches and returns the next auction.
+   *
+   * @param userAgent - The HTTP agent to interact with the canister.
+   * @returns A promise that resolves to the statistics.
+   */
+  const getNextSession = async (
+    userAgent: HttpAgent,
+  ): Promise<NextSession | null> => {
+    try {
+      const serviceActor = getActor(userAgent)
+
+      const { counter, timestamp } = await serviceActor.nextSession()
+      const date = new Date(Number(timestamp) * 1000)
+      const optionsDateTime: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+      }
+      const formattedDateTime = date.toLocaleDateString(
+        'en-US',
+        optionsDateTime,
+      )
+
+      return {
+        nextSession: formattedDateTime,
+        counter: String(counter),
+      }
+    } catch (error) {
+      console.error('Error fetching next auction:', error)
+      return null
+    }
+  }
+
+  return { getPriceHistory, getStatistics, getNextSession }
 }
 
 export default usePriceHistory

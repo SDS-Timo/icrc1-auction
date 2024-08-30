@@ -207,7 +207,7 @@ const WalletContent: React.FC = () => {
       .then((response: Withdraw | null) => {
         if (response && Object.keys(response).includes('Ok')) {
           fetchBalances()
-          withdrawStatus(token.base, 'sucess')
+          withdrawStatus(token.base, 'success')
 
           const { volumeInBase } = convertVolumeFromCanister(
             Number(response.Ok?.amount),
@@ -217,7 +217,7 @@ const WalletContent: React.FC = () => {
 
           if (toastId) {
             toast.update(toastId, {
-              title: `Withdraw ${token.base} Sucess`,
+              title: `Withdraw ${token.base} Success`,
               description: `Amount: ${volumeInBase} | Txid: ${response.Ok?.txid}`,
               status: 'success',
               isClosable: true,

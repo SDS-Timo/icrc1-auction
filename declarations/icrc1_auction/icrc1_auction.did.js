@@ -301,6 +301,11 @@ export const idlFactory = ({ IDL }) => {
       [UpperResult_3],
       []
     ),
+    nextSession: IDL.Func(
+      [],
+      [IDL.Record({ counter: IDL.Nat, timestamp: IDL.Nat })],
+      ["query"]
+    ),
     placeAsks: IDL.Func(
       [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64))],
       [IDL.Vec(UpperResult_2)],
@@ -372,9 +377,6 @@ export const idlFactory = ({ IDL }) => {
     removeAdmin: IDL.Func([IDL.Principal], [], []),
     replaceAsk: IDL.Func([OrderId, IDL.Nat, IDL.Float64], [UpperResult], []),
     replaceBid: IDL.Func([OrderId, IDL.Nat, IDL.Float64], [UpperResult], []),
-    runAuctionImmediately: IDL.Func([], [], []),
-    sessionRemainingTime: IDL.Func([], [IDL.Nat], ["query"]),
-    sessionsCounter: IDL.Func([], [IDL.Nat], ["query"]),
     settings: IDL.Func(
       [],
       [

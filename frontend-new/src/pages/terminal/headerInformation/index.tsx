@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux'
 
 import usePriceHistory from '../../../hooks/usePriceHistory'
 import { RootState } from '../../../store'
-import { Statistics } from '../../../types'
+import { NextSession } from '../../../types'
 import { fixDecimal } from '../../../utils/calculationsUtils'
 
 const HeaderInformation = () => {
@@ -40,24 +40,19 @@ const HeaderInformation = () => {
     </>
   )
 
-  const [loadingStatistics, setLoadingStatistics] = useState(true)
-  const [statistics, setStatistics] = useState<Statistics | null>(null)
+  const [nextAuction, setNextAuction] = useState<NextSession | null>(null)
   const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
   const isLoading = !headerInformation
 
-  async function fetchStatistics(loading: boolean) {
+  async function fetchStatistics() {
     if (symbol && symbol.principal && selectedQuote) {
       setTooltipText(tooltipTextStandard)
 
-      if (loading) setLoadingStatistics(true)
-
       const { getStatistics } = usePriceHistory()
-
       const stats = await getStatistics(userAgent, symbol, selectedQuote)
-      if (stats) {
-        setStatistics(stats)
 
+      if (stats) {
         setTooltipText(
           <>
             {`Clearing Price: ${fixDecimal(stats?.clearingPrice, symbol?.decimals)} ${symbol?.quote}`}
@@ -71,14 +66,29 @@ const HeaderInformation = () => {
           </>,
         )
       }
-
-      setLoadingStatistics(false)
     }
   }
 
+  async function fetchNextAuction() {
+    const { getNextSession } = usePriceHistory()
+    const info = await getNextSession(userAgent)
+
+    setNextAuction(info)
+  }
+
   useEffect(() => {
-    fetchStatistics(true)
+    fetchStatistics()
   }, [selectedSymbol, selectedQuote])
+
+  useEffect(() => {
+    fetchNextAuction()
+
+    const intervalId = setInterval(() => {
+      fetchNextAuction()
+    }, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [])
 
   return (
     <Flex direction="row" wrap="wrap" gap={4}>
@@ -183,14 +193,14 @@ const HeaderInformation = () => {
         ml={-2}
         borderRadius="md"
         flex="1"
-        filter={loadingStatistics ? 'blur(5px)' : 'none'}
+        filter={isLoading ? 'blur(5px)' : 'none'}
       >
         <Flex direction="column">
           <Tooltip label={tooltipText} aria-label="Statistics">
-            <Stat size="sm" onMouseEnter={() => fetchStatistics(false)}>
+            <Stat size="sm" onMouseEnter={() => fetchStatistics()}>
               <StatLabel>Next Auction</StatLabel>
               <StatNumber>
-                {statistics ? statistics.remainingTime : '--'}
+                {nextAuction ? nextAuction.nextSession : '--'}
               </StatNumber>
             </Stat>
           </Tooltip>

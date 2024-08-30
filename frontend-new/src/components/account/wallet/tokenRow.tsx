@@ -134,7 +134,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
   }
 
   useEffect(() => {
-    if (token.withdrawStatus === 'sucess') {
+    if (token.withdrawStatus === 'success') {
       formik.setStatus({ success: true })
       formik.resetForm({ values: initialValues })
     } else if (token.withdrawStatus === 'error') {
