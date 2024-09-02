@@ -24,7 +24,8 @@ export function calculateHeaderInformation(prices: DataItem[]) {
   ) {
     if (prices.length) {
       const lastPrice = prices[prices.length - 1].price
-      const previousPrice = prices[prices.length - 2].price
+      let previousPrice = lastPrice
+      if (prices.length >= 2) previousPrice = prices[prices.length - 2].price
 
       const changeInDollar = lastPrice - previousPrice
 

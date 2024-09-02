@@ -387,7 +387,10 @@ const Trading = () => {
   }, [userAgent, selectedSymbol])
 
   useEffect(() => {
-    if (tradeType === 'sell') setAmountType('base')
+    if (tradeType === 'sell') {
+      setAmountType('base')
+      formik.setFieldValue('amountType', 'base')
+    }
   }, [tradeType])
 
   useEffect(() => {
@@ -430,7 +433,7 @@ const Trading = () => {
       formik.setFieldValue('baseAmount', handleBaseVolumeCalculate(baseAmount))
       formik.setFieldValue(
         'quoteAmount',
-        quoteAmount.toFixed(selectedQuote.decimals),
+        fixDecimal(quoteAmount, selectedQuote.decimals),
       )
     }
   }, [selectedPercentage])
