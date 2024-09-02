@@ -88,7 +88,7 @@ const NavbarInfo: React.FC = () => {
         <MenuList bg={bgColor} p={4}>
           <Box>
             <Text as="strong" fontSize="14px">
-              Auction Principal:
+              Auction backend:
             </Text>
             <Flex alignItems="center">
               <Text ml={1} fontSize="13px">
@@ -115,7 +115,7 @@ const NavbarInfo: React.FC = () => {
           {selectedQuote.principal && (
             <Box>
               <Text as="strong" fontSize="14px">
-                Quote token Principal{' '}
+                Quote token ledger{' '}
               </Text>
               <Text as="strong" fontSize="11px">
                 ({selectedQuote.base}):
@@ -156,7 +156,7 @@ const NavbarInfo: React.FC = () => {
               Price precision:
             </Text>
             <Text ml={1} fontSize="13px">
-              {priceDigitsLimit}
+              {priceDigitsLimit} significant digits
             </Text>
           </Box>
         </MenuList>

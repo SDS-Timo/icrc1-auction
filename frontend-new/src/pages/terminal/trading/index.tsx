@@ -14,6 +14,7 @@ import {
   useDisclosure,
   useToast,
   Spinner,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useFormik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
@@ -49,6 +50,7 @@ const Trading = () => {
   })
   const dispatch = useDispatch<AppDispatch>()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const fontColor = useColorModeValue('grey.800', 'grey.200')
 
   const [tradeType, setTradeType] = useState('buy')
   const [amountType, setAmountType] = useState('quote')
@@ -614,7 +616,7 @@ const Trading = () => {
           </InputRightElement>
         </InputGroup>
         {baseStepSize && (
-          <Text color="grey.200" fontSize="11px">
+          <Text color={fontColor} fontSize="11px">
             Step Size: {fixDecimal(baseStepSize, baseStepSizeDecimal)}
           </Text>
         )}

@@ -57,11 +57,11 @@ const HeaderInformation = () => {
           <>
             {`Clearing Price: ${fixDecimal(stats?.clearingPrice, symbol?.decimals)} ${symbol?.quote}`}
             <br />
-            {`Clearing Volume: ${fixDecimal(stats?.clearingVolume, symbol?.decimals)} ${symbol?.base}`}
+            {`Clearing Volume: ${stats?.clearingVolume} ${symbol?.base}`}
             <br />
-            {`Total Ask Volume: ${fixDecimal(stats?.totalAskVolume, symbol?.decimals)} ${symbol?.base}`}
+            {`Total Ask Volume: ${stats?.totalAskVolume} ${symbol?.base}`}
             <br />
-            {`Total Bid Volume: ${fixDecimal(stats?.totalBidVolume, symbol?.decimals)} ${symbol?.base}`}
+            {`Total Bid Volume: ${stats?.totalBidVolume} ${symbol?.base}`}
             <br />
           </>,
         )

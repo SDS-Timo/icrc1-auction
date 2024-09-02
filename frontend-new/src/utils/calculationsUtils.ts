@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { DataItem, TokenDataItem } from '../types'
 
 /**
@@ -31,11 +33,13 @@ export function convertVolumeFromCanister(
   price: number,
 ) {
   const decimalFactor = Math.pow(10, -decimals)
-  const volumeInBase = volume * decimalFactor
+  const volumeInBase = new BigNumber(volume).times(decimalFactor)
+  const volumeInQuote = volumeInBase.times(price)
 
-  const volumeInQuote = volumeInBase * price
-
-  return { volumeInQuote, volumeInBase }
+  return {
+    volumeInQuote: Number(volumeInQuote),
+    volumeInBase: Number(volumeInBase),
+  }
 }
 
 /**
