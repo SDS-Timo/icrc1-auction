@@ -43,6 +43,9 @@ const NavbarInfo: React.FC = () => {
   const minimumOrderSize = useSelector(
     (state: RootState) => state.orders.minimumOrderSize,
   )
+  const priceDigitsLimit = useSelector(
+    (state: RootState) => state.orders.priceDigitsLimit,
+  )
 
   const copyToClipboard = (text: string, description: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -83,7 +86,7 @@ const NavbarInfo: React.FC = () => {
           _focus={{ outline: 'none' }}
         />
         <MenuList bg={bgColor} p={4}>
-          <Box mb={2}>
+          <Box>
             <Text as="strong" fontSize="14px">
               Auction Principal:
             </Text>
@@ -110,7 +113,7 @@ const NavbarInfo: React.FC = () => {
             </Flex>
           </Box>
           {selectedQuote.principal && (
-            <Box mb={2}>
+            <Box>
               <Text as="strong" fontSize="14px">
                 Quote token Principal{' '}
               </Text>
@@ -146,6 +149,14 @@ const NavbarInfo: React.FC = () => {
             </Text>
             <Text ml={1} fontSize="13px">
               {minimumOrderSize} {selectedQuote.base}
+            </Text>
+          </Box>
+          <Box>
+            <Text as="strong" fontSize="14px">
+              Price precision:
+            </Text>
+            <Text ml={1} fontSize="13px">
+              {priceDigitsLimit}
             </Text>
           </Box>
         </MenuList>
