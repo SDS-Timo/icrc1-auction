@@ -132,7 +132,7 @@ export function volumeCalculateStepSize(
     (1 / Math.pow(10, decimal)).toFixed(decimalPlaces),
   )
 
-  const volume = fixDecimal(stepSize * Math.floor(amount / stepSize), decimals)
+  const volume = fixDecimal(stepSize * Math.round(amount / stepSize), decimals)
   return { volume, stepSize }
 }
 
