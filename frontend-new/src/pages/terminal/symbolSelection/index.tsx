@@ -14,10 +14,12 @@ import {
 } from '../../../store/tokens'
 import { Option } from '../../../types'
 
+const quoteToken = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
+
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loading, setLoading] = useState(true)
-  const [quoteSymbol, setQuoteSymbol] = useState('USDC')
+  const [quoteSymbol, setQuoteSymbol] = useState(quoteToken)
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const tokenDefault = process.env.ENV_TOKEN_SELECTED_DEFAULT

@@ -388,6 +388,9 @@ export const idlFactory = ({ IDL }) => {
       ],
       ["query"]
     ),
+    wipeOrders: IDL.Func([], [], []),
+    wipePriceHistory: IDL.Func([IDL.Principal], [], []),
+    wipeUsers: IDL.Func([], [], []),
   });
 };
 export const init = ({ IDL }) => {

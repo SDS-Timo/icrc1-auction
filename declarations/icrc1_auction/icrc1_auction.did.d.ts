@@ -298,6 +298,9 @@ export interface _SERVICE {
       orderQuoteVolumeStep: bigint;
     }
   >;
+  wipeOrders: ActorMethod<[], undefined>;
+  wipePriceHistory: ActorMethod<[Principal], undefined>;
+  wipeUsers: ActorMethod<[], undefined>;
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

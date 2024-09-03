@@ -9,6 +9,8 @@ import { Principal } from '@dfinity/principal'
 import defSymbolLogo from '../assets/img/coins/default.svg'
 import { TokenMetadata } from '../types'
 
+const quoteToken = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
+
 /**
  * Parses the metadata response from the ICRC token canister to extract token information.
  *
@@ -47,7 +49,7 @@ const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
     name = name.replace('ck', '')
   }
 
-  return { symbol, name, decimals, logo, fee, base: symbol, quote: 'USDC' }
+  return { symbol, name, decimals, logo, fee, base: symbol, quote: quoteToken }
 }
 
 /**
