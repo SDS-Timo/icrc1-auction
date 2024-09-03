@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer'
 
+import { encodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 import bigInt from 'big-integer'
 
@@ -60,6 +61,24 @@ export function getSubAccountFromPrincipal(principal: string) {
     subaccount: lengthHex + hex,
     subAccountId: `0x${lengthHex + hex}`,
   }
+}
+
+/**
+ * Converts a Principal string into a deposit account information.
+ * @param principal - The string representation of the Principal.
+ * @returns An object containing the deposit account string.
+ */
+export function getUserDepositAddress(principal: string) {
+  const hexSubAccountId = getSubAccountFromPrincipal(principal).subAccountId
+
+  const subAccountUint8Array = new Uint8Array(hexToUint8Array(hexSubAccountId))
+
+  const depositAccount = encodeIcrcAccount({
+    owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
+    subaccount: subAccountUint8Array,
+  })
+
+  return depositAccount
 }
 
 /**

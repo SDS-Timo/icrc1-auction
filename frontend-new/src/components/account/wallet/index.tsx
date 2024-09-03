@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
+import { LuDownload } from 'react-icons/lu'
 import { SlWallet } from 'react-icons/sl'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -60,11 +61,15 @@ const WalletContent: React.FC = () => {
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   )
-  const isPrincipal = useSelector((state: RootState) => state.auth.isPrincipal)
+  const userPrincipal = useSelector(
+    (state: RootState) => state.auth.userPrincipal,
+  )
+  const userDeposit = useSelector((state: RootState) => state.auth.userDeposit)
   const balances = useSelector((state: RootState) => state.balances.balances)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
 
-  const walletAddress = formatWalletAddress(isPrincipal)
+  const walletAddress = formatWalletAddress(userPrincipal)
+  const userDepositAddress = formatWalletAddress(userDeposit)
 
   async function fetchBalances() {
     setLoading(true)
@@ -77,12 +82,25 @@ const WalletContent: React.FC = () => {
     setLoading(false)
   }
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(isPrincipal).then(() => {
+  const copyToClipboardWalletAddress = () => {
+    navigator.clipboard.writeText(userPrincipal).then(() => {
       toast({
         position: 'top-right',
         title: 'Copied',
         description: 'Wallet address copied to clipboard',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      })
+    })
+  }
+
+  const copyToClipboardDepositAddress = () => {
+    navigator.clipboard.writeText(userDeposit).then(() => {
+      toast({
+        position: 'top-right',
+        title: 'Copied',
+        description: 'Deposit address copied to clipboard',
         status: 'success',
         duration: 2000,
         isClosable: true,
@@ -273,22 +291,42 @@ const WalletContent: React.FC = () => {
 
   return (
     <VStack spacing={4} align="stretch">
-      <Flex align="center">
-        <Icon as={SlWallet} boxSize={4} mr={2} />
-        <Text>{walletAddress}</Text>
-        <Tooltip label="Wallet Address" aria-label="Wallet Address">
-          <IconButton
-            aria-label="Copy to clipboard"
-            icon={<Icon as={FaCopy} boxSize={3} />}
-            size="xs"
-            ml={2}
-            onClick={copyToClipboard}
-            variant="ghost"
-            _hover={{
-              bg: bgColorHover,
-            }}
-          />
-        </Tooltip>
+      <Flex align="center" justifyContent="space-between">
+        <Flex align="center">
+          <Icon as={SlWallet} boxSize={4} mr={2} />
+          <Text>{walletAddress}</Text>
+          <Tooltip label="Wallet Address" aria-label="Wallet Address">
+            <IconButton
+              aria-label="Copy to clipboard"
+              icon={<Icon as={FaCopy} boxSize={3} />}
+              size="xs"
+              ml={2}
+              onClick={copyToClipboardWalletAddress}
+              variant="ghost"
+              _hover={{
+                bg: bgColorHover,
+              }}
+            />
+          </Tooltip>
+        </Flex>
+
+        <Flex align="center">
+          <Icon as={LuDownload} boxSize={4} mr={2} />
+          <Text>{userDepositAddress}</Text>
+          <Tooltip label="Deposit Address" aria-label="Deposit Address">
+            <IconButton
+              aria-label="Copy to clipboard"
+              icon={<Icon as={FaCopy} boxSize={3} />}
+              size="xs"
+              ml={2}
+              onClick={copyToClipboardDepositAddress}
+              variant="ghost"
+              _hover={{
+                bg: bgColorHover,
+              }}
+            />
+          </Tooltip>
+        </Flex>
       </Flex>
       <Flex justify="space-between" mt={3}>
         <Button
@@ -370,7 +408,7 @@ const WalletContent: React.FC = () => {
                 (token) => token?.volumeInTotal && token.volumeInTotal > 0,
               )}
               userAgent={userAgent}
-              isPrincipal={isPrincipal}
+              userPrincipal={userPrincipal}
               handleNotify={handleNotify}
               handleWithdraw={handleWithdraw}
               showSearch={true}
@@ -381,7 +419,7 @@ const WalletContent: React.FC = () => {
             <TokenTab
               balances={localBalances}
               userAgent={userAgent}
-              isPrincipal={isPrincipal}
+              userPrincipal={userPrincipal}
               handleNotify={handleNotify}
               handleWithdraw={handleWithdraw}
               showSearch={true}

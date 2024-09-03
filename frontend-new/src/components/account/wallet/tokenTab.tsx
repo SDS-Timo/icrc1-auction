@@ -16,7 +16,7 @@ import { TokenDataItem, TokenMetadata } from '../../../types'
 interface TokenTabProps {
   balances: TokenDataItem[]
   userAgent: HttpAgent
-  isPrincipal: string
+  userPrincipal: string
   handleNotify: (principal: string | undefined, base: string) => void
   handleWithdraw: (
     amount: number,
@@ -30,7 +30,7 @@ interface TokenTabProps {
 const TokenTab: React.FC<TokenTabProps> = ({
   balances,
   userAgent,
-  isPrincipal,
+  userPrincipal,
   handleNotify,
   handleWithdraw,
   showSearch = false,
@@ -79,7 +79,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
             key={token.id}
             token={token}
             userAgent={userAgent}
-            isPrincipal={isPrincipal}
+            userPrincipal={userPrincipal}
             handleNotify={handleNotify}
             handleWithdraw={handleWithdraw}
             currentIndex={activeIndex === index ? 0 : undefined}

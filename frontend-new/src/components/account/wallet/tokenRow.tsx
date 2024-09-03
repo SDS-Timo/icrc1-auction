@@ -31,7 +31,7 @@ import { fixDecimal } from '../../../utils/calculationsUtils'
 interface TokenRowProps {
   token: TokenDataItem
   userAgent: HttpAgent
-  isPrincipal: string
+  userPrincipal: string
   handleNotify: (principal: string | undefined, base: string) => void
   handleWithdraw: (
     amount: number,
@@ -45,7 +45,7 @@ interface TokenRowProps {
 const TokenRow: React.FC<TokenRowProps> = ({
   token,
   userAgent,
-  isPrincipal,
+  userPrincipal,
   handleNotify,
   handleWithdraw,
   currentIndex,
@@ -96,7 +96,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
       userAgent,
       [token],
       `${token.principal}`,
-      isPrincipal,
+      userPrincipal,
     )
 
     const deposit = await getTrackedDeposit(

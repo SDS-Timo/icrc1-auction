@@ -1,10 +1,16 @@
 import { Actor, HttpAgent, Identity } from '@dfinity/agent'
 import { Ed25519KeyIdentity } from '@dfinity/identity'
 
+import { getUserDepositAddress } from './convertionsUtils'
 import { _SERVICE as IcrcxActor } from '../../../declarations/icrc1_auction/icrc1_auction.did'
 import { idlFactory as IcrcxIDLFactory } from '../../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { AppDispatch } from '../store'
-import { setUserAgent, setIsAuthenticated, setIsPrincipal } from '../store/auth'
+import {
+  setUserAgent,
+  setIsAuthenticated,
+  setUserPrincipal,
+  setUserDeposit,
+} from '../store/auth'
 
 /**
  * Creates and returns an actor for interacting with the auction canister.
@@ -46,7 +52,8 @@ async function doLogin(myAgent: HttpAgent, dispatch: AppDispatch) {
   dispatch(setIsAuthenticated(true))
 
   const principal = await myAgent.getPrincipal()
-  dispatch(setIsPrincipal(principal.toText()))
+  dispatch(setUserPrincipal(principal.toText()))
+  dispatch(setUserDeposit(getUserDepositAddress(principal.toText())))
 }
 
 /**
@@ -60,7 +67,7 @@ export function formatWalletAddress(address: string): string {
   if (address.length <= 9) {
     return address
   }
-  return `${address.slice(0, 4)}...${address.slice(-3)}`
+  return `${address.slice(0, 5)}...${address.slice(-3)}`
 }
 
 /**
