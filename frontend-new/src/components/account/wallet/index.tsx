@@ -266,9 +266,7 @@ const WalletContent: React.FC = () => {
       })
       .catch((error) => {
         const message = error.response ? error.response.data : error.message
-
         withdrawStatus(token.base, 'error')
-
         if (toastId) {
           toast.update(toastId, {
             title: 'Withdraw rejected',

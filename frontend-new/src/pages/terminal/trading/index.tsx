@@ -142,7 +142,9 @@ const Trading = () => {
             }),
         })
         .test('is-valid-step-size', function (value) {
-          const calculatedBaseVolume = handleBaseVolumeCalculate(Number(value))
+          const { volume: calculatedBaseVolume } = handleBaseVolumeCalculate(
+            Number(value),
+          )
           return (
             value === Number(calculatedBaseVolume) ||
             this.createError({
@@ -332,14 +334,14 @@ const Trading = () => {
   }
 
   const handleBaseVolumeCalculate = (value: number) => {
-    const { volume, stepSize } = volumeCalculateStepSize(
+    const { volume, volumeFloor, stepSize } = volumeCalculateStepSize(
       parseFloat(formik.values.price),
       value,
       Number(baseStepSizeDecimal),
       volumeStepSize,
     )
     setBaseStepSize(stepSize)
-    return volume
+    return { volume, volumeFloor }
   }
 
   const handleBaseVolumeDecimal = () => {
@@ -428,11 +430,12 @@ const Trading = () => {
         quoteAmount = percentageAvailable
         baseAmount = quoteAmount / parseFloat(formik.values.price)
       } else {
-        baseAmount = percentageAvailable
+        const { volumeFloor } = handleBaseVolumeCalculate(percentageAvailable)
+        baseAmount = parseFloat(volumeFloor)
         quoteAmount = baseAmount * parseFloat(formik.values.price)
       }
 
-      formik.setFieldValue('baseAmount', handleBaseVolumeCalculate(baseAmount))
+      formik.setFieldValue('baseAmount', baseAmount)
       formik.setFieldValue(
         'quoteAmount',
         fixDecimal(quoteAmount, selectedQuote.decimals),
@@ -471,6 +474,7 @@ const Trading = () => {
               handlePriceInputChange(e)
               formik.setFieldValue('baseAmount', '')
               formik.setFieldValue('quoteAmount', '')
+              setSelectedPercentage(null)
               setBaseStepSize(null)
             }}
           />
@@ -503,13 +507,11 @@ const Trading = () => {
               onChange={(e) => {
                 formik.handleChange(e)
                 if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                  formik.setFieldValue(
-                    'baseAmount',
-                    handleBaseVolumeCalculate(
-                      parseFloat(e.target.value) /
-                        parseFloat(formik.values.price),
-                    ),
+                  const { volume } = handleBaseVolumeCalculate(
+                    parseFloat(e.target.value) /
+                      parseFloat(formik.values.price),
                   )
+                  formik.setFieldValue('baseAmount', volume)
                 }
               }}
             />

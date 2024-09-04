@@ -122,7 +122,7 @@ export function volumeCalculateStepSize(
   amount: number,
   decimals: number,
   stepConstantInQuote: number,
-): { volume: string; stepSize: number } {
+): { volume: string; volumeFloor: string; stepSize: number } {
   const minimumOrderSizeRaw = stepConstantInQuote / price
 
   const decimal = -Math.floor(Math.log10(minimumOrderSizeRaw))
@@ -133,7 +133,11 @@ export function volumeCalculateStepSize(
   )
 
   const volume = fixDecimal(stepSize * Math.round(amount / stepSize), decimals)
-  return { volume, stepSize }
+  const volumeFloor = fixDecimal(
+    stepSize * Math.floor(amount / stepSize),
+    decimals,
+  )
+  return { volume, volumeFloor, stepSize }
 }
 
 /**
