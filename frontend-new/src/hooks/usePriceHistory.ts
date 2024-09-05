@@ -188,6 +188,7 @@ const usePriceHistory = () => {
 
       const { counter, timestamp } = await serviceActor.nextSession()
       const date = new Date(Number(timestamp) * 1000)
+      const datetime = Number(timestamp) * 1000
       const optionsDateTime: Intl.DateTimeFormatOptions = {
         day: '2-digit',
         month: 'short',
@@ -201,6 +202,7 @@ const usePriceHistory = () => {
 
       return {
         nextSession: formattedDateTime,
+        datetime,
         counter: String(counter),
       }
     } catch (error) {

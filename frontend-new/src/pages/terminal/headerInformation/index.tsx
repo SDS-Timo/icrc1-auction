@@ -40,7 +40,8 @@ const HeaderInformation = () => {
     </>
   )
 
-  const [nextAuction, setNextAuction] = useState<NextSession | null>(null)
+  const [nextSession, setNextSession] = useState<NextSession | null>(null)
+  const [nextSessionTime, setNextSessionTime] = useState<Date | null>(null)
   const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
   const isLoading = !headerInformation
@@ -69,26 +70,68 @@ const HeaderInformation = () => {
     }
   }
 
-  async function fetchNextAuction() {
+  async function fetchNextSession() {
     const { getNextSession } = usePriceHistory()
     const info = await getNextSession(userAgent)
 
-    setNextAuction(info)
+    if (info?.datetime) {
+      const auctionDate = new Date(info.datetime)
+      setNextSessionTime(auctionDate)
+    }
+    setNextSession(info)
   }
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null
+    let timeoutId: ReturnType<typeof setInterval> | null = null
+
+    const startPolling = () => {
+      intervalId = setInterval(() => {
+        fetchNextSession()
+      }, 1000)
+    }
+
+    const stopPolling = () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+        intervalId = null
+      }
+    }
+
+    const handleSessionTime = () => {
+      if (!nextSessionTime) return
+
+      const now = new Date()
+      const timeDifference = nextSessionTime.getTime() - now.getTime()
+
+      if (timeDifference > 1000) {
+        const timeToWait = timeDifference - 1000
+
+        timeoutId = setTimeout(() => {
+          startPolling()
+        }, timeToWait)
+      } else {
+        startPolling()
+      }
+    }
+
+    if (nextSessionTime) {
+      handleSessionTime()
+    } else {
+      fetchNextSession()
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      stopPolling()
+    }
+  }, [nextSessionTime])
 
   useEffect(() => {
     fetchStatistics()
   }, [selectedSymbol, selectedQuote])
-
-  useEffect(() => {
-    fetchNextAuction()
-
-    const intervalId = setInterval(() => {
-      fetchNextAuction()
-    }, 60000)
-
-    return () => clearInterval(intervalId)
-  }, [])
 
   return (
     <Flex direction="row" wrap="wrap" gap={4}>
@@ -200,7 +243,7 @@ const HeaderInformation = () => {
             <Stat size="sm" onMouseEnter={() => fetchStatistics()}>
               <StatLabel>Next Auction</StatLabel>
               <StatNumber>
-                {nextAuction ? nextAuction.nextSession : '--'}
+                {nextSession ? nextSession.nextSession : '--'}
               </StatNumber>
             </Stat>
           </Tooltip>

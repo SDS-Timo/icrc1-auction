@@ -117,5 +117,6 @@ export interface Statistics {
 }
 export interface NextSession {
   nextSession: string
+  datetime: number
   counter: string
 }
