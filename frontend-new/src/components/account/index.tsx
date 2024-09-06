@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import IdentityComponent from './auth/identity'
 import SeedComponent from './auth/seed'
 import WalletComponent from './wallet'
 import { RootState } from '../../store'
@@ -59,7 +60,14 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
             {isAuthenticated ? (
               <WalletComponent />
             ) : (
-              <SeedComponent onClose={onClose} />
+              <Box>
+                <Box>
+                  <IdentityComponent onClose={onClose} />
+                </Box>
+                <Box mt={4}>
+                  <SeedComponent onClose={onClose} />
+                </Box>
+              </Box>
             )}
           </DrawerBody>
 

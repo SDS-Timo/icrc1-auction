@@ -1,4 +1,5 @@
 import { Actor, HttpAgent, Identity } from '@dfinity/agent'
+import { AuthClient } from '@dfinity/auth-client'
 import { Ed25519KeyIdentity } from '@dfinity/identity'
 
 import { getUserDepositAddress } from './convertionsUtils'
@@ -89,5 +90,36 @@ export async function seedAuthenticate(seed: string, dispatch: AppDispatch) {
   if (newIdentity) {
     const myAgent = getAgent(newIdentity)
     doLogin(myAgent, dispatch)
+  }
+}
+
+/**
+ * Authenticates the user using a internet identity and dispatches actions to set the user agent and authentication status.
+ * @param dispatch - The dispatch function to trigger actions in the Redux store.
+ */
+export async function IdentityAuthenticate(
+  dispatch: AppDispatch,
+): Promise<void> {
+  try {
+    const authClient = await AuthClient.create()
+    const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
+    const AUTH_EXPIRATION_INTERNET_IDENTITY = BigInt(
+      24 * 60 * 60 * 1000 * 1000 * 1000,
+    )
+
+    await authClient.login({
+      maxTimeToLive: AUTH_EXPIRATION_INTERNET_IDENTITY,
+      identityProvider: HTTP_AGENT_HOST,
+      onSuccess: () => {
+        const identity = authClient.getIdentity()
+        const myAgent = getAgent(identity)
+        doLogin(myAgent, dispatch)
+      },
+      onError: (error) => {
+        console.error('Internet Identity authentication failed', error)
+      },
+    })
+  } catch (error) {
+    console.error('Unexpected error during authentication process', error)
   }
 }
