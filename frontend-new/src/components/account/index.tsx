@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import {
   Box,
@@ -30,6 +30,7 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
   onClose,
 }) => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const dispatch = useDispatch()
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -38,6 +39,10 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
   const handleLogout = () => {
     dispatch(logout())
     onClose()
+  }
+
+  const handleAccordionChange = (index: number) => {
+    setActiveIndex(index === activeIndex ? null : index)
   }
 
   return (
@@ -62,10 +67,18 @@ const AccountComponent: React.FC<AccountComponentProps> = ({
             ) : (
               <Box>
                 <Box>
-                  <IdentityComponent onClose={onClose} />
+                  <IdentityComponent
+                    onClose={onClose}
+                    currentIndex={activeIndex}
+                    onAccordionChange={() => handleAccordionChange(0)}
+                  />
                 </Box>
                 <Box mt={4}>
-                  <SeedComponent onClose={onClose} />
+                  <SeedComponent
+                    onClose={onClose}
+                    currentIndex={activeIndex}
+                    onAccordionChange={() => handleAccordionChange(1)}
+                  />
                 </Box>
               </Box>
             )}

@@ -41,3 +41,17 @@ export const getErrorMessageWithdraw = (error: Withdraw): string => {
   }
   return 'Something went wrong'
 }
+
+/**
+ * Formats a wallet address by displaying the first 4 characters,
+ * followed by ellipsis (...), and the last 3 characters.
+ *
+ * @param address - The wallet address to format.
+ * @returns The formatted wallet address.
+ */
+export function formatWalletAddress(address: string): string {
+  if (address.length <= 9) {
+    return address
+  }
+  return `${address.slice(0, 5)}...${address.slice(-3)}`
+}

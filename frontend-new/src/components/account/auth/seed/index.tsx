@@ -19,9 +19,15 @@ import { seedAuthenticate } from '../../../../utils/authUtils'
 
 interface SeedComponentProps {
   onClose: () => void
+  currentIndex: number | null
+  onAccordionChange: (index: number) => void
 }
 
-const SeedComponent: React.FC<SeedComponentProps> = ({ onClose }) => {
+const SeedComponent: React.FC<SeedComponentProps> = ({
+  onClose,
+  currentIndex,
+  onAccordionChange,
+}) => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.900', 'grey.25')
   const borderColor = useColorModeValue('grey.300', 'grey.700')
@@ -39,7 +45,11 @@ const SeedComponent: React.FC<SeedComponentProps> = ({ onClose }) => {
   }
 
   return (
-    <Accordion defaultIndex={[]} allowMultiple>
+    <Accordion
+      allowToggle
+      index={currentIndex === 1 ? [0] : []}
+      onChange={() => onAccordionChange(1)}
+    >
       <AccordionItem border="none">
         <Box
           borderRadius="md"

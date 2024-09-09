@@ -58,20 +58,6 @@ async function doLogin(myAgent: HttpAgent, dispatch: AppDispatch) {
 }
 
 /**
- * Formats a wallet address by displaying the first 4 characters,
- * followed by ellipsis (...), and the last 3 characters.
- *
- * @param {string} address - The wallet address to format.
- * @returns {string} The formatted wallet address.
- */
-export function formatWalletAddress(address: string): string {
-  if (address.length <= 9) {
-    return address
-  }
-  return `${address.slice(0, 5)}...${address.slice(-3)}`
-}
-
-/**
  * Authenticates the user using a seed phrase and dispatches actions to set the user agent and authentication status.
  * @param seed - The seed phrase to generate the identity.
  * @param dispatch - The dispatch function to trigger actions in the Redux store.

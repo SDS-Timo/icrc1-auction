@@ -18,9 +18,15 @@ import { IdentityAuthenticate } from '../../../../utils/authUtils'
 
 interface IdentityComponentProps {
   onClose: () => void
+  currentIndex: number | null
+  onAccordionChange: (index: number) => void
 }
 
-const IdentityComponent: React.FC<IdentityComponentProps> = ({ onClose }) => {
+const IdentityComponent: React.FC<IdentityComponentProps> = ({
+  onClose,
+  currentIndex,
+  onAccordionChange,
+}) => {
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.900', 'grey.25')
   const borderColor = useColorModeValue('grey.300', 'grey.700')
@@ -30,11 +36,15 @@ const IdentityComponent: React.FC<IdentityComponentProps> = ({ onClose }) => {
 
   const handleClick = async () => {
     await IdentityAuthenticate(dispatch)
-    //onClose()
+    onClose()
   }
 
   return (
-    <Accordion defaultIndex={[]} allowMultiple>
+    <Accordion
+      allowToggle
+      index={currentIndex === 0 ? [0] : []}
+      onChange={() => onAccordionChange(0)}
+    >
       <AccordionItem border="none">
         <Box
           borderRadius="md"

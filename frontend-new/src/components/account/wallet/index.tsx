@@ -32,13 +32,13 @@ import {
   TokenMetadata,
   Withdraw,
 } from '../../../types'
-import { formatWalletAddress } from '../../../utils/authUtils'
 import {
   convertVolumeFromCanister,
   convertVolumeToCanister,
   getDecimals,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
+import { formatWalletAddress } from '../../../utils/walletUtils'
 import {
   getErrorMessageNotifyDeposits,
   getErrorMessageWithdraw,
