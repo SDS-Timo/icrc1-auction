@@ -26,12 +26,7 @@ import TokenTab from './tokenTab'
 import useWallet from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
-import {
-  NotifyResult,
-  TokenDataItem,
-  TokenMetadata,
-  Withdraw,
-} from '../../../types'
+import { Result, TokenDataItem, TokenMetadata } from '../../../types'
 import {
   convertVolumeFromCanister,
   convertVolumeToCanister,
@@ -42,6 +37,7 @@ import { formatWalletAddress } from '../../../utils/walletUtils'
 import {
   getErrorMessageNotifyDeposits,
   getErrorMessageWithdraw,
+  getErrorMessageDeposit,
 } from '../../../utils/walletUtils'
 
 const WalletContent: React.FC = () => {
@@ -129,7 +125,7 @@ const WalletContent: React.FC = () => {
     })
 
     balanceNotify(userAgent, principal)
-      .then(async (response: NotifyResult) => {
+      .then(async (response: Result) => {
         if (Object.keys(response).includes('Ok')) {
           await fetchBalances()
           const token = balances.find((balance) => balance.base === base)
@@ -222,7 +218,7 @@ const WalletContent: React.FC = () => {
 
     const { withdrawCredit } = useWallet()
     withdrawCredit(userAgent, `${token.principal}`, account, Number(volume))
-      .then((response: Withdraw | null) => {
+      .then((response: Result | null) => {
         if (response && Object.keys(response).includes('Ok')) {
           fetchBalances()
           withdrawStatus(token.base, 'success')
@@ -236,7 +232,7 @@ const WalletContent: React.FC = () => {
           if (toastId) {
             toast.update(toastId, {
               title: `Withdraw ${token.base} Success`,
-              description: `Amount: ${volumeInBase} | Txid: ${response.Ok?.txid}`,
+              description: `Amount: ${fixDecimal(volumeInBase, token.decimals)} | Txid: ${response.Ok?.txid}`,
               status: 'success',
               isClosable: true,
             })
@@ -276,6 +272,101 @@ const WalletContent: React.FC = () => {
           })
         }
         console.error('Withdraw failed:', message)
+      })
+  }
+
+  const handleDeposit = (
+    amount: number,
+    account: string | undefined,
+    token: TokenMetadata,
+  ) => {
+    const depositStatus = (base: string, depositStatus: string) => {
+      setLocalBalances((prevBalances) =>
+        prevBalances.map((balance: TokenDataItem) =>
+          balance.base === base ? { ...balance, depositStatus } : balance,
+        ),
+      )
+    }
+    depositStatus(token.base, 'loading')
+
+    const volume = convertVolumeToCanister(
+      Number(amount),
+      Number(token.decimals),
+    )
+
+    const toastId = toast({
+      title: `Deposit ${token.base} pending`,
+      description: 'Please wait',
+      status: 'loading',
+      duration: null,
+      isClosable: true,
+    })
+
+    const { deposit } = useWallet()
+    deposit(userAgent, `${token.principal}`, account, Number(volume))
+      .then((response: Result | null) => {
+        if (response && Object.keys(response).includes('Ok')) {
+          fetchBalances()
+          depositStatus(token.base, 'success')
+
+          const creditTotalRaw = response.Ok?.credit
+          const creditIncRaw = response.Ok?.credit_inc
+
+          const { volumeInBase: creditTotal } = convertVolumeFromCanister(
+            Number(creditTotalRaw),
+            getDecimals(token),
+            0,
+          )
+
+          const { volumeInBase: creditInc } = convertVolumeFromCanister(
+            Number(creditIncRaw),
+            getDecimals(token),
+            0,
+          )
+
+          if (toastId) {
+            toast.update(toastId, {
+              title: `Deposit ${token.base} Success | Txid: ${response.Ok?.txid}`,
+              description: `Amount: ${fixDecimal(creditInc, token.decimals)} | Total: ${fixDecimal(creditTotal, token.decimals)}`,
+              status: 'success',
+              isClosable: true,
+            })
+          }
+        } else if (response && Object.keys(response).includes('Err')) {
+          depositStatus(token.base, 'error')
+          if (toastId) {
+            const description = getErrorMessageDeposit(response.Err)
+            toast.update(toastId, {
+              title: `Deposit ${token.base} rejected`,
+              description,
+              status: 'error',
+              isClosable: true,
+            })
+          }
+        } else {
+          depositStatus(token.base, 'error')
+          if (toastId) {
+            toast.update(toastId, {
+              title: `Deposit ${token.base} rejected`,
+              description: 'Something went wrong',
+              status: 'error',
+              isClosable: true,
+            })
+          }
+        }
+      })
+      .catch((error) => {
+        const message = error.response ? error.response.data : error.message
+        depositStatus(token.base, 'error')
+        if (toastId) {
+          toast.update(toastId, {
+            title: 'Deposit rejected',
+            description: `Error: ${message}`,
+            status: 'error',
+            isClosable: true,
+          })
+        }
+        console.error('Deposit failed:', message)
       })
   }
 
@@ -409,6 +500,7 @@ const WalletContent: React.FC = () => {
               userPrincipal={userPrincipal}
               handleNotify={handleNotify}
               handleWithdraw={handleWithdraw}
+              handleDeposit={handleDeposit}
               showSearch={true}
               loading={loading}
             />
@@ -420,6 +512,7 @@ const WalletContent: React.FC = () => {
               userPrincipal={userPrincipal}
               handleNotify={handleNotify}
               handleWithdraw={handleWithdraw}
+              handleDeposit={handleDeposit}
               showSearch={true}
               loading={loading}
             />

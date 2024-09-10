@@ -2,7 +2,7 @@ import { HttpAgent } from '@dfinity/agent'
 import { IcrcLedgerCanister, decodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 
-import { TokenDataItem, TokenMetadata, TrackedDeposit } from '../types'
+import { TokenDataItem, TokenMetadata, Result } from '../types'
 import { getActor } from '../utils/authUtils'
 import {
   convertVolumeFromCanister,
@@ -154,14 +154,14 @@ const useWallet = () => {
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
     owner: string,
-  ): Promise<number | TrackedDeposit> => {
+  ): Promise<number | Result> => {
     try {
       if (!tokens || tokens.length === 0) return 0
 
       const principal = Principal.fromText(owner)
 
       const serviceActor = getActor(userAgent)
-      const deposit: TrackedDeposit =
+      const deposit: Result =
         await serviceActor.icrc84_trackedDeposit(principal)
 
       if (deposit.Ok !== undefined) {
@@ -232,12 +232,17 @@ const useWallet = () => {
         decodeAccount = decodeIcrcAccount(account)
       }
 
+      const userPrincipal = await userAgent.getPrincipal()
+
       const serviceActor = getActor(userAgent)
       const result = await serviceActor.icrc84_withdraw({
         token: Principal.fromText(principal),
-        to_subaccount: decodeAccount?.subaccount
-          ? [decodeAccount.subaccount]
-          : [],
+        to: {
+          owner: userPrincipal,
+          subaccount: decodeAccount?.subaccount
+            ? [decodeAccount.subaccount]
+            : [],
+        },
         amount: BigInt(amount),
         expected_fee: [],
       })
@@ -249,12 +254,53 @@ const useWallet = () => {
     }
   }
 
+  /**
+   * Deposit credit from the user's account using the ICRC-84 protocol.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param principal - The principal identifier of the token.
+   * @param account - The account identifier as a hexadecimal string.
+   * @param amount - The amount of credit to withdraw.
+   * @returns The result of the deposit transaction.
+   */
+  const deposit = async (
+    userAgent: HttpAgent,
+    principal: string | undefined,
+    account: string | undefined,
+    amount: number,
+  ) => {
+    try {
+      if (!principal || !account) return null
+
+      const decodeAccount = decodeIcrcAccount(account)
+
+      const serviceActor = getActor(userAgent)
+      const result = await serviceActor.icrc84_deposit({
+        token: Principal.fromText(principal),
+        from: {
+          owner: decodeAccount.owner,
+          subaccount: decodeAccount?.subaccount
+            ? [decodeAccount.subaccount]
+            : [],
+        },
+        amount: BigInt(amount),
+        expected_fee: [],
+      })
+
+      return result
+    } catch (error) {
+      console.error('Error deposit credit:', error)
+      return null
+    }
+  }
+
   return {
     getBalancesCredits,
     getBalance,
     getTrackedDeposit,
     balanceNotify,
     withdrawCredit,
+    deposit,
   }
 }
 

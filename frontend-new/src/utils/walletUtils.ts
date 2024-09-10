@@ -1,4 +1,4 @@
-import { NotifyResult, Withdraw } from '../types'
+import { Result } from '../types'
 
 /**
  * Gets a user-friendly error message for a notify deposit error.
@@ -6,7 +6,7 @@ import { NotifyResult, Withdraw } from '../types'
  * @param error - An object representing the notify deposit error.
  * @returns A string with the corresponding error message.
  */
-export const getErrorMessageNotifyDeposits = (error: NotifyResult): string => {
+export const getErrorMessageNotifyDeposits = (error: Result): string => {
   const errorMessages: { [key: string]: string } = {
     NotAvailable: '',
     CallLedgerError: 'Call Ledger Error',
@@ -26,7 +26,7 @@ export const getErrorMessageNotifyDeposits = (error: NotifyResult): string => {
  * @param error - An object representing the withdraw error.
  * @returns A string with the corresponding error message.
  */
-export const getErrorMessageWithdraw = (error: Withdraw): string => {
+export const getErrorMessageWithdraw = (error: Result): string => {
   const errorMessages: { [key: string]: string } = {
     AmountBelowMinimum: 'Amount Below Minimum',
     InsufficientCredit: 'Insufficient Credit',
@@ -39,6 +39,35 @@ export const getErrorMessageWithdraw = (error: Withdraw): string => {
       return errorMessages[key]
     }
   }
+  return 'Something went wrong'
+}
+
+/**
+ * Gets a user-friendly error message for a deposit error.
+ *
+ * @param error - An object representing the withdraw error.
+ * @returns A string with the corresponding error message.
+ */
+export const getErrorMessageDeposit = (error: Result): string => {
+  const errorMessages: { [key: string]: string | ((err: any) => string) } = {
+    TransferError: (err) => (err?.message ? err.message : 'Transfer Error'),
+    AmountBelowMinimum: 'Amount Below Minimum',
+    CallLedgerError: 'Call Ledger Error',
+    BadFee: 'Bad fee',
+  }
+
+  for (const key in error) {
+    if (error[key] !== undefined && key in errorMessages) {
+      const messageOrFunction = errorMessages[key]
+
+      if (typeof messageOrFunction === 'function') {
+        return messageOrFunction(error[key])
+      }
+
+      return messageOrFunction as string
+    }
+  }
+
   return 'Something went wrong'
 }
 

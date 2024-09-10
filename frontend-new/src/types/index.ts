@@ -1,10 +1,5 @@
 import { Option as OptionBymax } from 'bymax-react-select'
 
-import {
-  CancelOrderError,
-  PlaceOrderError,
-} from '../../../declarations/icrc1_auction/icrc1_auction.did'
-
 export interface Language {
   [key: string]: string
 }
@@ -80,22 +75,7 @@ export interface SettingsState {
   orderPriceDigitsLimit: number
   orderQuoteVolumeStep: number
 }
-export interface CancelOrder {
-  Ok?: any
-  Err?: CancelOrderError
-  [key: string]: any
-}
-export interface PlaceOrder {
-  Ok?: any
-  Err?: PlaceOrderError
-  [key: string]: any
-}
-export interface NotifyResult {
-  Ok?: any
-  Err?: any
-  [key: string]: any
-}
-export interface Withdraw {
+export interface Result {
   Ok?: any
   Err?: any
   [key: string]: any
@@ -104,10 +84,6 @@ export interface Order {
   volume: bigint
   price: number
   type: string
-}
-export interface TrackedDeposit {
-  Ok?: bigint
-  Err?: { NotAvailable: { message: string } }
 }
 export interface Statistics {
   clearingPrice: number

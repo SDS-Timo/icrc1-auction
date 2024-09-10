@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
 import { useFormik } from 'formik'
+import { GiPayMoney } from 'react-icons/gi'
 import { LuDownload, LuUpload } from 'react-icons/lu'
 import * as Yup from 'yup'
 
@@ -38,6 +39,11 @@ interface TokenRowProps {
     account: string | undefined,
     token: TokenMetadata,
   ) => void
+  handleDeposit: (
+    amount: number,
+    account: string | undefined,
+    token: TokenMetadata,
+  ) => void
   currentIndex: number | undefined
   onAccordionChange: (index: number | undefined) => void
 }
@@ -48,6 +54,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
   userPrincipal,
   handleNotify,
   handleWithdraw,
+  handleDeposit,
   currentIndex,
   onAccordionChange,
 }) => {
@@ -63,11 +70,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const bgColor = useColorModeValue('grey.200', 'grey.600')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
 
+  const [action, setAction] = useState('')
   const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
   const initialValues = {
     amount: '',
     account: '',
+    action: action,
     submit: false,
   }
 
@@ -75,15 +84,28 @@ const TokenRow: React.FC<TokenRowProps> = ({
     amount: Yup.number()
       .required('')
       .typeError('')
-      .max(token.volumeInAvailable || 0, `Not enough funds`),
-    account: Yup.string().typeError(''),
+      .when('action', {
+        is: 'withdraw',
+        then: (schema) =>
+          schema.max(token.volumeInAvailable || 0, 'Not enough funds'),
+      }),
+    account: Yup.string()
+      .typeError('')
+      .when('action', {
+        is: 'deposit',
+        then: (schema) => schema.required('Account is required for deposit'),
+      }),
   })
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: (values) => {
-      handleWithdraw(Number(values.amount), values.account, token)
+      if (action === 'withdraw') {
+        handleWithdraw(Number(values.amount), values.account, token)
+      } else if (action === 'deposit') {
+        handleDeposit(Number(values.amount), values.account, token)
+      }
     },
   })
 
@@ -125,13 +147,25 @@ const TokenRow: React.FC<TokenRowProps> = ({
     }
   }
 
-  const handleWithdrawClick = () => {
-    onAccordionChange(currentIndex === 0 ? undefined : 0)
+  const handleAccordionToggle = (actionType: string) => {
+    if (currentIndex === 0 && action === actionType) {
+      onAccordionChange(undefined)
+    } else if (currentIndex === undefined) {
+      onAccordionChange(0)
+      setAction(actionType)
+    } else {
+      setAction(actionType)
+    }
   }
 
   const handleMaxAvailableClick = () => {
-    formik.setFieldValue('amount', token.volumeInAvailable)
+    if (action === 'withdraw')
+      formik.setFieldValue('amount', token.volumeInAvailable)
   }
+
+  useEffect(() => {
+    formik.setFieldValue('action', action)
+  }, [action])
 
   useEffect(() => {
     if (token.withdrawStatus === 'success') {
@@ -169,7 +203,10 @@ const TokenRow: React.FC<TokenRowProps> = ({
                         <LuDownload size="15px" />
                       )
                     }
-                    onClick={() => handleNotify(token.principal, token.base)}
+                    onClick={() => {
+                      handleNotify(token.principal, token.base)
+                      setAction('claim')
+                    }}
                     onMouseEnter={() => handleTrackedDeposit()}
                     variant="ghost"
                     size="xs"
@@ -187,7 +224,19 @@ const TokenRow: React.FC<TokenRowProps> = ({
                     _hover={{
                       bg: bgColorHover,
                     }}
-                    onClick={handleWithdrawClick}
+                    onClick={() => handleAccordionToggle('withdraw')}
+                  />
+                </Tooltip>
+                <Tooltip label="Deposit by Allowance" aria-label="Allowance">
+                  <IconButton
+                    aria-label="Allowance"
+                    icon={<GiPayMoney size="15px" />}
+                    variant="ghost"
+                    size="xs"
+                    _hover={{
+                      bg: bgColorHover,
+                    }}
+                    onClick={() => handleAccordionToggle('deposit')}
                   />
                 </Tooltip>
               </Flex>
@@ -292,16 +341,28 @@ const TokenRow: React.FC<TokenRowProps> = ({
                     bg: bgColorHover,
                     color: fontColor,
                   }}
-                  isDisabled={token.withdrawStatus === 'loading'}
+                  isDisabled={
+                    action === 'withdraw' && token.withdrawStatus === 'loading'
+                  }
                   onClick={() => formik.handleSubmit()}
                 >
-                  {token.withdrawStatus === 'loading' ? (
-                    <>
-                      Withdraw <Spinner ml={2} size="sm" color={fontColor} />
-                    </>
-                  ) : (
-                    'Withdraw'
-                  )}
+                  {action === 'withdraw' ? (
+                    token.withdrawStatus === 'loading' ? (
+                      <>
+                        Withdraw <Spinner ml={2} size="sm" color={fontColor} />
+                      </>
+                    ) : (
+                      'Withdraw'
+                    )
+                  ) : action === 'deposit' ? (
+                    token.depositStatus === 'loading' ? (
+                      <>
+                        Deposit <Spinner ml={2} size="sm" color={fontColor} />
+                      </>
+                    ) : (
+                      'Deposit'
+                    )
+                  ) : null}
                 </Button>
               </Flex>
             </Flex>

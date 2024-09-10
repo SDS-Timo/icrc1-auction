@@ -23,6 +23,11 @@ interface TokenTabProps {
     account: string | undefined,
     token: TokenMetadata,
   ) => void
+  handleDeposit: (
+    amount: number,
+    account: string | undefined,
+    token: TokenMetadata,
+  ) => void
   showSearch?: boolean
   loading: boolean
 }
@@ -33,6 +38,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
   userPrincipal,
   handleNotify,
   handleWithdraw,
+  handleDeposit,
   showSearch = false,
   loading,
 }) => {
@@ -82,6 +88,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
             userPrincipal={userPrincipal}
             handleNotify={handleNotify}
             handleWithdraw={handleWithdraw}
+            handleDeposit={handleDeposit}
             currentIndex={activeIndex === index ? 0 : undefined}
             onAccordionChange={() => handleAccordionChange(index)}
           />

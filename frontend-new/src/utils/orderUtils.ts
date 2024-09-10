@@ -1,4 +1,4 @@
-import { PlaceOrder, CancelOrder, TokenDataItem, TokenMetadata } from '../types'
+import { Result, TokenDataItem, TokenMetadata } from '../types'
 
 /**
  * Validates if a new order can be placed based on existing orders.
@@ -55,7 +55,7 @@ export const validationPlaceOrder = (
  * @param error - An object representing the place order error.
  * @returns A string with the corresponding error message.
  */
-export const getErrorMessagePlaceOrder = (error: PlaceOrder): string => {
+export const getErrorMessagePlaceOrder = (error: Result): string => {
   const errorMessages: { [key: string]: string } = {
     TooLowOrder: 'Too Low Order',
     ConflictingOrder: 'Conflicting Order',
@@ -79,7 +79,7 @@ export const getErrorMessagePlaceOrder = (error: PlaceOrder): string => {
  * @param error - An object representing the cancel order error.
  * @returns A string with the corresponding error message.
  */
-export const getErrorMessageCancelOrder = (error: CancelOrder): string => {
+export const getErrorMessageCancelOrder = (error: Result): string => {
   const errorMessages: { [key: string]: string } = {
     UnknownOrder: 'Unknown Order',
     UnknownPrincipal: 'Unknown Principal',

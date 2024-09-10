@@ -27,7 +27,7 @@ import useBalances from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
 import { setIsRefreshUserData } from '../../../store/orders'
-import { PlaceOrder, TokenDataItem } from '../../../types'
+import { Result, TokenDataItem } from '../../../types'
 import {
   convertPriceToCanister,
   convertVolumeToCanister,
@@ -243,7 +243,7 @@ const Trading = () => {
 
       const { placeOrder } = useOrders()
       placeOrder(userAgent, symbol, order)
-        .then((response: PlaceOrder) => {
+        .then((response: Result) => {
           setStatus({ success: true })
           resetForm({ values: initialValues })
           setMessage(null)

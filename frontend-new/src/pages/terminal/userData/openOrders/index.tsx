@@ -13,7 +13,7 @@ import useBalances from '../../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../../store'
 import { setBalances } from '../../../../store/balances'
 import { setOpenOrders, setIsRefreshUserData } from '../../../../store/orders'
-import { TokenDataItem, CancelOrder } from '../../../../types'
+import { TokenDataItem, Result } from '../../../../types'
 import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
 
 const OpenOrders: React.FC = () => {
@@ -120,7 +120,7 @@ const OpenOrders: React.FC = () => {
 
     const { cancelOrder } = useOpenOrders()
     cancelOrder(userAgent, id, type)
-      .then((response: CancelOrder) => {
+      .then((response: Result) => {
         if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
           if (toastId) {
             toast.update(toastId, {
