@@ -225,20 +225,15 @@ const useWallet = () => {
     amount: number,
   ) => {
     try {
-      if (!principal) return null
+      if (!principal || !account) return null
 
-      let decodeAccount = null
-      if (account) {
-        decodeAccount = decodeIcrcAccount(account)
-      }
-
-      const userPrincipal = await userAgent.getPrincipal()
+      const decodeAccount = decodeIcrcAccount(account)
 
       const serviceActor = getActor(userAgent)
       const result = await serviceActor.icrc84_withdraw({
         token: Principal.fromText(principal),
         to: {
-          owner: userPrincipal,
+          owner: decodeAccount.owner,
           subaccount: decodeAccount?.subaccount
             ? [decodeAccount.subaccount]
             : [],

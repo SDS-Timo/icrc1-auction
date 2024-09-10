@@ -89,12 +89,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
         then: (schema) =>
           schema.max(token.volumeInAvailable || 0, 'Not enough funds'),
       }),
-    account: Yup.string()
-      .typeError('')
-      .when('action', {
-        is: 'deposit',
-        then: (schema) => schema.required('Account is required for deposit'),
-      }),
+    account: Yup.string().required('').typeError(''),
   })
 
   const formik = useFormik({
@@ -193,6 +188,18 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 <Text mr={2}>
                   {fixDecimal(token.volumeInTotal, token.decimals)}
                 </Text>
+                <Tooltip label="Deposit by Allowance" aria-label="Allowance">
+                  <IconButton
+                    aria-label="Allowance"
+                    icon={<GiPayMoney size="15px" />}
+                    variant="ghost"
+                    size="xs"
+                    _hover={{
+                      bg: bgColorHover,
+                    }}
+                    onClick={() => handleAccordionToggle('deposit')}
+                  />
+                </Tooltip>
                 <Tooltip label={tooltipText} aria-label="Claim Deposit">
                   <IconButton
                     aria-label="Claim Deposit"
@@ -225,18 +232,6 @@ const TokenRow: React.FC<TokenRowProps> = ({
                       bg: bgColorHover,
                     }}
                     onClick={() => handleAccordionToggle('withdraw')}
-                  />
-                </Tooltip>
-                <Tooltip label="Deposit by Allowance" aria-label="Allowance">
-                  <IconButton
-                    aria-label="Allowance"
-                    icon={<GiPayMoney size="15px" />}
-                    variant="ghost"
-                    size="xs"
-                    _hover={{
-                      bg: bgColorHover,
-                    }}
-                    onClick={() => handleAccordionToggle('deposit')}
                   />
                 </Tooltip>
               </Flex>
