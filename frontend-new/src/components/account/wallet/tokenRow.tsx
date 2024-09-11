@@ -20,14 +20,18 @@ import {
   InputRightElement,
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
+import { decodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { useFormik } from 'formik'
-import { GiPayMoney } from 'react-icons/gi'
 import { LuDownload, LuUpload } from 'react-icons/lu'
+import { RiHandCoinLine } from 'react-icons/ri'
 import * as Yup from 'yup'
 
 import useWallet from '../../../hooks/useWallet'
 import { TokenDataItem, TokenMetadata } from '../../../types'
-import { fixDecimal } from '../../../utils/calculationsUtils'
+import {
+  fixDecimal,
+  convertVolumeFromCanister,
+} from '../../../utils/calculationsUtils'
 
 interface TokenRowProps {
   token: TokenDataItem
@@ -71,6 +75,8 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const fontColor = useColorModeValue('grey.700', 'grey.25')
 
   const [action, setAction] = useState('')
+  const [allowanceLoading, setAllowanceLoading] = useState(false)
+  const [depositAllowance, setDepositAllowance] = useState<string | null>(null)
   const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
 
   const initialValues = {
@@ -82,14 +88,14 @@ const TokenRow: React.FC<TokenRowProps> = ({
 
   const validationSchema = Yup.object().shape({
     amount: Yup.number()
-      .required('')
+      .required('Amount is a required field')
       .typeError('')
       .when('action', {
         is: 'withdraw',
         then: (schema) =>
           schema.max(token.volumeInAvailable || 0, 'Not enough funds'),
       }),
-    account: Yup.string().required('').typeError(''),
+    account: Yup.string().required('Account is a required field').typeError(''),
   })
 
   const formik = useFormik({
@@ -158,6 +164,53 @@ const TokenRow: React.FC<TokenRowProps> = ({
       formik.setFieldValue('amount', token.volumeInAvailable)
   }
 
+  const handleGetDepositAllowanceInfo = async () => {
+    try {
+      if (formik.values.account) {
+        setAllowanceLoading(true)
+
+        decodeIcrcAccount(formik.values.account)
+
+        const { getDepositAllowanceInfo } = useWallet()
+
+        const result = await getDepositAllowanceInfo(
+          userAgent,
+          token.principal,
+          formik.values.account,
+        )
+
+        if (result?.allowance !== undefined && result?.allowance !== null) {
+          const { volumeInBase: allowanceResult } = convertVolumeFromCanister(
+            Number(result.allowance),
+            token.decimals,
+            0,
+          )
+          const amount = fixDecimal(allowanceResult, token.decimals)
+          setDepositAllowance(amount)
+        } else setDepositAllowance(null)
+
+        setAllowanceLoading(false)
+      }
+    } catch (error) {
+      setAllowanceLoading(false)
+      setDepositAllowance(null)
+    }
+  }
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined
+
+    if (!allowanceLoading && formik.values.account) {
+      timer = setInterval(() => {
+        handleGetDepositAllowanceInfo()
+      }, 2000)
+    }
+
+    return () => {
+      clearInterval(timer)
+    }
+  }, [formik.values.account])
+
   useEffect(() => {
     formik.setFieldValue('action', action)
   }, [action])
@@ -178,7 +231,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
           <AccordionButton display="none" />
           <Flex key={token.id} justify="space-between" align="center" py={2}>
             <Flex align="center">
-              <Image src={token.logo} alt={token.symbol} h="30px" w="30px" />
+              <Image src={token.logo} alt={token.symbol} boxSize="30px" />
               <Text ml={2} fontSize="15px" fontWeight={600}>
                 {token.symbol}
               </Text>
@@ -191,7 +244,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 <Tooltip label="Deposit by Allowance" aria-label="Allowance">
                   <IconButton
                     aria-label="Allowance"
-                    icon={<GiPayMoney size="15px" />}
+                    icon={<RiHandCoinLine size="15px" />}
                     variant="ghost"
                     size="xs"
                     _hover={{
@@ -319,6 +372,11 @@ const TokenRow: React.FC<TokenRowProps> = ({
                   <FormLabel color="grey.500" fontSize="15px">
                     Account
                   </FormLabel>
+                  {depositAllowance && (
+                    <Text color="grey.400" fontSize="12px">
+                      Amount allowance: {depositAllowance} {token.base}
+                    </Text>
+                  )}
                   {!!formik.errors.account && formik.touched.account && (
                     <Text color="red.500" fontSize="12px">
                       {formik.errors.account}

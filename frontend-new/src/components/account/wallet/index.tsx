@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
-import { LuDownload } from 'react-icons/lu'
+import { RiHandCoinLine } from 'react-icons/ri'
 import { SlWallet } from 'react-icons/sl'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -400,7 +400,7 @@ const WalletContent: React.FC = () => {
         </Flex>
 
         <Flex align="center">
-          <Icon as={LuDownload} boxSize={4} mr={2} />
+          <Icon as={RiHandCoinLine} boxSize={4} mr={2} />
           <Text>{userDepositAddress}</Text>
           <Tooltip label="Deposit Address" aria-label="Deposit Address">
             <IconButton

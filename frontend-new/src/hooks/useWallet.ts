@@ -250,6 +250,53 @@ const useWallet = () => {
   }
 
   /**
+   * Get Deposit Allowance info from the user's account using the ICRC-84 protocol.
+   *
+   * @param userAgent - An instance of HttpAgent used for making authenticated requests.
+   * @param principal - The principal identifier of the token.
+   * @param account - The account identifier as a hexadecimal string.
+   * @returns The info of the deposit allowance.
+   */
+  const getDepositAllowanceInfo = async (
+    userAgent: HttpAgent,
+    principal: string | undefined,
+    account: string | undefined,
+  ) => {
+    try {
+      if (!principal || !account) return null
+
+      const decodeAccount = decodeIcrcAccount(account)
+
+      const userPrincipal = await userAgent.getPrincipal()
+      const hexSubAccountId = getSubAccountFromPrincipal(
+        userPrincipal.toText(),
+      ).subAccountId
+
+      const ledgerActor = IcrcLedgerCanister.create({
+        agent: userAgent,
+        canisterId: Principal.fromText(principal),
+      })
+      const result = await ledgerActor.allowance({
+        account: {
+          owner: decodeAccount.owner,
+          subaccount: decodeAccount?.subaccount
+            ? [decodeAccount.subaccount]
+            : [],
+        },
+        spender: {
+          owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
+          subaccount: [new Uint8Array(hexToUint8Array(hexSubAccountId))],
+        },
+      })
+
+      return result
+    } catch (error) {
+      console.error('Error deposit allowance info:', error)
+      return null
+    }
+  }
+
+  /**
    * Deposit credit from the user's account using the ICRC-84 protocol.
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
@@ -295,6 +342,7 @@ const useWallet = () => {
     getTrackedDeposit,
     balanceNotify,
     withdrawCredit,
+    getDepositAllowanceInfo,
     deposit,
   }
 }
