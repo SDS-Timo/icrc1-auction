@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import Content from './content'
 
 describe('Content component', () => {
-  test('renders children correctly', () => {
+  it('renders children correctly', () => {
     const { getByText } = render(
       <Content>
         <div>Auctions</div>

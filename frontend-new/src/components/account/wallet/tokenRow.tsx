@@ -20,7 +20,6 @@ import {
   InputRightElement,
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
-import { decodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { useFormik } from 'formik'
 import { LuDownload, LuUpload } from 'react-icons/lu'
 import { RiHandCoinLine } from 'react-icons/ri'
@@ -62,9 +61,9 @@ const TokenRow: React.FC<TokenRowProps> = ({
   currentIndex,
   onAccordionChange,
 }) => {
-  const tooltipTextStandard = (
+  const claimTooltipTextStandard = (
     <>
-      {`Checking deposit`}
+      {`Claim Direct Deposit`}
       <br />
       {`Please wait...`}
     </>
@@ -75,9 +74,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const fontColor = useColorModeValue('grey.700', 'grey.25')
 
   const [action, setAction] = useState('')
-  const [allowanceLoading, setAllowanceLoading] = useState(false)
   const [depositAllowance, setDepositAllowance] = useState<string | null>(null)
-  const [tooltipText, setTooltipText] = useState(tooltipTextStandard)
+  const [maxDepositAllowance, setMaxDepositAllowance] = useState<string | null>(
+    null,
+  )
+  const [claimTooltipText, setClaimTooltipText] = useState(
+    claimTooltipTextStandard,
+  )
 
   const initialValues = {
     amount: '',
@@ -102,25 +105,32 @@ const TokenRow: React.FC<TokenRowProps> = ({
     initialValues,
     validationSchema,
     onSubmit: (values) => {
-      if (action === 'withdraw') {
-        handleWithdraw(Number(values.amount), values.account, token)
-      } else if (action === 'deposit') {
-        handleDeposit(Number(values.amount), values.account, token)
+      if (Number(values.amount) > 0) {
+        if (action === 'withdraw') {
+          handleWithdraw(Number(values.amount), values.account, token)
+        } else if (action === 'deposit') {
+          handleDeposit(Number(values.amount), values.account, token)
+        }
       }
     },
   })
 
-  const handleTrackedDeposit = async () => {
-    setTooltipText(tooltipTextStandard)
-
-    const { getBalance, getTrackedDeposit } = useWallet()
-
-    const balanceOf = await getBalance(
+  const getBalanceOf = async () => {
+    const { getBalance } = useWallet()
+    return await getBalance(
       userAgent,
       [token],
       `${token.principal}`,
       userPrincipal,
     )
+  }
+
+  const handleTrackedDeposit = async () => {
+    setClaimTooltipText(claimTooltipTextStandard)
+
+    const { getTrackedDeposit } = useWallet()
+
+    const balanceOf = await getBalanceOf()
 
     const deposit = await getTrackedDeposit(
       userAgent,
@@ -134,13 +144,25 @@ const TokenRow: React.FC<TokenRowProps> = ({
       isNaN(balanceOf) ||
       isNaN(deposit)
     ) {
-      setTooltipText(<>{`Not Available`}</>)
-    } else if (balanceOf <= deposit) {
-      setTooltipText(<>{`No deposits available`}</>)
-    } else {
-      setTooltipText(
+      setClaimTooltipText(
         <>
-          {`Claim deposit`}
+          {`Claim Direct Deposit`}
+          <br />
+          {`Not Available`}
+        </>,
+      )
+    } else if (balanceOf <= deposit) {
+      setClaimTooltipText(
+        <>
+          {`Claim Direct Deposit`}
+          <br />
+          {`No deposits available`}
+        </>,
+      )
+    } else {
+      setClaimTooltipText(
+        <>
+          {`Claim Direct Deposit`}
           <br />
           {`${fixDecimal(balanceOf - deposit, token.decimals)} ${token.base} available`}
         </>,
@@ -164,55 +186,52 @@ const TokenRow: React.FC<TokenRowProps> = ({
       formik.setFieldValue('amount', token.volumeInAvailable)
   }
 
+  const handleMaxDepositAllowance = async () => {
+    if (formik.values.account && depositAllowance) {
+      const balanceOf = await getBalanceOf()
+
+      const max =
+        Math.min(Number(depositAllowance), Number(balanceOf)) -
+        Number(token.fee)
+
+      const amount = max > 0 ? fixDecimal(max, token.decimals) : '0'
+      setMaxDepositAllowance(amount)
+    }
+  }
+
   const handleGetDepositAllowanceInfo = async () => {
-    try {
-      if (formik.values.account) {
-        setAllowanceLoading(true)
+    setMaxDepositAllowance(null)
 
-        decodeIcrcAccount(formik.values.account)
+    if (formik.values.account) {
+      const { getDepositAllowanceInfo } = useWallet()
 
-        const { getDepositAllowanceInfo } = useWallet()
+      const result = await getDepositAllowanceInfo(
+        userAgent,
+        token.principal,
+        formik.values.account,
+      )
 
-        const result = await getDepositAllowanceInfo(
-          userAgent,
-          token.principal,
-          formik.values.account,
+      if (result?.allowance !== undefined && result?.allowance !== null) {
+        const { volumeInBase: allowanceResult } = convertVolumeFromCanister(
+          Number(result.allowance),
+          token.decimals,
+          0,
         )
-
-        if (result?.allowance !== undefined && result?.allowance !== null) {
-          const { volumeInBase: allowanceResult } = convertVolumeFromCanister(
-            Number(result.allowance),
-            token.decimals,
-            0,
-          )
-          const amount = fixDecimal(allowanceResult, token.decimals)
-          setDepositAllowance(amount)
-        } else setDepositAllowance(null)
-
-        setAllowanceLoading(false)
-      }
-    } catch (error) {
-      setAllowanceLoading(false)
-      setDepositAllowance(null)
+        const amount = fixDecimal(allowanceResult, token.decimals)
+        setDepositAllowance(amount)
+      } else setDepositAllowance(null)
     }
   }
 
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined
-
-    if (!allowanceLoading && formik.values.account) {
-      timer = setInterval(() => {
-        handleGetDepositAllowanceInfo()
-      }, 2000)
-    }
-
-    return () => {
-      clearInterval(timer)
-    }
+    if (action === 'deposit') handleGetDepositAllowanceInfo()
   }, [formik.values.account])
 
   useEffect(() => {
     formik.setFieldValue('action', action)
+    formik.resetForm({ values: initialValues })
+    setMaxDepositAllowance(null)
+    setDepositAllowance(null)
   }, [action])
 
   useEffect(() => {
@@ -253,7 +272,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
                     onClick={() => handleAccordionToggle('deposit')}
                   />
                 </Tooltip>
-                <Tooltip label={tooltipText} aria-label="Claim Deposit">
+                <Tooltip label={claimTooltipText} aria-label="Claim Deposit">
                   <IconButton
                     aria-label="Claim Deposit"
                     icon={
@@ -308,6 +327,38 @@ const TokenRow: React.FC<TokenRowProps> = ({
           <AccordionPanel pb={4}>
             <Flex direction="column" gap={4}>
               <Flex direction="column">
+                <FormControl variant="floating">
+                  <Input
+                    h="58px"
+                    placeholder=" "
+                    name="account"
+                    sx={{ borderRadius: '5px' }}
+                    isInvalid={
+                      !!formik.errors.account && formik.touched.account
+                    }
+                    isDisabled={false}
+                    value={formik.values.account}
+                    onKeyUp={() => formik.validateField('account')}
+                    onChange={(e) => {
+                      formik.handleChange(e)
+                    }}
+                  />
+                  <FormLabel color="grey.500" fontSize="15px">
+                    Source account
+                  </FormLabel>
+                  {depositAllowance && (
+                    <Text color="grey.400" fontSize="12px">
+                      Allowance amount: {depositAllowance} {token.base}
+                    </Text>
+                  )}
+                  {!!formik.errors.account && formik.touched.account && (
+                    <Text color="red.500" fontSize="12px">
+                      {formik.errors.account}
+                    </Text>
+                  )}
+                </FormControl>
+              </Flex>
+              <Flex direction="column">
                 <InputGroup>
                   <FormControl variant="floating">
                     <Input
@@ -340,49 +391,28 @@ const TokenRow: React.FC<TokenRowProps> = ({
                         bg: 'grey.400',
                         color: 'grey.25',
                       }}
-                      onClick={handleMaxAvailableClick}
+                      onClick={() => {
+                        if (action === 'withdraw') {
+                          handleMaxAvailableClick()
+                        } else if (action === 'deposit') {
+                          handleMaxDepositAllowance()
+                        }
+                      }}
                     >
                       Max
                     </Button>
                   </InputRightElement>
                 </InputGroup>
+                {maxDepositAllowance && (
+                  <Text color="grey.400" fontSize="12px">
+                    Max allowance amount: {maxDepositAllowance} {token.base}
+                  </Text>
+                )}
                 {!!formik.errors.amount && formik.touched.amount && (
                   <Text color="red.500" fontSize="12px">
                     {formik.errors.amount}
                   </Text>
                 )}
-              </Flex>
-              <Flex direction="column">
-                <FormControl variant="floating">
-                  <Input
-                    h="58px"
-                    placeholder=" "
-                    name="account"
-                    sx={{ borderRadius: '5px' }}
-                    isInvalid={
-                      !!formik.errors.account && formik.touched.account
-                    }
-                    isDisabled={false}
-                    value={formik.values.account}
-                    onKeyUp={() => formik.validateField('account')}
-                    onChange={(e) => {
-                      formik.handleChange(e)
-                    }}
-                  />
-                  <FormLabel color="grey.500" fontSize="15px">
-                    Account
-                  </FormLabel>
-                  {depositAllowance && (
-                    <Text color="grey.400" fontSize="12px">
-                      Amount allowance: {depositAllowance} {token.base}
-                    </Text>
-                  )}
-                  {!!formik.errors.account && formik.touched.account && (
-                    <Text color="red.500" fontSize="12px">
-                      {formik.errors.account}
-                    </Text>
-                  )}
-                </FormControl>
               </Flex>
               <Flex direction="column">
                 <Button
@@ -395,7 +425,9 @@ const TokenRow: React.FC<TokenRowProps> = ({
                     color: fontColor,
                   }}
                   isDisabled={
-                    action === 'withdraw' && token.withdrawStatus === 'loading'
+                    (action === 'withdraw' &&
+                      token.withdrawStatus === 'loading') ||
+                    (action === 'deposit' && token.depositStatus === 'loading')
                   }
                   onClick={() => formik.handleSubmit()}
                 >

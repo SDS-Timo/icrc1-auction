@@ -287,11 +287,11 @@ const useWallet = () => {
           owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
           subaccount: [new Uint8Array(hexToUint8Array(hexSubAccountId))],
         },
+        certified: false,
       })
 
       return result
     } catch (error) {
-      console.error('Error deposit allowance info:', error)
       return null
     }
   }

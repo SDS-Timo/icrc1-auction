@@ -2,6 +2,7 @@ import { HttpAgent } from '@dfinity/agent'
 
 import { TokenMetadata } from '../types'
 import { getActor } from '../utils/authUtils'
+import { convertVolumeFromCanister } from '../utils/calculationsUtils'
 import { getTokenInfo, getToken } from '../utils/tokenUtils'
 
 /**
@@ -22,7 +23,19 @@ const useTokens = () => {
       const tokens = await Promise.all(
         (principals ?? []).map(async (principal) => {
           const { token, logo } = await getTokenInfo(userAgent, principal)
-          return { ...token, logo, principal: principal.toText() }
+
+          const { volumeInBase } = convertVolumeFromCanister(
+            Number(token.fee),
+            token.decimals,
+            0,
+          )
+
+          return {
+            ...token,
+            fee: String(volumeInBase),
+            logo,
+            principal: principal.toText(),
+          }
         }),
       )
       tokens.sort((a, b) => a.symbol.localeCompare(b.symbol))

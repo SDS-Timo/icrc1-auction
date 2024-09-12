@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
 import {
-  Button,
   IconButton,
   Flex,
   Icon,
@@ -17,7 +16,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
-import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
 import { RiHandCoinLine } from 'react-icons/ri'
 import { SlWallet } from 'react-icons/sl'
 import { useSelector, useDispatch } from 'react-redux'
@@ -41,8 +39,6 @@ import {
 } from '../../../utils/walletUtils'
 
 const WalletContent: React.FC = () => {
-  const bgColor = useColorModeValue('grey.200', 'grey.600')
-  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const toast = useToast({
     duration: 10000,
@@ -384,7 +380,10 @@ const WalletContent: React.FC = () => {
         <Flex align="center">
           <Icon as={SlWallet} boxSize={4} mr={2} />
           <Text>{walletAddress}</Text>
-          <Tooltip label="Wallet Address" aria-label="Wallet Address">
+          <Tooltip
+            label="Direct deposit account"
+            aria-label="Direct deposit account"
+          >
             <IconButton
               aria-label="Copy to clipboard"
               icon={<Icon as={FaCopy} boxSize={3} />}
@@ -398,11 +397,10 @@ const WalletContent: React.FC = () => {
             />
           </Tooltip>
         </Flex>
-
         <Flex align="center">
           <Icon as={RiHandCoinLine} boxSize={4} mr={2} />
           <Text>{userDepositAddress}</Text>
-          <Tooltip label="Deposit Address" aria-label="Deposit Address">
+          <Tooltip label="Allowance spender" aria-label="Allowance spender">
             <IconButton
               aria-label="Copy to clipboard"
               icon={<Icon as={FaCopy} boxSize={3} />}
@@ -416,58 +414,6 @@ const WalletContent: React.FC = () => {
             />
           </Tooltip>
         </Flex>
-      </Flex>
-      <Flex justify="space-between" mt={3}>
-        <Button
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          bg={bgColor}
-          color={fontColor}
-          width={150}
-          height="80px"
-          ml={4}
-          _hover={{
-            bg: bgColorHover,
-          }}
-        >
-          <Flex
-            align="center"
-            justify="center"
-            borderRadius="full"
-            boxSize="40px"
-            bg="rgba(255, 255, 255, 0.4)"
-            boxShadow="0 0 8px rgba(0, 0, 0, 0.2)"
-          >
-            <Icon as={FiArrowDownLeft} boxSize={6} />
-          </Flex>
-          <Text mt={2}>Deposit</Text>
-        </Button>
-        <Button
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          bg={bgColor}
-          color={fontColor}
-          width={150}
-          height="80px"
-          mr={4}
-          _hover={{
-            bg: bgColorHover,
-          }}
-        >
-          <Flex
-            align="center"
-            justify="center"
-            borderRadius="full"
-            boxSize="40px"
-            bg="rgba(255, 255, 255, 0.4)"
-            boxShadow="0 0 8px rgba(0, 0, 0, 0.2)"
-          >
-            <Icon as={FiArrowUpRight} boxSize={6} />
-          </Flex>
-          <Text mt={2}>Withdraw</Text>
-        </Button>
       </Flex>
       <Tabs
         index={selectedTab}
