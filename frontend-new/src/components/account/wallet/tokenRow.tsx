@@ -115,13 +115,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
     },
   })
 
-  const getBalanceOf = async () => {
+  const getBalanceOf = async (account: string | null = null) => {
     const { getBalance } = useWallet()
     return await getBalance(
       userAgent,
       [token],
       `${token.principal}`,
-      userPrincipal,
+      account ? account : userPrincipal,
     )
   }
 
@@ -186,12 +186,12 @@ const TokenRow: React.FC<TokenRowProps> = ({
       formik.setFieldValue('amount', token.volumeInAvailable)
   }
 
-  const handleMaxDepositAllowance = async () => {
-    if (formik.values.account && depositAllowance) {
-      const balanceOf = await getBalanceOf()
+  const handleMaxDepositAllowance = async (depositAllowanceAmount: string) => {
+    if (formik.values.account && depositAllowanceAmount) {
+      const balanceOf = await getBalanceOf(formik.values.account)
 
       const max =
-        Math.min(Number(depositAllowance), Number(balanceOf)) -
+        Math.min(Number(depositAllowanceAmount), Number(balanceOf)) -
         Number(token.fee)
 
       const amount = max > 0 ? fixDecimal(max, token.decimals) : '0'
@@ -219,12 +219,15 @@ const TokenRow: React.FC<TokenRowProps> = ({
         )
         const amount = fixDecimal(allowanceResult, token.decimals)
         setDepositAllowance(amount)
+        handleMaxDepositAllowance(amount)
       } else setDepositAllowance(null)
     }
   }
 
   useEffect(() => {
-    if (action === 'deposit') handleGetDepositAllowanceInfo()
+    if (action === 'deposit') {
+      handleGetDepositAllowanceInfo()
+    }
   }, [formik.values.account])
 
   useEffect(() => {
@@ -394,8 +397,8 @@ const TokenRow: React.FC<TokenRowProps> = ({
                       onClick={() => {
                         if (action === 'withdraw') {
                           handleMaxAvailableClick()
-                        } else if (action === 'deposit') {
-                          handleMaxDepositAllowance()
+                        } else if (action === 'deposit' && depositAllowance) {
+                          handleMaxDepositAllowance(depositAllowance)
                         }
                       }}
                     >
@@ -405,7 +408,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 </InputGroup>
                 {maxDepositAllowance && (
                   <Text color="grey.400" fontSize="12px">
-                    Max allowance amount: {maxDepositAllowance} {token.base}
+                    Max available: {maxDepositAllowance} {token.base}
                   </Text>
                 )}
                 {!!formik.errors.amount && formik.touched.amount && (

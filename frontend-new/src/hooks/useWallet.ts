@@ -95,30 +95,30 @@ const useWallet = () => {
   }
 
   /**
-   * Fetches the balance for a given owner and subaccount.
+   * Fetches the balance for a given token and account.
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
    * @param tokens - An array of token objects.
-   * @param owner - The principal ID of the owner as a string.
-   * @param subaccount - The subaccount identifier as a hexadecimal string.
+   * @param principal - The principal ID of the token as a string.
+   * @param account - The account identifier as a string.
    * @returns The balance or an empty array in case of an error.
    */
   const getBalance = async (
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
-    owner: string,
-    subaccount: string,
+    principal: string,
+    account: string,
   ): Promise<number | []> => {
     try {
       if (!tokens || tokens.length === 0) return []
 
-      const principal = Principal.fromText(owner)
-      const hexSubAccountId =
-        getSubAccountFromPrincipal(subaccount).subAccountId
+      const tokenCanisterId = Principal.fromText(principal)
+
+      const hexSubAccountId = getSubAccountFromPrincipal(account).subAccountId
 
       const { balance } = IcrcLedgerCanister.create({
         agent: userAgent,
-        canisterId: principal,
+        canisterId: tokenCanisterId,
       })
 
       const myBalance = await balance({
@@ -127,7 +127,7 @@ const useWallet = () => {
         certified: false,
       })
 
-      const token = getToken(tokens, principal)
+      const token = getToken(tokens, tokenCanisterId)
 
       const { volumeInBase } = convertVolumeFromCanister(
         Number(myBalance),
@@ -137,7 +137,6 @@ const useWallet = () => {
 
       return volumeInBase
     } catch (error) {
-      console.error('Error fetching balance:', error)
       return []
     }
   }
@@ -153,19 +152,19 @@ const useWallet = () => {
   const getTrackedDeposit = async (
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
-    owner: string,
+    principal: string,
   ): Promise<number | Result> => {
     try {
       if (!tokens || tokens.length === 0) return 0
 
-      const principal = Principal.fromText(owner)
+      const tokenCanisterId = Principal.fromText(principal)
 
       const serviceActor = getActor(userAgent)
       const deposit: Result =
-        await serviceActor.icrc84_trackedDeposit(principal)
+        await serviceActor.icrc84_trackedDeposit(tokenCanisterId)
 
       if (deposit.Ok !== undefined) {
-        const token = getToken(tokens, principal)
+        const token = getToken(tokens, tokenCanisterId)
 
         const { volumeInBase } = convertVolumeFromCanister(
           Number(deposit.Ok),
