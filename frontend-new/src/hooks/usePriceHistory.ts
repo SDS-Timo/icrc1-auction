@@ -26,12 +26,14 @@ const usePriceHistory = () => {
    * @param userAgent - The HTTP agent to interact with the canister.
    * @param selectedSymbol - The selected token option, which may include the principal.
    * @param selectedQuote - The selected token metadata for the quote currency.
+   * @param priceDigitsLimit - The limit number of digits places defined by the canister
    * @returns A promise that resolves to an array of DataItem objects representing the price history.
    */
   const getPriceHistory = async (
     userAgent: HttpAgent,
     selectedSymbol: Option,
     selectedQuote: TokenMetadata,
+    priceDigitsLimit: number,
   ): Promise<DataItem[]> => {
     try {
       const principal = selectedSymbol?.principal
@@ -100,6 +102,8 @@ const usePriceHistory = () => {
             volume: volumeInQuote,
             volumeInQuote,
             volumeInBase,
+            quoteDecimals: selectedQuote.decimals,
+            priceDigitsLimit,
           }
         })
 

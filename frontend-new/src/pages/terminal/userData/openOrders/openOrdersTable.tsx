@@ -56,13 +56,11 @@ export default function tableContent(
       Header: 'Limit',
       accessor: 'price',
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
-        const { price, priceDecimals } = row.original
+        const { price, priceDigitsLimit } = row.original
+        const priceFormatted = Number(fixDecimal(price, priceDigitsLimit))
         return (
           <Text textAlign="center">
-            {price.toLocaleString('en-US', {
-              minimumFractionDigits: priceDecimals,
-              maximumFractionDigits: priceDecimals,
-            })}
+            {priceFormatted.toLocaleString('en-US')}
           </Text>
         )
       },

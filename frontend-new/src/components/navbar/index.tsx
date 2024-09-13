@@ -1,11 +1,11 @@
 import React from 'react'
 
-import { Image } from '@chakra-ui/react'
+//import { Image } from '@chakra-ui/react'
 import { Box, Flex, useDisclosure } from '@chakra-ui/react'
 
 import NavbarInfo from './info'
 import NavbarLanguages from './language'
-import NavbarSettings from './settings'
+//import NavbarSettings from './settings'
 import NavbarTheme from './theme'
 import NavbarWallet from './wallet'
 import AccountComponent from '../account'
@@ -27,7 +27,7 @@ const NavbarComponent: React.FC = () => {
         <NavbarLanguages />
         <NavbarTheme />
         <NavbarInfo />
-        <NavbarSettings />
+        {/*<NavbarSettings />*/}
         <NavbarWallet onOpen={onOpen} />
         <AccountComponent isOpen={isOpen} onClose={onClose} />
       </Flex>

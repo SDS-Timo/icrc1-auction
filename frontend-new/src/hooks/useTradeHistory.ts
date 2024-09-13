@@ -20,12 +20,14 @@ const useTransactionHistory = () => {
    * @param userAgent - The HTTP agent to interact with the canister.
    * @param tokens - An array of token objects.
    * @param selectedQuote - The selected token metadata for the quote currency.
+   * @param priceDigitsLimit - The limit number of digits places defined by the canister
    * @returns A promise that resolves to an array of TokenDataItem objects representing the transaction history.
    */
   const getTransactionHistory = async (
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
     selectedQuote: TokenMetadata,
+    priceDigitsLimit: number,
   ): Promise<TokenDataItem[]> => {
     try {
       if (!tokens || tokens.length === 0) return []
@@ -93,6 +95,7 @@ const useTransactionHistory = () => {
             volumeInQuote,
             volumeInBase,
             quoteDecimals: selectedQuote.decimals,
+            priceDigitsLimit,
             ...token,
           }
         },

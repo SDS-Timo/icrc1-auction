@@ -117,11 +117,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
 
   const getBalanceOf = async (account: string | null = null) => {
     const { getBalance } = useWallet()
+    const accountData = account ? account : userPrincipal
+
     return await getBalance(
       userAgent,
       [token],
       `${token.principal}`,
-      account ? account : userPrincipal,
+      accountData,
     )
   }
 
@@ -347,7 +349,9 @@ const TokenRow: React.FC<TokenRowProps> = ({
                     }}
                   />
                   <FormLabel color="grey.500" fontSize="15px">
-                    Source account
+                    {action === 'deposit'
+                      ? 'Source account'
+                      : 'Destination account'}
                   </FormLabel>
                   {depositAllowance && (
                     <Text color="grey.400" fontSize="12px">

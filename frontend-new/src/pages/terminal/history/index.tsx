@@ -35,6 +35,7 @@ const HistoryTabs: React.FC = () => {
     const timeout = setTimeout(() => {
       if (pricesHistory.length > 0) {
         const pricesFiltered = [...pricesHistory].reverse().slice(0, 17)
+
         setPrices(pricesFiltered)
       } else {
         setPrices([])

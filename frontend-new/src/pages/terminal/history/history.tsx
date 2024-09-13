@@ -50,7 +50,12 @@ const TradeHistory: React.FC<HistoryProps> = ({
         </Thead>
         <Tbody>
           {historyData.map((data) => (
-            <HistoryRow key={data.id} data={data} toggleVolume={toggleVolume} />
+            <HistoryRow
+              key={data.id}
+              data={data}
+              symbol={selectedSymbol}
+              toggleVolume={toggleVolume}
+            />
           ))}
         </Tbody>
       </Table>

@@ -36,6 +36,7 @@ export interface DataItem {
   quoteDecimals?: number
   volumeInBaseDecimals?: number
   volumeInQuoteDecimals?: number
+  priceDigitsLimit?: number
 }
 export interface TokenMetadata {
   symbol: string

@@ -28,6 +28,9 @@ const ChartPlot = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
+  const priceDigitsLimit = useSelector(
+    (state: RootState) => state.orders.priceDigitsLimit,
+  )
   const priceHistoryData = useSelector(
     (state: RootState) => state.prices.pricesHistory,
   )
@@ -46,7 +49,12 @@ const ChartPlot = () => {
       dispatch(setHeaderInformation(null))
 
       const { getPriceHistory } = usePriceHistory()
-      const prices = await getPriceHistory(userAgent, symbol, selectedQuote)
+      const prices = await getPriceHistory(
+        userAgent,
+        symbol,
+        selectedQuote,
+        priceDigitsLimit,
+      )
 
       const headerInformation = calculateHeaderInformation(prices)
       dispatch(setHeaderInformation(headerInformation))
