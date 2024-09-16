@@ -101,6 +101,7 @@ const useWallet = () => {
    * @param tokens - An array of token objects.
    * @param principal - The principal ID of the token as a string.
    * @param account - The account identifier as a string.
+   * @param action - Action to identify which account should be monitored
    * @returns The balance or an empty array in case of an error.
    */
   const getBalance = async (
@@ -108,22 +109,28 @@ const useWallet = () => {
     tokens: TokenMetadata[],
     principal: string,
     account: string,
+    action: string,
   ): Promise<number | []> => {
     try {
       if (!tokens || tokens.length === 0) return []
 
       const tokenCanisterId = Principal.fromText(principal)
 
-      const hexSubAccountId = getSubAccountFromPrincipal(account).subAccountId
-
       const { balance } = IcrcLedgerCanister.create({
         agent: userAgent,
         canisterId: tokenCanisterId,
       })
 
+      const decodeAccount = decodeIcrcAccount(account)
+
+      const owner =
+        action === 'user'
+          ? Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`)
+          : decodeAccount.owner
+
       const myBalance = await balance({
-        owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
-        subaccount: new Uint8Array(hexToUint8Array(hexSubAccountId)),
+        owner: owner,
+        subaccount: decodeAccount.subaccount,
         certified: false,
       })
 

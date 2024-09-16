@@ -1,8 +1,8 @@
 import React from 'react'
 
 import { IconButton, Flex } from '@chakra-ui/react'
-//import { SlWallet } from 'react-icons/sl'
-import { FaHouseUser } from 'react-icons/fa6'
+import { FaWallet } from 'react-icons/fa'
+
 interface NavbarWalletProps {
   onOpen: () => void
 }
@@ -17,7 +17,10 @@ const NavbarWallet: React.FC<NavbarWalletProps> = ({ onOpen }) => {
         _focus={{ outline: 'none' }}
         onClick={onOpen}
       >
-        <FaHouseUser style={{ marginLeft: '10px' }} />
+        <FaWallet
+          style={{ marginLeft: '10px', marginTop: '4px' }}
+          size="17px"
+        />
       </IconButton>
     </Flex>
   )

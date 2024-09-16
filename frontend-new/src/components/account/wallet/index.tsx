@@ -16,8 +16,8 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { FaCopy } from 'react-icons/fa'
-import { GrUser } from 'react-icons/gr'
-import { SlWallet } from 'react-icons/sl'
+import { FaWallet } from 'react-icons/fa'
+import { FaUserLarge } from 'react-icons/fa6'
 import { useSelector, useDispatch } from 'react-redux'
 
 import TokenTab from './tokenTab'
@@ -378,8 +378,10 @@ const WalletContent: React.FC = () => {
     <VStack spacing={4} align="stretch">
       <Flex align="center" justifyContent="space-between">
         <Flex align="center">
-          <Icon as={GrUser} boxSize={4} mr={2} />
-          <Text>{walletAddress}</Text>
+          <Icon as={FaUserLarge} boxSize={4} mr={2} />
+          <Tooltip label={userPrincipal} aria-label={userPrincipal}>
+            <Text>{walletAddress}</Text>
+          </Tooltip>
           <Tooltip label="User principal" aria-label="User principal">
             <IconButton
               aria-label="Copy to clipboard"
@@ -395,9 +397,11 @@ const WalletContent: React.FC = () => {
           </Tooltip>
         </Flex>
         <Flex align="center">
-          <Icon as={SlWallet} boxSize={4} mr={2} />
-          <Text>{userDepositAddress}</Text>
-          <Tooltip label="Allowance spender" aria-label="Allowance spender">
+          <Icon as={FaWallet} boxSize={4} mr={2} />
+          <Tooltip label={userDeposit} aria-label={userDeposit}>
+            <Text>{userDepositAddress}</Text>
+          </Tooltip>
+          <Tooltip label="Wallet account" aria-label="Wallet account">
             <IconButton
               aria-label="Copy to clipboard"
               icon={<Icon as={FaCopy} boxSize={3} />}

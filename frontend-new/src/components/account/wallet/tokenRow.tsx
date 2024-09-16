@@ -118,12 +118,14 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const getBalanceOf = async (account: string | null = null) => {
     const { getBalance } = useWallet()
     const accountData = account ? account : userPrincipal
+    const action = !account ? 'user' : 'claim'
 
     return await getBalance(
       userAgent,
       [token],
       `${token.principal}`,
       accountData,
+      action,
     )
   }
 
