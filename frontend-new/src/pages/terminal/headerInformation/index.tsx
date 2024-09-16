@@ -148,8 +148,8 @@ const HeaderInformation = () => {
             <StatNumber>
               {typeof headerInformation?.lastAuction === 'number'
                 ? `$${headerInformation?.lastAuction.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: headerInformation.priceDigitsLimit,
                   })}`
                 : '--'}
             </StatNumber>
@@ -174,8 +174,9 @@ const HeaderInformation = () => {
                     {headerInformation.previousChange.amount.toLocaleString(
                       'en-US',
                       {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits:
+                          headerInformation.priceDigitsLimit,
                       },
                     )}
                   </StatNumber>
@@ -191,8 +192,9 @@ const HeaderInformation = () => {
                     {headerInformation.previousChange.amount.toLocaleString(
                       'en-US',
                       {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits:
+                          headerInformation.priceDigitsLimit,
                       },
                     )}
                   </StatNumber>
@@ -223,7 +225,7 @@ const HeaderInformation = () => {
               typeof headerInformation.periodVolume === 'number' &&
               headerInformation.periodVolume > 0
                 ? `$${headerInformation.periodVolume.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
+                    minimumFractionDigits: 0,
                     maximumFractionDigits: 2,
                   })}`
                 : '--'}

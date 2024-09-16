@@ -51,7 +51,10 @@ export default function tableContent(
         const priceFormatted = Number(fixDecimal(price, priceDigitsLimit))
         return (
           <Text textAlign="center">
-            {priceFormatted.toLocaleString('en-US')}
+            {priceFormatted.toLocaleString('en-US', {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: priceDigitsLimit,
+            })}
           </Text>
         )
       },

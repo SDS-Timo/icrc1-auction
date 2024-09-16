@@ -1,4 +1,5 @@
 import { DataItem, HeaderInformation } from '../types'
+import { fixDecimal } from '../utils/calculationsUtils'
 
 /**
  * Calculates and returns the header information based on the given prices.
@@ -16,6 +17,7 @@ export function calculateHeaderInformation(prices: DataItem[]) {
       percentage: '',
     },
     periodVolume: '',
+    priceDigitsLimit: 0,
   }
 
   function calculatePrices(
@@ -23,7 +25,9 @@ export function calculateHeaderInformation(prices: DataItem[]) {
     headerInformation: HeaderInformation,
   ) {
     if (prices.length) {
+      const priceDigitsLimit = prices[prices.length - 1].priceDigitsLimit || 5
       const lastPrice = prices[prices.length - 1].price
+
       let previousPrice = lastPrice
       if (prices.length >= 2) previousPrice = prices[prices.length - 2].price
 
@@ -33,12 +37,13 @@ export function calculateHeaderInformation(prices: DataItem[]) {
         ((lastPrice - previousPrice) / previousPrice) * 100
 
       headerInformation = {
-        lastAuction: lastPrice,
+        lastAuction: Number(fixDecimal(lastPrice, priceDigitsLimit)),
         previousChange: {
-          amount: changeInDollar,
+          amount: Number(fixDecimal(changeInDollar, priceDigitsLimit)),
           percentage: changeInPercentage,
         },
         periodVolume: '',
+        priceDigitsLimit,
       }
     }
     return headerInformation

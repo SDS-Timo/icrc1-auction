@@ -118,7 +118,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const getBalanceOf = async (account: string | null = null) => {
     const { getBalance } = useWallet()
     const accountData = account ? account : userPrincipal
-    const action = !account ? 'user' : 'claim'
+    const action = !account ? 'claim' : 'deposit'
 
     return await getBalance(
       userAgent,
@@ -262,8 +262,8 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 {token.symbol}
               </Text>
             </Flex>
-            <Flex direction="column" align="flex-end" ml={2}>
-              <Flex align="center">
+            <Flex direction="column" align="flex-end" ml={2} overflowX="auto">
+              <Flex align="center" overflowX="auto" whiteSpace="nowrap">
                 <Text mr={2}>
                   {fixDecimal(token.volumeInTotal, token.decimals)}
                 </Text>

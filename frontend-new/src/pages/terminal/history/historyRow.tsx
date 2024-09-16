@@ -19,7 +19,12 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
 
   return (
     <Tr key={data.id}>
-      <Td textAlign="center">{priceFormatted.toLocaleString('en-US')}</Td>
+      <Td textAlign="center">
+        {priceFormatted.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: data.priceDigitsLimit,
+        })}
+      </Td>
       <Td textAlign="center">
         {toggleVolume === 'quote' ? (
           <Tooltip

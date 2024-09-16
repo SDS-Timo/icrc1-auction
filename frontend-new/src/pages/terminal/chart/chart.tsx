@@ -150,10 +150,10 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
                     }
                     if (context.parsed.y !== null) {
                       if (context.dataset.label === 'Price') {
-                        const decimals = data[0].priceDecimals ?? 2
+                        const decimals = data[0].priceDigitsLimit ?? 2
                         const value = context.parsed.y
                         label += Number(value).toLocaleString('en-US', {
-                          minimumFractionDigits: decimals,
+                          minimumFractionDigits: 0,
                           maximumFractionDigits: decimals,
                         })
                       } else if (context.dataset.label === 'Volume') {

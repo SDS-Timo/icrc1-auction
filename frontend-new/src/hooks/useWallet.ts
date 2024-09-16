@@ -122,15 +122,18 @@ const useWallet = () => {
       })
 
       const decodeAccount = decodeIcrcAccount(account)
+      let owner = decodeAccount.owner
+      let subaccount = decodeAccount.subaccount
 
-      const owner =
-        action === 'user'
-          ? Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`)
-          : decodeAccount.owner
+      if (action === 'claim') {
+        owner = Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`)
+        const hexSubAccountId = getSubAccountFromPrincipal(account).subAccountId
+        subaccount = new Uint8Array(hexToUint8Array(hexSubAccountId))
+      }
 
       const myBalance = await balance({
         owner: owner,
-        subaccount: decodeAccount.subaccount,
+        subaccount: subaccount,
         certified: false,
       })
 

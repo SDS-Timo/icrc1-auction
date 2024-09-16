@@ -17,6 +17,7 @@ export interface HeaderInformation {
     percentage: number | string
   }
   periodVolume: number | string
+  priceDigitsLimit: number
 }
 export interface DataItem {
   id?: bigint
