@@ -13,7 +13,10 @@ import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/pagination'
 import { TokenDataItem } from '../../../../types'
-import { fixDecimal } from '../../../../utils/calculationsUtils'
+import {
+  fixDecimal,
+  getMinimumFractionDigits,
+} from '../../../../utils/calculationsUtils'
 
 export default function tableContent(
   toggleVolume: string,
@@ -57,11 +60,13 @@ export default function tableContent(
       accessor: 'price',
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
         const { price, priceDigitsLimit } = row.original
-        const priceFormatted = Number(fixDecimal(price, priceDigitsLimit))
         return (
           <Text textAlign="center">
-            {priceFormatted.toLocaleString('en-US', {
-              minimumFractionDigits: 0,
+            {price.toLocaleString('en-US', {
+              minimumFractionDigits: getMinimumFractionDigits(
+                String(price),
+                Number(priceDigitsLimit),
+              ),
               maximumFractionDigits: priceDigitsLimit,
             })}
           </Text>

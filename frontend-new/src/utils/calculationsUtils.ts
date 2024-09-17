@@ -190,7 +190,6 @@ export function volumeDecimalsValidate(volume: string, decimalPlaces: number) {
 
 /**
  * Retrieves the decimal places from the provided symbol object.
- *
  * @param symbol - The object containing the decimals property. If the property is not found or the input is invalid, a default value is returned.
  * @returns The number of decimal places specified in the symbol object, or a default value of 20 if the property is not found or the input is invalid.
  */
@@ -205,7 +204,6 @@ export function getDecimals(symbol: any): number {
  * Add decimal information to the objects.
  * This function calculates and assigns the number of decimal places for price,
  * volume in base currency, and volume in quote currency for each object.
- *
  * @param objects - An array of objects containing price, volumeInBase, and volumeInQuote.
  * @returns The modified array of objects with decimal information added.
  */
@@ -289,4 +287,19 @@ export function fixDecimal(number?: number, decimalPlaces?: number): string {
   }
 
   return fixedNumber
+}
+
+/**
+ * Calculates the number of decimal places needed to ensure the total number
+ * of digits (including both integer and decimal parts) matches the digitsLimit.
+ * @param number - The number to format as a string.
+ * @param digitsLimit - The total number of digits required, including both integer and decimal parts.
+ * @returns - The number of decimal places to add to reach the specified digitsLimit.
+ */
+export function getMinimumFractionDigits(number: string, digitsLimit: number) {
+  const [integerPart] = number.split('.')
+  const numLength = integerPart.length
+  const difference = digitsLimit - numLength
+
+  return difference > 0 ? difference : 0
 }

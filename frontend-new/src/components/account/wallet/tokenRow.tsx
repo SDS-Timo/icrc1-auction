@@ -200,6 +200,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
 
       const amount = max > 0 ? fixDecimal(max, token.decimals) : '0'
       setMaxDepositAllowance(amount)
+      return amount
     }
   }
 
@@ -400,11 +401,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
                         bg: 'grey.400',
                         color: 'grey.25',
                       }}
-                      onClick={() => {
+                      onClick={async () => {
                         if (action === 'withdraw') {
                           handleMaxAvailableClick()
                         } else if (action === 'deposit' && depositAllowance) {
-                          handleMaxDepositAllowance(depositAllowance)
+                          const amount =
+                            await handleMaxDepositAllowance(depositAllowance)
+                          formik.setFieldValue('amount', amount)
                         }
                       }}
                     >

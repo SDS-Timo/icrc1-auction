@@ -3,7 +3,10 @@ import React from 'react'
 import { Td, Tr, Text, Tooltip } from '@chakra-ui/react'
 
 import { DataItem, Option } from '../../../types'
-import { fixDecimal } from '../../../utils/calculationsUtils'
+import {
+  fixDecimal,
+  getMinimumFractionDigits,
+} from '../../../utils/calculationsUtils'
 interface HistoryRowProps {
   data: DataItem
   symbol: Option | null
@@ -15,13 +18,14 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
   symbol,
   toggleVolume,
 }) => {
-  const priceFormatted = Number(fixDecimal(data.price, data.priceDigitsLimit))
-
   return (
     <Tr key={data.id}>
       <Td textAlign="center">
-        {priceFormatted.toLocaleString('en-US', {
-          minimumFractionDigits: 0,
+        {data.price.toLocaleString('en-US', {
+          minimumFractionDigits: getMinimumFractionDigits(
+            String(data.price),
+            Number(data.priceDigitsLimit),
+          ),
           maximumFractionDigits: data.priceDigitsLimit,
         })}
       </Td>
