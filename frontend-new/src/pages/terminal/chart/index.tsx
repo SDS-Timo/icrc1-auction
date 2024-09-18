@@ -34,6 +34,9 @@ const ChartPlot = () => {
   const priceHistoryData = useSelector(
     (state: RootState) => state.prices.pricesHistory,
   )
+  const isRefreshPrices = useSelector(
+    (state: RootState) => state.prices.isRefreshPrices,
+  )
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
     : selectedSymbol
@@ -90,7 +93,7 @@ const ChartPlot = () => {
 
   useEffect(() => {
     fetchPrices()
-  }, [selectedSymbol, selectedQuote])
+  }, [selectedSymbol, selectedQuote, isRefreshPrices])
 
   useEffect(() => {
     const updatedData = chartData.map((item) => {

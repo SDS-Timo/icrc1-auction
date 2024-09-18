@@ -55,6 +55,7 @@ export interface TokensState {
   selectedQuote: TokenMetadata
 }
 export interface PricesHistoryState {
+  isRefreshPrices: boolean
   pricesHistory: DataItem[] | []
   headerInformation: HeaderInformation | null
 }

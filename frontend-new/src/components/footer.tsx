@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
             <Text fontSize="12px" textAlign="right">
               &copy; {new Date().getFullYear()} -{' '}
               <a href="/" className="text-muted">
-                Auctions
+                Daily-Bid.com
               </a>
             </Text>
           </Box>

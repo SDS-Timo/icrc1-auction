@@ -10,14 +10,17 @@ import {
   StatArrow,
   Tooltip,
 } from '@chakra-ui/react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import usePriceHistory from '../../../hooks/usePriceHistory'
-import { RootState } from '../../../store'
+import { RootState, AppDispatch } from '../../../store'
+import { setIsRefreshUserData } from '../../../store/orders'
+import { setIsRefreshPrices } from '../../../store/prices'
 import { NextSession } from '../../../types'
 import { fixDecimal } from '../../../utils/calculationsUtils'
 
 const HeaderInformation = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const headerInformation = useSelector(
     (state: RootState) => state.prices.headerInformation,
   )
@@ -106,6 +109,9 @@ const HeaderInformation = () => {
 
       if (timeDifference > 1000) {
         const timeToWait = timeDifference - 1000
+
+        dispatch(setIsRefreshUserData())
+        dispatch(setIsRefreshPrices())
 
         timeoutId = setTimeout(() => {
           startPolling()
