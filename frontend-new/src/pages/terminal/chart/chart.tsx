@@ -4,6 +4,7 @@ import { Box, useTheme, useColorMode } from '@chakra-ui/react'
 import Chart from 'chart.js/auto'
 
 import { DataItem } from '../../../types'
+import { calculateMinMax } from '../../../utils/calculationsUtils'
 
 interface Props {
   data: DataItem[]
@@ -23,6 +24,9 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
         if (chartInstanceRef.current) {
           chartInstanceRef.current.destroy()
         }
+
+        const prices = data.map((item: DataItem) => item.price ?? 0)
+        const { minValue, maxValue } = calculateMinMax(prices)
 
         chartInstanceRef.current = new Chart(ctx, {
           type: 'line',
@@ -66,7 +70,9 @@ const AuctionsChart: React.FC<Props> = ({ data, volumeAxis }) => {
               'y-price': {
                 type: 'linear',
                 position: 'left',
-                beginAtZero: true,
+                beginAtZero: false,
+                min: minValue,
+                max: maxValue,
                 grid: {
                   display: false,
                 },

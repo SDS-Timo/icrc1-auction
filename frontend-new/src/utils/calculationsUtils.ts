@@ -303,3 +303,28 @@ export function getMinimumFractionDigits(number: string, digitsLimit: number) {
 
   return difference > 0 ? difference : 0
 }
+
+/**
+ * Calculates the minimum and maximum values, the function adjusts the minimum by reducing it by 10%
+ * and the maximum by increasing it by 10%, then rounds them to the nearest value based on the magnitude of the maximum price.
+ * @param values - An array of values to calculate the scale from.
+ * @returns - An object containing the rounded minValue and maxValue.
+ */
+export function calculateMinMax(values: number[]): {
+  minValue: number
+  maxValue: number
+} {
+  const roundToNearest = (value: number, factor: number) => {
+    return Math.round(value / factor) * factor
+  }
+
+  const minRaw = Math.min(...values) * 0.9
+  const maxRaw = Math.max(...values) * 1.1
+
+  const magnitude = Math.pow(10, Math.floor(Math.log10(maxRaw)))
+
+  const minValue = roundToNearest(Math.floor(minRaw), magnitude / 10)
+  const maxValue = roundToNearest(Math.ceil(maxRaw), magnitude / 10)
+
+  return { minValue, maxValue }
+}
