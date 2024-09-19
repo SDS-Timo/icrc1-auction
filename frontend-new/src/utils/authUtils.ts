@@ -35,7 +35,7 @@ export function getActor(userAgent: HttpAgent) {
 export function getAgent(identity: Identity) {
   const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
 
-  const myAgent = new HttpAgent({
+  const myAgent = HttpAgent.createSync({
     identity,
     host: HTTP_AGENT_HOST,
   })
