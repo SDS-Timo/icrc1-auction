@@ -46,6 +46,9 @@ const NavbarInfo: React.FC = () => {
   const priceDigitsLimit = useSelector(
     (state: RootState) => state.orders.priceDigitsLimit,
   )
+  const volumeStepSize = useSelector(
+    (state: RootState) => state.orders.volumeStepSize,
+  )
 
   const copyToClipboard = (text: string, description: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -145,10 +148,13 @@ const NavbarInfo: React.FC = () => {
           )}
           <Box>
             <Text as="strong" fontSize="14px">
-              Minimum order size:
+              Order size:
             </Text>
             <Text ml={1} fontSize="13px">
-              {minimumOrderSize} {selectedQuote.base}
+              {minimumOrderSize} {selectedQuote.base} minimum
+            </Text>
+            <Text ml={1} fontSize="13px">
+              {volumeStepSize} {selectedQuote.base} step size
             </Text>
           </Box>
           <Box>
