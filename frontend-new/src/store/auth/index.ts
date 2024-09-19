@@ -1,6 +1,5 @@
 import { HttpAgent, AnonymousIdentity } from '@dfinity/agent'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Draft } from 'immer'
 
 import { getAgent } from '../../utils/authUtils'
 
@@ -24,33 +23,38 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUserAgent: (
-      state: Draft<AuthState>,
-      action: PayloadAction<HttpAgent>,
-    ) => {
-      state.userAgent = action.payload
+    setUserAgent: (state, action: PayloadAction<HttpAgent>) => {
+      return {
+        ...state,
+        userAgent: action.payload,
+      }
     },
-    setIsAuthenticated: (
-      state: Draft<AuthState>,
-      action: PayloadAction<boolean>,
-    ) => {
-      state.isAuthenticated = action.payload
+    setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
+      return {
+        ...state,
+        isAuthenticated: action.payload,
+      }
     },
-    setUserPrincipal: (
-      state: Draft<AuthState>,
-      action: PayloadAction<string>,
-    ) => {
-      state.userPrincipal = action.payload
+    setUserPrincipal: (state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        userPrincipal: action.payload,
+      }
     },
-    setUserDeposit: (
-      state: Draft<AuthState>,
-      action: PayloadAction<string>,
-    ) => {
-      state.userDeposit = action.payload
+    setUserDeposit: (state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        userDeposit: action.payload,
+      }
     },
-    logout: (state: Draft<AuthState>) => {
-      state.userAgent = anonymousIdentity
-      state.isAuthenticated = false
+    logout: (state) => {
+      return {
+        ...state,
+        userAgent: anonymousIdentity,
+        isAuthenticated: false,
+        userPrincipal: '',
+        userDeposit: '',
+      }
     },
   },
 })
