@@ -196,7 +196,7 @@ const Trading = () => {
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
+    onSubmit: (values, { setStatus, setSubmitting }) => {
       setMessage(null)
 
       const price = convertPriceToCanister(
@@ -227,8 +227,7 @@ const Trading = () => {
 
       if (orderExists) {
         setStatus({ success: false })
-        resetForm({ values: initialValues })
-
+        setSubmitting(false)
         setMessage(orderExists)
         return
       }
@@ -245,7 +244,7 @@ const Trading = () => {
       placeOrder(userAgent, symbol, order)
         .then((response: Result) => {
           setStatus({ success: true })
-          resetForm({ values: initialValues })
+          setSubmitting(false)
           setMessage(null)
           dispatch(setIsRefreshUserData())
           fetchBalances()
@@ -294,13 +293,13 @@ const Trading = () => {
     if (!formik.isSubmitting) {
       setTradeType(type)
       updateAvailable(type)
-      handleClearForm()
     }
   }
 
   const handleClearForm = () => {
     setMessage(null)
     setSelectedPercentage(null)
+    handlePercentageClick(0)
     setAmountType('quote')
     formik.resetForm({ values: initialValues })
     formik.setFieldValue('price', '')
@@ -376,12 +375,6 @@ const Trading = () => {
   }
 
   useEffect(() => {
-    formik.resetForm({ values: initialValues })
-    handlePercentageClick(0)
-    setMessage(null)
-  }, [selectedSymbol])
-
-  useEffect(() => {
     updateAvailable(tradeType)
   }, [balances])
 
@@ -447,7 +440,7 @@ const Trading = () => {
     if (message) {
       const timer = setTimeout(() => {
         setMessage(null)
-      }, 30000)
+      }, 20000)
 
       return () => clearTimeout(timer)
     }
