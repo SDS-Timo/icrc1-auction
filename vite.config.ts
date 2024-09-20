@@ -1,29 +1,29 @@
 /// <reference types="vitest" />
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
-import environment from "vite-plugin-environment";
-import tsconfigPaths from "vite-tsconfig-paths";
-import dotenv from "dotenv";
+import react from '@vitejs/plugin-react'
+import dotenv from 'dotenv'
+import { defineConfig } from 'vite'
+import environment from 'vite-plugin-environment'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
-dotenv.config();
+dotenv.config()
 
 export default defineConfig({
-  root: "frontend-new/src",
+  root: './src',
   build: {
-    outDir: "../../dist",
+    outDir: '../dist',
     emptyOutDir: true,
   },
   optimizeDeps: {
     esbuildOptions: {
       define: {
-        global: "globalThis",
+        global: 'globalThis',
       },
     },
   },
   server: {
     proxy: {
-      "/api": {
-        target: "http://127.0.0.1:4943",
+      '/api': {
+        target: 'http://127.0.0.1:4943',
         changeOrigin: true,
       },
     },
@@ -31,9 +31,9 @@ export default defineConfig({
   plugins: [
     react(),
     tsconfigPaths(),
-    environment("all", { prefix: "CANISTER_" }),
-    environment("all", { prefix: "HTTP_" }),
-    environment("all", { prefix: "DFX_" }),
-    environment("all", { prefix: "ENV_" }),
+    environment('all', { prefix: 'CANISTER_' }),
+    environment('all', { prefix: 'HTTP_' }),
+    environment('all', { prefix: 'DFX_' }),
+    environment('all', { prefix: 'ENV_' }),
   ],
-});
+})

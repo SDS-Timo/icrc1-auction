@@ -20,10 +20,7 @@
     "baseUrl": "./",
     "paths": {
       "@declarations": ["./declarations"],
-      "@declarations/*": ["./declarations/*"],
-      "@fe": ["./frontend"],
-      "@fe/*": ["./frontend/*"]
+      "@declarations/*": ["./declarations/*"]
     }
-  },
-  "include": ["frontend-new/**/*"]
+  }
 }
