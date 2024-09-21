@@ -14,19 +14,23 @@ import {
 } from '../store/auth'
 
 let actorCache: ActorSubclass<Icrc84Actor> | null = null
+let userAgentCache: HttpAgent | null = null
 
 /**
  * Creates and returns an actor for interacting with the auction canister.
+ * Ensures that the actor is only recreated if the userAgent changes.
  * @param userAgent - The HTTP agent to be used for creating the actor.
  * @returns The created service actor.
  */
 export function getActor(userAgent: HttpAgent): ActorSubclass<Icrc84Actor> {
-  if (!actorCache) {
+  if (!actorCache || userAgentCache !== userAgent) {
+    userAgentCache = userAgent
     actorCache = Actor.createActor<Icrc84Actor>(Icrc84IDLFactory, {
       agent: userAgent,
       canisterId: `${process.env.CANISTER_ID_ICRC_AUCTION}`,
     })
   }
+
   return actorCache
 }
 
