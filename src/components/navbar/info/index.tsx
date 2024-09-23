@@ -82,7 +82,7 @@ const NavbarInfo: React.FC = () => {
       <Menu>
         <MenuButton
           as={IconButton}
-          aria-label="Settings"
+          aria-label="Info"
           icon={<InfoIcon />}
           variant="unstyled"
           _hover={{ bg: 'transparent' }}

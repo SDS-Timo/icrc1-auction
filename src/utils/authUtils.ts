@@ -20,14 +20,20 @@ let userAgentCache: HttpAgent | null = null
  * Creates and returns an actor for interacting with the auction canister.
  * Ensures that the actor is only recreated if the userAgent changes.
  * @param userAgent - The HTTP agent to be used for creating the actor.
+ * @param canisterId - The principal ID of the ICRC aution canister.
  * @returns The created service actor.
  */
-export function getActor(userAgent: HttpAgent): ActorSubclass<Icrc84Actor> {
-  if (!actorCache || userAgentCache !== userAgent) {
+export function getActor(
+  userAgent: HttpAgent,
+  canisterId: string | null = null,
+): ActorSubclass<Icrc84Actor> {
+  if (!actorCache || userAgentCache !== userAgent || canisterId) {
     userAgentCache = userAgent
     actorCache = Actor.createActor<Icrc84Actor>(Icrc84IDLFactory, {
       agent: userAgent,
-      canisterId: `${process.env.CANISTER_ID_ICRC_AUCTION}`,
+      canisterId: canisterId
+        ? canisterId
+        : `${process.env.CANISTER_ID_ICRC_AUCTION}`,
     })
   }
 
@@ -103,6 +109,7 @@ export async function IdentityAuthenticate(
     await authClient.login({
       maxTimeToLive: AUTH_EXPIRATION_INTERNET_IDENTITY,
       identityProvider: HTTP_AGENT_HOST,
+      derivationOrigin: `${process.env.ENV_AUTH_DERIVATION_ORIGIN}`,
       onSuccess: () => {
         const identity = authClient.getIdentity()
         const myAgent = getAgent(identity)

@@ -11,7 +11,7 @@ const NavbarWallet: React.FC<NavbarWalletProps> = ({ onOpen }) => {
   return (
     <Flex alignItems="center">
       <IconButton
-        aria-label="Settings"
+        aria-label="Wallet"
         variant="unstyled"
         _hover={{ bg: 'transparent' }}
         _focus={{ outline: 'none' }}

@@ -9,15 +9,19 @@ import { Principal } from '@dfinity/principal'
 import defSymbolLogo from '../assets/img/coins/default.svg'
 import { TokenMetadata } from '../types'
 
-const quoteToken = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
+const quoteTokenDefault = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
 
 /**
  * Parses the metadata response from the ICRC token canister to extract token information.
  *
  * @param metadata - The metadata response from the ICRC token canister.
+ * @param quoteToken - The quote token selected.
  * @returns The extracted token metadata.
  */
-const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
+const parseMetadata = (
+  metadata: IcrcTokenMetadataResponse,
+  quoteToken: string | null,
+): TokenMetadata => {
   let symbol = 'unknown'
   let name = 'unknown'
   let decimals = 0
@@ -49,7 +53,15 @@ const parseMetadata = (metadata: IcrcTokenMetadataResponse): TokenMetadata => {
     name = name.replace('ck', '')
   }
 
-  return { symbol, name, decimals, logo, fee, base: symbol, quote: quoteToken }
+  return {
+    symbol,
+    name,
+    decimals,
+    logo,
+    fee,
+    base: symbol,
+    quote: quoteToken ? quoteToken : quoteTokenDefault,
+  }
 }
 
 /**
@@ -87,11 +99,13 @@ const findLogo = async (token: TokenMetadata): Promise<string> => {
  *
  * @param userAgent - The HTTP agent to interact with the canister.
  * @param canisterId - The principal ID of the ICRC token canister.
+ * @param quoteToken - The quote token selected.
  * @returns A promise that resolves to an object containing the token metadata and logo URL.
  */
 export async function getTokenInfo(
   userAgent: HttpAgent,
   canisterId: Principal,
+  quoteToken: string | null,
 ) {
   const { metadata } = IcrcLedgerCanister.create({
     agent: userAgent,
@@ -99,7 +113,7 @@ export async function getTokenInfo(
   })
 
   const principalData = await metadata({ certified: false })
-  const token = parseMetadata(principalData)
+  const token = parseMetadata(principalData, quoteToken)
   const logo = await findLogo(token)
 
   return { token, logo }

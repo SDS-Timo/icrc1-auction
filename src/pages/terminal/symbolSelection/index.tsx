@@ -13,36 +13,50 @@ import {
   setSelectedQuote,
 } from '../../../store/tokens'
 import { Option } from '../../../types'
-
-const quoteToken = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
+import { getActor } from '../../../utils/authUtils'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loading, setLoading] = useState(true)
-  const [quoteSymbol, setQuoteSymbol] = useState(quoteToken)
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
+  const quoteTokenDefault = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
   const tokenDefault = process.env.ENV_TOKEN_SELECTED_DEFAULT
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
+  )
+  const selectedQuote = useSelector(
+    (state: RootState) => state.tokens.selectedQuote,
   )
 
   async function fetchTokens() {
     setLoading(true)
 
-    const { getTokens, getQuoteToken } = useTokens()
-    const data = await getTokens(userAgent)
-    const quote = await getQuoteToken(userAgent, data)
+    const auctionCanisterId = localStorage.getItem('auctionCanisterId')
+    if (auctionCanisterId) getActor(userAgent, auctionCanisterId)
 
-    setTokens(data)
-    if (quote) setQuoteSymbol(quote.base)
-    dispatch(setTokens(data))
+    const { getTokens } = useTokens()
+    const data = await getTokens(userAgent)
+
+    const quoteToken = data.tokens.find(
+      (token) => token.symbol === (data?.quoteToken?.base || quoteTokenDefault),
+    )
+
+    dispatch(setTokens(data.tokens))
+
+    if (quoteToken) {
+      dispatch(setSelectedQuote(quoteToken))
+    }
+
     setLoading(false)
   }
 
   const filteredTokens = useMemo(
-    () => tokens.filter((token) => token.symbol !== quoteSymbol),
-    [tokens, quoteSymbol],
+    () =>
+      tokens.filter(
+        (token) => token.symbol !== (selectedQuote?.base || quoteTokenDefault),
+      ),
+    [tokens, selectedQuote],
   )
 
   const options: Option[] = useMemo(
@@ -63,13 +77,6 @@ const SymbolSelection: React.FC = () => {
   const handleChange = (option: Option | Option[] | null) => {
     dispatch(setSelectedSymbol(option))
   }
-
-  useEffect(() => {
-    const quoteToken = tokens.find((token) => token.symbol === quoteSymbol)
-    if (quoteToken) {
-      dispatch(setSelectedQuote(quoteToken))
-    }
-  }, [tokens, quoteSymbol])
 
   useEffect(() => {
     fetchTokens()

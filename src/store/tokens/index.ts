@@ -9,10 +9,10 @@ const initialState: TokensState = {
     decimals: 6,
     fee: '',
     logo: '',
-    name: 'USDC',
-    symbol: 'USDC',
-    quote: 'USDC',
-    base: 'USDC',
+    name: 'USDT',
+    symbol: 'USDT',
+    quote: 'USDT',
+    base: 'USDT',
   },
 }
 

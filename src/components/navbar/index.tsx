@@ -5,6 +5,7 @@ import { Box, Flex, useDisclosure, useColorMode } from '@chakra-ui/react'
 
 import NavbarInfo from './info'
 import NavbarLanguages from './language'
+import NavbarSettings from './settings'
 import NavbarTheme from './theme'
 import NavbarWallet from './wallet'
 import LogoDark from '../../assets/img/logo/dailyBid_black.svg'
@@ -22,7 +23,7 @@ const NavbarComponent: React.FC = () => {
       mt={2}
       justifyContent="space-between"
       borderBottom="1px solid"
-      borderColor="gray.800"
+      borderColor="grey.800"
     >
       <Box>
         <Image
@@ -36,6 +37,7 @@ const NavbarComponent: React.FC = () => {
         <NavbarLanguages />
         <NavbarTheme />
         <NavbarInfo />
+        <NavbarSettings />
         <NavbarWallet onOpen={onOpen} />
         <AccountComponent isOpen={isOpen} onClose={onClose} />
       </Flex>
