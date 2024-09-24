@@ -28,12 +28,18 @@ export function getActor(
   canisterId: string | null = null,
 ): ActorSubclass<Icrc84Actor> {
   if (!actorCache || userAgentCache !== userAgent || canisterId) {
+    const auctionCanisterId = localStorage.getItem('auctionCanisterId')
     userAgentCache = userAgent
+
+    const principal = canisterId
+      ? canisterId
+      : auctionCanisterId
+        ? auctionCanisterId
+        : `${process.env.CANISTER_ID_ICRC_AUCTION}`
+
     actorCache = Actor.createActor<Icrc84Actor>(Icrc84IDLFactory, {
       agent: userAgent,
-      canisterId: canisterId
-        ? canisterId
-        : `${process.env.CANISTER_ID_ICRC_AUCTION}`,
+      canisterId: principal,
     })
   }
 

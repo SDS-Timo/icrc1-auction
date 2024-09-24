@@ -36,8 +36,8 @@ import { getActor } from '../../../utils/authUtils'
 const NavbarSettings: React.FC = () => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const bgColor = useColorModeValue('grey.100', 'grey.900')
-  const buttonBgColor = useColorModeValue('grey.200', 'grey.600')
-  const fontColor = useColorModeValue('grey.700', 'grey.25')
+  const buttonBgColor = useColorModeValue('grey.500', 'grey.600')
+  const fontColor = useColorModeValue('grey.25', 'grey.25')
   const quoteTokenDefault = process.env.ENV_TOKEN_QUOTE_DEFAULT || 'USDT'
   const tokenDefault = process.env.ENV_TOKEN_SELECTED_DEFAULT
 

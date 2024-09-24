@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
 import {
-  IconButton,
   Flex,
   Icon,
   Tab,
@@ -15,7 +14,6 @@ import {
   useColorModeValue,
   Tooltip,
 } from '@chakra-ui/react'
-import { FaCopy } from 'react-icons/fa'
 import { FaWallet } from 'react-icons/fa'
 import { FaUserLarge } from 'react-icons/fa6'
 import { useSelector, useDispatch } from 'react-redux'
@@ -380,39 +378,37 @@ const WalletContent: React.FC = () => {
         <Flex align="center">
           <Icon as={FaUserLarge} boxSize={4} mr={2} />
           <Tooltip label={userPrincipal} aria-label={userPrincipal}>
-            <Text>{walletAddress}</Text>
-          </Tooltip>
-          <Tooltip label="User principal" aria-label="User principal">
-            <IconButton
-              aria-label="Copy to clipboard"
-              icon={<Icon as={FaCopy} boxSize={3} />}
-              size="xs"
-              ml={2}
+            <Text
               onClick={copyToClipboardWalletAddress}
-              variant="ghost"
+              cursor="pointer"
+              p={1}
+              border="1px solid transparent"
+              borderRadius="md"
               _hover={{
-                bg: bgColorHover,
+                borderColor: bgColorHover,
+                borderRadius: 'md',
               }}
-            />
+            >
+              {walletAddress}
+            </Text>
           </Tooltip>
         </Flex>
         <Flex align="center">
           <Icon as={FaWallet} boxSize={4} mr={2} />
           <Tooltip label={userDeposit} aria-label={userDeposit}>
-            <Text>{userDepositAddress}</Text>
-          </Tooltip>
-          <Tooltip label="Wallet account" aria-label="Wallet account">
-            <IconButton
-              aria-label="Copy to clipboard"
-              icon={<Icon as={FaCopy} boxSize={3} />}
-              size="xs"
-              ml={2}
+            <Text
               onClick={copyToClipboardDepositAddress}
-              variant="ghost"
+              cursor="pointer"
+              p={1}
+              border="1px solid transparent"
+              borderRadius="md"
               _hover={{
-                bg: bgColorHover,
+                borderColor: bgColorHover,
+                borderRadius: 'md',
               }}
-            />
+            >
+              {userDepositAddress}
+            </Text>
           </Tooltip>
         </Flex>
       </Flex>
