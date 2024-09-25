@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { SettingsIcon } from '@chakra-ui/icons'
 import {
@@ -17,12 +17,14 @@ import {
   Spinner,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { Principal } from '@dfinity/principal'
 import { useFormik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
 import * as Yup from 'yup'
 
 import useTokens from '../../../hooks/useTokens'
 import { RootState, AppDispatch } from '../../../store'
+import { setUserDeposit } from '../../../store/auth'
 import { setIsRefreshUserData } from '../../../store/orders'
 import { setIsRefreshPrices } from '../../../store/prices'
 import {
@@ -31,7 +33,8 @@ import {
   setSelectedQuote,
 } from '../../../store/tokens'
 import { Option } from '../../../types'
-import { getActor } from '../../../utils/authUtils'
+import { getActor, getAuctionCanisterId } from '../../../utils/canisterUtils'
+import { getUserDepositAddress } from '../../../utils/convertionsUtils'
 
 const NavbarSettings: React.FC = () => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
@@ -77,13 +80,27 @@ const NavbarSettings: React.FC = () => {
     }
   }
 
+  function validateCanisterId(canisterId: string) {
+    try {
+      Principal.fromText(canisterId)
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
   const initialValues = {
     canisterId: '',
     submit: false,
   }
 
   const validationSchema = Yup.object().shape({
-    canisterId: Yup.string().required('').typeError(''),
+    canisterId: Yup.string()
+      .required('Canister ID is required')
+      .test('is-valid-canister-id', 'Invalid Canister ID', function (value) {
+        return validateCanisterId(value)
+      })
+      .typeError('Invalid Canister ID format'),
   })
 
   const formik = useFormik({
@@ -94,11 +111,14 @@ const NavbarSettings: React.FC = () => {
         const serviceActor = getActor(userAgent, values.canisterId)
         await serviceActor.getQuoteLedger()
 
+        localStorage.setItem('auctionCanisterId', values.canisterId)
+
         await fetchTokens()
         dispatch(setIsRefreshUserData())
         dispatch(setIsRefreshPrices())
 
-        localStorage.setItem('auctionCanisterId', values.canisterId)
+        const principal = await userAgent.getPrincipal()
+        dispatch(setUserDeposit(getUserDepositAddress(principal.toText())))
 
         setStatus({ success: true })
         setSubmitting(false)
@@ -106,18 +126,10 @@ const NavbarSettings: React.FC = () => {
         setStatus({ success: false })
         setSubmitting(false)
 
-        formik.setFieldError('canisterId', 'Canister Id Invalid')
+        formik.setFieldError('canisterId', 'Auction canister call error')
       }
     },
   })
-
-  useEffect(() => {
-    const auctionCanisterId = localStorage.getItem('auctionCanisterId')
-
-    if (auctionCanisterId) formik.setFieldValue('canisterId', auctionCanisterId)
-    else
-      formik.setFieldValue('canisterId', process.env.CANISTER_ID_ICRC_AUCTION)
-  }, [])
 
   return (
     <Flex alignItems="center" zIndex="10">
@@ -129,6 +141,9 @@ const NavbarSettings: React.FC = () => {
           variant="unstyled"
           _hover={{ bg: 'transparent' }}
           _focus={{ outline: 'none' }}
+          onClick={() =>
+            formik.setFieldValue('canisterId', getAuctionCanisterId())
+          }
         />
         <MenuList bg={bgColor} p={4} w="350px">
           <Flex direction="column">

@@ -8,12 +8,10 @@ import {
   MenuButton,
   MenuList,
   Box,
-  Icon,
   Text,
   useToast,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { FaCopy } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 
 import useOrder from '../../../hooks/useOrders'
@@ -23,6 +21,7 @@ import {
   setPriceDigitsLimit,
   setVolumeStepSize,
 } from '../../../store/orders'
+import { getAuctionCanisterId } from '../../../utils/canisterUtils'
 
 const NavbarInfo: React.FC = () => {
   const toast = useToast({
@@ -31,7 +30,7 @@ const NavbarInfo: React.FC = () => {
     isClosable: true,
   })
   const dispatch = useDispatch<AppDispatch>()
-  const principal = process.env.CANISTER_ID_ICRC_AUCTION
+  const principal = getAuctionCanisterId()
 
   const bgColor = useColorModeValue('grey.100', 'grey.900')
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
@@ -94,25 +93,26 @@ const NavbarInfo: React.FC = () => {
               Auction backend:
             </Text>
             <Flex alignItems="center">
-              <Text ml={1} fontSize="13px">
-                {principal}
-              </Text>
-              <IconButton
-                aria-label="Copy to clipboard"
-                icon={<Icon as={FaCopy} boxSize={3} />}
-                size="xs"
-                ml={2}
+              <Text
+                ml={1}
+                fontSize="13px"
                 onClick={() =>
                   copyToClipboard(
                     principal || '',
                     'Auction principal copied to clipboard',
                   )
                 }
-                variant="ghost"
+                cursor="pointer"
+                p={1}
+                border="1px solid transparent"
+                borderRadius="md"
                 _hover={{
-                  bg: bgColorHover,
+                  borderColor: bgColorHover,
+                  borderRadius: 'md',
                 }}
-              />
+              >
+                {principal}
+              </Text>
             </Flex>
           </Box>
           {selectedQuote.principal && (
@@ -124,25 +124,26 @@ const NavbarInfo: React.FC = () => {
                 ({selectedQuote.base}):
               </Text>
               <Flex alignItems="center">
-                <Text ml={1} fontSize="13px">
-                  {selectedQuote.principal}
-                </Text>
-                <IconButton
-                  aria-label="Copy to clipboard"
-                  icon={<Icon as={FaCopy} boxSize={3} />}
-                  size="xs"
-                  ml={2}
+                <Text
+                  ml={1}
+                  fontSize="13px"
                   onClick={() =>
                     copyToClipboard(
                       selectedQuote.principal || '',
                       'Quote token principal copied to clipboard',
                     )
                   }
-                  variant="ghost"
+                  cursor="pointer"
+                  p={1}
+                  border="1px solid transparent"
+                  borderRadius="md"
                   _hover={{
-                    bg: bgColorHover,
+                    borderColor: bgColorHover,
+                    borderRadius: 'md',
                   }}
-                />
+                >
+                  {selectedQuote.principal}
+                </Text>
               </Flex>
             </Box>
           )}

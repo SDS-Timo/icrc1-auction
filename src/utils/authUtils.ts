@@ -1,10 +1,8 @@
-import { Actor, ActorSubclass, HttpAgent, Identity } from '@dfinity/agent'
+import { HttpAgent, Identity } from '@dfinity/agent'
 import { AuthClient } from '@dfinity/auth-client'
 import { Ed25519KeyIdentity } from '@dfinity/identity'
 
 import { getUserDepositAddress } from './convertionsUtils'
-import { _SERVICE as Icrc84Actor } from '../../declarations/icrc1_auction/icrc1_auction.did'
-import { idlFactory as Icrc84IDLFactory } from '../../declarations/icrc1_auction/icrc1_auction.did.js'
 import { AppDispatch } from '../store'
 import {
   setUserAgent,
@@ -12,39 +10,6 @@ import {
   setUserPrincipal,
   setUserDeposit,
 } from '../store/auth'
-
-let actorCache: ActorSubclass<Icrc84Actor> | null = null
-let userAgentCache: HttpAgent | null = null
-
-/**
- * Creates and returns an actor for interacting with the auction canister.
- * Ensures that the actor is only recreated if the userAgent changes.
- * @param userAgent - The HTTP agent to be used for creating the actor.
- * @param canisterId - The principal ID of the ICRC aution canister.
- * @returns The created service actor.
- */
-export function getActor(
-  userAgent: HttpAgent,
-  canisterId: string | null = null,
-): ActorSubclass<Icrc84Actor> {
-  if (!actorCache || userAgentCache !== userAgent || canisterId) {
-    const auctionCanisterId = localStorage.getItem('auctionCanisterId')
-    userAgentCache = userAgent
-
-    const principal = canisterId
-      ? canisterId
-      : auctionCanisterId
-        ? auctionCanisterId
-        : `${process.env.CANISTER_ID_ICRC_AUCTION}`
-
-    actorCache = Actor.createActor<Icrc84Actor>(Icrc84IDLFactory, {
-      agent: userAgent,
-      canisterId: principal,
-    })
-  }
-
-  return actorCache
-}
 
 /**
  * Creates and returns an HTTP agent with the specified identity.

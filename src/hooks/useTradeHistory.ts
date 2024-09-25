@@ -1,13 +1,13 @@
 import { HttpAgent } from '@dfinity/agent'
 
 import { TokenDataItem, TokenMetadata } from '../types'
-import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
   convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
+import { getActor } from '../utils/canisterUtils'
 import { getToken } from '../utils/tokenUtils'
 
 /**

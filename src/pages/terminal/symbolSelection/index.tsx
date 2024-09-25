@@ -13,7 +13,6 @@ import {
   setSelectedQuote,
 } from '../../../store/tokens'
 import { Option } from '../../../types'
-import { getActor } from '../../../utils/authUtils'
 
 const SymbolSelection: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -31,9 +30,6 @@ const SymbolSelection: React.FC = () => {
 
   async function fetchTokens() {
     setLoading(true)
-
-    const auctionCanisterId = localStorage.getItem('auctionCanisterId')
-    if (auctionCanisterId) getActor(userAgent, auctionCanisterId)
 
     const { getTokens } = useTokens()
     const data = await getTokens(userAgent)

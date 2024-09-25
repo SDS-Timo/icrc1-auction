@@ -4,6 +4,8 @@ import { encodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 import bigInt from 'big-integer'
 
+import { getAuctionCanisterId } from './canisterUtils'
+
 /**
  * Converts a hexadecimal string to a big integer.
  * @param hexFormat - The hexadecimal string in the format '0x...'.
@@ -73,8 +75,10 @@ export function getUserDepositAddress(principal: string) {
 
   const subAccountUint8Array = new Uint8Array(hexToUint8Array(hexSubAccountId))
 
+  const auctionCanisterId = getAuctionCanisterId()
+
   const depositAccount = encodeIcrcAccount({
-    owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
+    owner: Principal.fromText(auctionCanisterId),
     subaccount: subAccountUint8Array,
   })
 

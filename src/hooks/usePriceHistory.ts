@@ -8,13 +8,13 @@ import {
   Statistics,
   NextSession,
 } from '../types'
-import { getActor } from '../utils/authUtils'
 import {
   convertPriceFromCanister,
   convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
+import { getActor } from '../utils/canisterUtils'
 
 /**
  * Custom hook for fetching and managing price history.

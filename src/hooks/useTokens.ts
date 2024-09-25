@@ -1,8 +1,8 @@
 import { HttpAgent } from '@dfinity/agent'
 
 import { TokenMetadata } from '../types'
-import { getActor } from '../utils/authUtils'
 import { convertVolumeFromCanister } from '../utils/calculationsUtils'
+import { getActor } from '../utils/canisterUtils'
 import { getTokenInfo } from '../utils/tokenUtils'
 
 /**

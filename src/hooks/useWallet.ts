@@ -3,12 +3,13 @@ import { IcrcLedgerCanister, decodeIcrcAccount } from '@dfinity/ledger-icrc'
 import { Principal } from '@dfinity/principal'
 
 import { TokenDataItem, TokenMetadata, Result } from '../types'
-import { getActor } from '../utils/authUtils'
 import {
   convertVolumeFromCanister,
   getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
+import { getActor } from '../utils/canisterUtils'
+import { getAuctionCanisterId } from '../utils/canisterUtils'
 import {
   hexToUint8Array,
   getSubAccountFromPrincipal,
@@ -116,6 +117,8 @@ const useWallet = () => {
 
       const tokenCanisterId = Principal.fromText(principal)
 
+      const auctionCanisterId = getAuctionCanisterId()
+
       const { balance } = IcrcLedgerCanister.create({
         agent: userAgent,
         canisterId: tokenCanisterId,
@@ -126,7 +129,7 @@ const useWallet = () => {
       let subaccount = decodeAccount.subaccount
 
       if (action === 'claim') {
-        owner = Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`)
+        owner = Principal.fromText(auctionCanisterId)
         const hexSubAccountId = getSubAccountFromPrincipal(account).subAccountId
         subaccount = new Uint8Array(hexToUint8Array(hexSubAccountId))
       }
@@ -276,6 +279,8 @@ const useWallet = () => {
 
       const decodeAccount = decodeIcrcAccount(account)
 
+      const auctionCanisterId = getAuctionCanisterId()
+
       const userPrincipal = await userAgent.getPrincipal()
       const hexSubAccountId = getSubAccountFromPrincipal(
         userPrincipal.toText(),
@@ -293,7 +298,7 @@ const useWallet = () => {
             : [],
         },
         spender: {
-          owner: Principal.fromText(`${process.env.CANISTER_ID_ICRC_AUCTION}`),
+          owner: Principal.fromText(auctionCanisterId),
           subaccount: [new Uint8Array(hexToUint8Array(hexSubAccountId))],
         },
         certified: false,
