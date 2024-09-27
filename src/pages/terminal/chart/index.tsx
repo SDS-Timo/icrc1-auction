@@ -44,7 +44,7 @@ const ChartPlot = () => {
   const [chartData, setChartData] = useState<DataItem[]>([])
   const [volumeAxis, setVolumeAxis] = useState('quote')
   const [loading, setLoading] = useState(true)
-  const [timeframe, setTimeframe] = useState('All')
+  const [timeframe, setTimeframe] = useState('1W')
 
   async function fetchPrices() {
     if (symbol && symbol.principal && selectedQuote) {
@@ -63,7 +63,6 @@ const ChartPlot = () => {
       dispatch(setHeaderInformation(headerInformation))
 
       dispatch(setPricesHistory(prices))
-      setChartData(prices)
       setVolumeAxis('quote')
       setLoading(false)
     }
@@ -76,7 +75,9 @@ const ChartPlot = () => {
   const onChangeTimeframe = (newTimeframe: string) => {
     setTimeframe(newTimeframe)
     const startDate = new Date()
-    if (newTimeframe === '1W') {
+    if (newTimeframe === '1D') {
+      startDate.setDate(startDate.getDate() - 1)
+    } else if (newTimeframe === '1W') {
       startDate.setDate(startDate.getDate() - 6)
     } else if (newTimeframe === '1M') {
       startDate.setMonth(startDate.getMonth() - 1)
@@ -90,6 +91,10 @@ const ChartPlot = () => {
     })
     setChartData(filtered)
   }
+
+  useEffect(() => {
+    onChangeTimeframe(timeframe)
+  }, [priceHistoryData])
 
   useEffect(() => {
     fetchPrices()
@@ -127,7 +132,7 @@ const ChartPlot = () => {
           mb={4}
         >
           <Box>
-            {['1W', '1M', 'All'].map((label) => (
+            {['1D', '1W', '1M', 'All'].map((label) => (
               <Button
                 key={label}
                 onClick={() => onChangeTimeframe(label)}
