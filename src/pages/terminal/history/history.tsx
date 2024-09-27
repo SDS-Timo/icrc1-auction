@@ -14,7 +14,7 @@ const TradeHistory: React.FC<HistoryProps> = ({
   historyData,
   selectedSymbol,
 }) => {
-  const [toggleVolume, setToggleVolume] = useState('quote')
+  const [toggleVolume, setToggleVolume] = useState('base')
 
   const handleToggleVolume = () => {
     setToggleVolume((prevState) => (prevState === 'quote' ? 'base' : 'quote'))

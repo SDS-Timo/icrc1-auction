@@ -24,7 +24,7 @@ const TradeHistory: React.FC = () => {
   >([])
   const [loading, setLoading] = useState(false)
   const [showAllMarkets, setShowAllMarkets] = useState(false)
-  const [toggleVolume, setToggleVolume] = useState('quote')
+  const [toggleVolume, setToggleVolume] = useState('base')
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
   const isAuthenticated = useSelector(
