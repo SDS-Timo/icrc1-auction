@@ -242,7 +242,7 @@ const Trading = () => {
 
       const { placeOrder } = useOrders()
       placeOrder(userAgent, symbol, order)
-        .then((response: Result) => {
+        .then(async (response: Result) => {
           setStatus({ success: true })
           setSubmitting(false)
           setMessage(null)
@@ -289,23 +289,12 @@ const Trading = () => {
     },
   })
 
-  const handleTradeTypeChange = (type: string) => {
-    if (!formik.isSubmitting) {
-      setTradeType(type)
-      updateAvailable(type)
-    }
-  }
-
-  const handleClearForm = () => {
-    setMessage(null)
-    setSelectedPercentage(null)
-    handlePercentageClick(0)
-    setAmountType('quote')
-    formik.resetForm({ values: initialValues })
-    formik.setFieldValue('price', '')
-    formik.setFieldValue('quoteAmount', '')
-    formik.setFieldValue('baseAmount', '')
-    setBaseStepSize(null)
+  async function fetchBalances() {
+    setLoading(true)
+    const { getBalancesCredits } = useBalances()
+    const balancesCredits = await getBalancesCredits(userAgent, tokens)
+    dispatch(setBalances(balancesCredits))
+    setLoading(false)
   }
 
   const updateAvailable = (type: string) => {
@@ -320,6 +309,22 @@ const Trading = () => {
     } else {
       setAvailable(null)
     }
+  }
+
+  const handleTradeTypeChange = (type: string) => {
+    if (!formik.isSubmitting) {
+      setTradeType(type)
+      updateAvailable(type)
+    }
+  }
+
+  const handleClearForm = () => {
+    setMessage(null)
+    setSelectedPercentage(null)
+    handlePercentageClick(0)
+    setAmountType('quote')
+    formik.resetForm({ values: initialValues })
+    setBaseStepSize(null)
   }
 
   const handlePercentageClick = (percentage: any) => {
@@ -366,12 +371,13 @@ const Trading = () => {
     }
   }
 
-  async function fetchBalances() {
-    setLoading(true)
-    const { getBalancesCredits } = useBalances()
-    const balancesCredits = await getBalancesCredits(userAgent, tokens)
-    dispatch(setBalances(balancesCredits))
-    setLoading(false)
+  const handleCalculateBaseAmount = (price: string, quoteAmount: string) => {
+    if (quoteAmount && !isNaN(parseFloat(quoteAmount))) {
+      const { volumeFloor } = handleBaseVolumeCalculate(
+        parseFloat(quoteAmount) / parseFloat(price),
+      )
+      formik.setFieldValue('baseAmount', volumeFloor)
+    }
   }
 
   useEffect(() => {
@@ -388,6 +394,9 @@ const Trading = () => {
     if (tradeType === 'sell') {
       setAmountType('base')
       formik.setFieldValue('amountType', 'base')
+    } else if (tradeType === 'buy') {
+      setAmountType('quote')
+      formik.setFieldValue('amountType', 'base')
     }
   }, [tradeType])
 
@@ -398,6 +407,25 @@ const Trading = () => {
   useEffect(() => {
     formik.setFieldValue('available', available?.volumeInAvailable)
   }, [available])
+
+  /*   useEffect(() => {
+    if (
+      (amountType === 'base' &&
+        Number(available?.volumeInAvailable) <
+          Number(formik.values.baseAmount)) ||
+      (amountType === 'quote' &&
+        Number(available?.volumeInAvailable) <
+          Number(formik.values.quoteAmount))
+    ) {
+      formik.setFieldValue('baseAmount', '', false)
+      formik.setFieldValue('quoteAmount', '', false)
+      formik.setErrors({
+        ...formik.errors,
+        baseAmount: undefined,
+        quoteAmount: undefined,
+      })
+    }
+  }, [formik.values.available]) */
 
   useEffect(() => {
     setBaseStepSizeDecimal(symbol?.decimals)
@@ -465,10 +493,12 @@ const Trading = () => {
             onKeyUp={() => formik.validateField('price')}
             onChange={(e) => {
               handlePriceInputChange(e)
-              formik.setFieldValue('baseAmount', '')
-              formik.setFieldValue('quoteAmount', '')
               setSelectedPercentage(null)
               setBaseStepSize(null)
+              handleCalculateBaseAmount(
+                e.target.value,
+                formik.values.quoteAmount,
+              )
             }}
           />
           <FormLabel color="grey.500" fontSize="15px">
@@ -502,13 +532,7 @@ const Trading = () => {
               }}
               onChange={(e) => {
                 formik.handleChange(e)
-                if (e.target.value && !isNaN(parseFloat(e.target.value))) {
-                  const { volumeFloor } = handleBaseVolumeCalculate(
-                    parseFloat(e.target.value) /
-                      parseFloat(formik.values.price),
-                  )
-                  formik.setFieldValue('baseAmount', volumeFloor)
-                }
+                handleCalculateBaseAmount(formik.values.price, e.target.value)
               }}
             />
             <FormLabel color="grey.500" fontSize="15px">
@@ -685,26 +709,44 @@ const Trading = () => {
               </Text>
             </Text>
           </Box>{' '}
-          <Button
-            background={tradeType === 'buy' ? 'green.500' : 'red.500'}
-            variant="solid"
-            h="58px"
-            color="grey.25"
-            _hover={{
-              bg: tradeType === 'buy' ? 'green.400' : 'red.400',
-              color: 'grey.25',
-            }}
-            isDisabled={!selectedSymbol || formik.isSubmitting}
-            onClick={() => formik.handleSubmit()}
-          >
-            {formik.isSubmitting ? (
-              <>
-                Creating Order <Spinner ml={2} size="sm" color="grey.25" />
-              </>
-            ) : (
-              'Create Order'
-            )}
-          </Button>
+          <Flex direction="row" justifyContent="space-between" gap={2}>
+            <Button
+              background="grey.500"
+              variant="solid"
+              h="58px"
+              w={formik.isSubmitting ? '100px' : '150px'}
+              color="grey.25"
+              _hover={{
+                bg: 'grey.400',
+                color: 'grey.25',
+              }}
+              isDisabled={!selectedSymbol || formik.isSubmitting}
+              onClick={handleClearForm}
+            >
+              Reset
+            </Button>
+            <Button
+              background={tradeType === 'buy' ? 'green.500' : 'red.500'}
+              variant="solid"
+              h="58px"
+              w={formik.isSubmitting ? '200px' : '150px'}
+              color="grey.25"
+              _hover={{
+                bg: tradeType === 'buy' ? 'green.400' : 'red.400',
+                color: 'grey.25',
+              }}
+              isDisabled={!selectedSymbol || formik.isSubmitting}
+              onClick={() => formik.handleSubmit()}
+            >
+              {formik.isSubmitting ? (
+                <>
+                  Creating <Spinner ml={2} size="sm" color="grey.25" />
+                </>
+              ) : (
+                'Create'
+              )}
+            </Button>
+          </Flex>
         </>
       )}
       {message && (
