@@ -53,7 +53,7 @@ const Trading = () => {
   const fontColor = useColorModeValue('grey.800', 'grey.200')
 
   const [tradeType, setTradeType] = useState('buy')
-  const [amountType, setAmountType] = useState('quote')
+  const [amountType, setAmountType] = useState('base')
   const [loading, setLoading] = useState(true)
   const [baseStepSize, setBaseStepSize] = useState<number | null>(null)
   const [baseStepSizeDecimal, setBaseStepSizeDecimal] = useState<
@@ -309,6 +309,7 @@ const Trading = () => {
     } else {
       setAvailable(null)
     }
+    return balance
   }
 
   const handleTradeTypeChange = (type: string) => {
@@ -322,7 +323,7 @@ const Trading = () => {
     setMessage(null)
     setSelectedPercentage(null)
     handlePercentageClick(0)
-    setAmountType('quote')
+    setAmountType('base')
     formik.resetForm({ values: initialValues })
     setBaseStepSize(null)
   }
@@ -372,7 +373,12 @@ const Trading = () => {
   }
 
   const handleCalculateBaseAmount = (price: string, quoteAmount: string) => {
-    if (quoteAmount && !isNaN(parseFloat(quoteAmount))) {
+    if (
+      quoteAmount &&
+      !isNaN(parseFloat(quoteAmount)) &&
+      price &&
+      !isNaN(parseFloat(price))
+    ) {
       const { volumeFloor } = handleBaseVolumeCalculate(
         parseFloat(quoteAmount) / parseFloat(price),
       )
@@ -380,8 +386,39 @@ const Trading = () => {
     }
   }
 
+  const handleCalculateQuoteAmount = (price: string, baseAmount: string) => {
+    if (
+      baseAmount &&
+      !isNaN(parseFloat(baseAmount)) &&
+      price &&
+      !isNaN(parseFloat(price))
+    ) {
+      formik.setFieldValue(
+        'quoteAmount',
+        fixDecimal(
+          parseFloat(baseAmount) * parseFloat(price),
+          selectedQuote.decimals,
+        ),
+      )
+    }
+  }
+
   useEffect(() => {
-    updateAvailable(tradeType)
+    const balance = updateAvailable(tradeType)
+
+    if (
+      (amountType === 'base' &&
+        Number(balance?.volumeInAvailable) <
+          Number(formik.values.baseAmount)) ||
+      (amountType === 'quote' &&
+        Number(balance?.volumeInAvailable) < Number(formik.values.quoteAmount))
+    ) {
+      setSelectedPercentage(null)
+      formik.setFieldValue('baseAmount', '', false)
+      formik.setFieldValue('quoteAmount', '', false)
+      formik.setFieldTouched('baseAmount', false)
+      formik.setFieldTouched('quoteAmount', false)
+    }
   }, [balances])
 
   useEffect(() => {
@@ -394,9 +431,6 @@ const Trading = () => {
     if (tradeType === 'sell') {
       setAmountType('base')
       formik.setFieldValue('amountType', 'base')
-    } else if (tradeType === 'buy') {
-      setAmountType('quote')
-      formik.setFieldValue('amountType', 'base')
     }
   }, [tradeType])
 
@@ -407,25 +441,6 @@ const Trading = () => {
   useEffect(() => {
     formik.setFieldValue('available', available?.volumeInAvailable)
   }, [available])
-
-  /*   useEffect(() => {
-    if (
-      (amountType === 'base' &&
-        Number(available?.volumeInAvailable) <
-          Number(formik.values.baseAmount)) ||
-      (amountType === 'quote' &&
-        Number(available?.volumeInAvailable) <
-          Number(formik.values.quoteAmount))
-    ) {
-      formik.setFieldValue('baseAmount', '', false)
-      formik.setFieldValue('quoteAmount', '', false)
-      formik.setErrors({
-        ...formik.errors,
-        baseAmount: undefined,
-        quoteAmount: undefined,
-      })
-    }
-  }, [formik.values.available]) */
 
   useEffect(() => {
     setBaseStepSizeDecimal(symbol?.decimals)
@@ -495,10 +510,16 @@ const Trading = () => {
               handlePriceInputChange(e)
               setSelectedPercentage(null)
               setBaseStepSize(null)
-              handleCalculateBaseAmount(
-                e.target.value,
-                formik.values.quoteAmount,
-              )
+
+              amountType === 'quote'
+                ? handleCalculateBaseAmount(
+                    e.target.value,
+                    formik.values.quoteAmount,
+                  )
+                : handleCalculateQuoteAmount(
+                    e.target.value,
+                    formik.values.baseAmount,
+                  )
             }}
           />
           <FormLabel color="grey.500" fontSize="15px">
@@ -557,7 +578,7 @@ const Trading = () => {
                     : 'grey.400',
                 color: 'grey.25',
               }}
-              onClick={() => tradeType === 'buy' && setAmountType('quote')}
+              //onClick={() => tradeType === 'buy' && setAmountType('quote')}
             >
               {symbol?.quote}
             </Button>
@@ -597,13 +618,9 @@ const Trading = () => {
                     Number(decimal),
                   )
                   formik.setFieldValue('baseAmount', valueValidate)
-                  formik.setFieldValue(
-                    'quoteAmount',
-                    fixDecimal(
-                      parseFloat(valueValidate) *
-                        parseFloat(formik.values.price),
-                      selectedQuote.decimals,
-                    ),
+                  handleCalculateQuoteAmount(
+                    formik.values.price,
+                    e.target.value,
                   )
                   handleBaseVolumeCalculate(parseFloat(e.target.value))
                 }
@@ -635,7 +652,7 @@ const Trading = () => {
                       : 'grey.400',
                 color: 'grey.25',
               }}
-              onClick={() => tradeType === 'buy' && setAmountType('base')}
+              //onClick={() => tradeType === 'buy' && setAmountType('base')}
             >
               {symbol?.base}
             </Button>
