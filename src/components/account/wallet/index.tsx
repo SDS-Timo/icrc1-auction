@@ -15,7 +15,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { FaWallet } from 'react-icons/fa'
-import { FaUserLarge } from 'react-icons/fa6'
 import { useSelector, useDispatch } from 'react-redux'
 
 import TokenTab from './tokenTab'
@@ -58,7 +57,6 @@ const WalletContent: React.FC = () => {
   const balances = useSelector((state: RootState) => state.balances.balances)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
 
-  const walletAddress = formatWalletAddress(userPrincipal)
   const userDepositAddress = formatWalletAddress(userDeposit)
 
   async function fetchBalances() {
@@ -70,19 +68,6 @@ const WalletContent: React.FC = () => {
     )
     dispatch(setBalances(sortedBalances))
     setLoading(false)
-  }
-
-  const copyToClipboardWalletAddress = () => {
-    navigator.clipboard.writeText(userPrincipal).then(() => {
-      toast({
-        position: 'top-right',
-        title: 'Copied',
-        description: 'Wallet address copied to clipboard',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      })
-    })
   }
 
   const copyToClipboardDepositAddress = () => {
@@ -375,24 +360,6 @@ const WalletContent: React.FC = () => {
   return (
     <VStack spacing={4} align="stretch">
       <Flex align="center" justifyContent="space-between">
-        <Flex align="center">
-          <Icon as={FaUserLarge} boxSize={4} mr={2} />
-          <Tooltip label={userPrincipal} aria-label={userPrincipal}>
-            <Text
-              onClick={copyToClipboardWalletAddress}
-              cursor="pointer"
-              p={1}
-              border="1px solid transparent"
-              borderRadius="md"
-              _hover={{
-                borderColor: bgColorHover,
-                borderRadius: 'md',
-              }}
-            >
-              {walletAddress}
-            </Text>
-          </Tooltip>
-        </Flex>
         <Flex align="center">
           <Icon as={FaWallet} boxSize={4} mr={2} />
           <Tooltip label={userDeposit} aria-label={userDeposit}>

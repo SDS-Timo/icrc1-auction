@@ -1,20 +1,25 @@
 import React from 'react'
 
-import { Image } from '@chakra-ui/react'
-import { Box, Flex, useDisclosure, useColorMode } from '@chakra-ui/react'
+import { Box, Flex, useDisclosure, useColorMode, Image } from '@chakra-ui/react'
+import { useSelector } from 'react-redux'
 
 import NavbarInfo from './info'
 import NavbarLanguages from './language'
 import NavbarSettings from './settings'
 import NavbarTheme from './theme'
+import NavbarUser from './user'
 import NavbarWallet from './wallet'
 import LogoDark from '../../assets/img/logo/dailyBid_black.svg'
 import LogoLight from '../../assets/img/logo/dailyBid_white.svg'
+import { RootState } from '../../store'
 import AccountComponent from '../account'
 
 const NavbarComponent: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { colorMode } = useColorMode()
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  )
 
   return (
     <Flex
@@ -34,6 +39,7 @@ const NavbarComponent: React.FC = () => {
         />
       </Box>
       <Flex flexDirection="row" alignItems="center">
+        {isAuthenticated && <NavbarUser />}
         <NavbarLanguages />
         <NavbarTheme />
         <NavbarInfo />
