@@ -167,26 +167,47 @@ const NavbarSettings: React.FC = () => {
                   Backend Canister Id
                 </FormLabel>
               </FormControl>
-              <InputRightElement h="58px" w="45px">
-                <Button
-                  h="58px"
-                  fontSize="11px"
-                  borderRadius="0 5px 5px 0"
-                  bgColor={'grey.500'}
-                  color="grey.25"
-                  _hover={{
-                    bg: 'grey.400',
-                    color: 'grey.25',
-                  }}
-                  onClick={() => {
-                    formik.setFieldValue(
-                      'canisterId',
-                      process.env.CANISTER_ID_ICRC_AUCTION,
-                    )
-                  }}
-                >
-                  Default
-                </Button>
+              <InputRightElement h="58px" w="45px" p="0">
+                <Flex direction="column" h="100%" w="100%">
+                  <Button
+                    h="50%"
+                    fontSize="11px"
+                    borderRadius="0 5px 0 0"
+                    bgColor="grey.500"
+                    color="grey.25"
+                    _hover={{
+                      bg: 'grey.400',
+                      color: 'grey.25',
+                    }}
+                    onClick={() => {
+                      formik.setFieldValue(
+                        'canisterId',
+                        process.env.CANISTER_ID_ICRC_AUCTION,
+                      )
+                    }}
+                  >
+                    Default
+                  </Button>
+                  <Button
+                    h="50%"
+                    fontSize="11px"
+                    borderRadius="0 0 5px 0"
+                    bgColor="grey.500"
+                    color="grey.25"
+                    _hover={{
+                      bg: 'grey.400',
+                      color: 'grey.25',
+                    }}
+                    onClick={() => {
+                      formik.setFieldValue(
+                        'canisterId',
+                        process.env.CANISTER_ID_ICRC_AUCTION_OLD,
+                      )
+                    }}
+                  >
+                    Old
+                  </Button>
+                </Flex>
               </InputRightElement>
             </InputGroup>
             {!!formik.errors.canisterId && formik.touched.canisterId && (

@@ -9,6 +9,11 @@ import {
   StatHelpText,
   StatArrow,
   Tooltip,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -20,6 +25,7 @@ import { NextSession } from '../../../types'
 import { fixDecimal } from '../../../utils/calculationsUtils'
 
 const HeaderInformation = () => {
+  const bgColor = useColorModeValue('grey.100', 'grey.900')
   const dispatch = useDispatch<AppDispatch>()
   const headerInformation = useSelector(
     (state: RootState) => state.prices.headerInformation,
@@ -239,7 +245,36 @@ const HeaderInformation = () => {
           </Stat>
         </Flex>
       </Box>
+
       <Box
+        display={{ base: 'block', md: 'none' }}
+        mt={3}
+        ml={-2}
+        borderRadius="md"
+        flex="1"
+        filter={isLoading ? 'blur(5px)' : 'none'}
+      >
+        <Menu>
+          <MenuButton
+            _hover={{ bg: 'transparent' }}
+            _focus={{ outline: 'none' }}
+            onClick={() => fetchStatistics()}
+          >
+            <Stat size="sm">
+              <StatLabel>Next Auction</StatLabel>
+              <StatNumber>
+                {nextSession ? nextSession.nextSession : '--'}
+              </StatNumber>
+            </Stat>
+          </MenuButton>
+          <MenuList bg={bgColor} p={4}>
+            <MenuItem bg={bgColor}>{tooltipText}</MenuItem>
+          </MenuList>
+        </Menu>
+      </Box>
+
+      <Box
+        display={{ base: 'none', md: 'block' }}
         mt={3}
         ml={-2}
         borderRadius="md"
