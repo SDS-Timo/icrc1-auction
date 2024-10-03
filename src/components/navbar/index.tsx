@@ -29,6 +29,7 @@ const NavbarComponent: React.FC = () => {
       justifyContent="space-between"
       borderBottom="1px solid"
       borderColor="grey.800"
+      flexDirection={{ base: 'column', md: 'row' }}
     >
       <Box>
         <Image
@@ -38,7 +39,7 @@ const NavbarComponent: React.FC = () => {
           alt="Logo"
         />
       </Box>
-      <Flex flexDirection="row" alignItems="center">
+      <Flex flexDirection="row" alignItems="center" ml="auto">
         {isAuthenticated && <NavbarUser />}
         <NavbarLanguages />
         <NavbarTheme />

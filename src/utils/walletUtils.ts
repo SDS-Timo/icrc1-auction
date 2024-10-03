@@ -31,7 +31,7 @@ export const getErrorMessageWithdraw = (error: Result): string => {
     AmountBelowMinimum: 'Amount Below Minimum',
     InsufficientCredit: 'Insufficient Credit',
     CallLedgerError: 'Call Ledger Error',
-    BadFee: 'Bad fee',
+    BadFee: 'Badfee. Please retry.',
   }
 
   for (const key in error) {
@@ -53,7 +53,7 @@ export const getErrorMessageDeposit = (error: Result): string => {
     TransferError: (err) => (err?.message ? err.message : 'Transfer Error'),
     AmountBelowMinimum: 'Amount Below Minimum',
     CallLedgerError: 'Call Ledger Error',
-    BadFee: 'Bad fee',
+    BadFee: 'Badfee. Please retry.',
   }
 
   for (const key in error) {

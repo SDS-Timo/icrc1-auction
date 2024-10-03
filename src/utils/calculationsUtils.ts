@@ -211,16 +211,9 @@ export function addDecimal<T extends DataItem | TokenDataItem>(
   objects: T[],
   significantDigits: number,
 ): T[] {
-  function getDecimalPlaces(num: { toString: () => string }) {
-    // Convert the number to a string and handle exponential notation
-    let numStr = num.toString()
-    if (numStr.includes('e')) {
-      numStr = Number(num)
-        .toFixed(20)
-        .replace(/\.?0+$/, '')
-    }
-
-    const decimalPart = numStr.split('.')[1] || ''
+  function getDecimalPlaces(num: string | number) {
+    const numString = convertExponentialToDecimal(num)
+    const decimalPart = numString.split('.')[1] || ''
     const firstSignificantDigitIndex = decimalPart.search(/[^0]/)
 
     if (firstSignificantDigitIndex === -1) {
@@ -327,4 +320,15 @@ export function calculateMinMax(values: number[]): {
   const maxValue = roundToNearest(Math.ceil(maxRaw), magnitude / 10)
 
   return { minValue, maxValue }
+}
+
+/**
+ * Converts an exponential number to a decimal representation
+ * and removes trailing zeros.
+ * @param value - The number in exponential or decimal format to be converted.
+ * @returns The number in decimal format without trailing zeros.
+ */
+export function convertExponentialToDecimal(value: string | number): string {
+  const bigNumberValue = new BigNumber(value)
+  return bigNumberValue.toFixed().replace(/\.?0+$/, '')
 }
