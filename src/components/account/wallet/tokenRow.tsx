@@ -282,6 +282,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
                 </Tooltip>
                 <Tooltip label={claimTooltipText} aria-label="Claim Deposit">
                   <IconButton
+                    hidden //Individual claim, in the future it should be enabled
                     aria-label="Claim Deposit"
                     icon={
                       token?.notifyLoading ? (
@@ -294,7 +295,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
                       handleNotify(token.principal, token.base)
                       setAction('claim')
                     }}
-                    onMouseEnter={() => handleTrackedDeposit()}
+                    onMouseEnter={handleTrackedDeposit}
                     variant="ghost"
                     size="xs"
                     _hover={{

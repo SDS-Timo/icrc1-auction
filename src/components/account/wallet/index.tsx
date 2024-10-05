@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import {
   Flex,
+  Button,
   Icon,
   Tab,
   TabList,
@@ -12,12 +13,16 @@ import {
   VStack,
   useToast,
   useColorModeValue,
+  useColorMode,
   Tooltip,
+  Image,
 } from '@chakra-ui/react'
 import { FaWallet } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 
 import TokenTab from './tokenTab'
+import WalletIconDark from '../../../assets/img/common/wallet-black.svg'
+import WalletIconLight from '../../../assets/img/common/wallet-white.svg'
 import useWallet from '../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../store'
 import { setBalances } from '../../../store/balances'
@@ -37,6 +42,7 @@ import {
 
 const WalletContent: React.FC = () => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
+  const { colorMode } = useColorMode()
   const toast = useToast({
     duration: 10000,
     position: 'top-right',
@@ -58,6 +64,17 @@ const WalletContent: React.FC = () => {
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
 
   const userDepositAddress = formatWalletAddress(userDeposit)
+
+  const claimTooltipTextStandard = (
+    <>
+      {`Claim Direct Deposit`}
+      <br />
+      {`Please wait...`}
+    </>
+  )
+  const [claimTooltipText, setClaimTooltipText] = useState(
+    claimTooltipTextStandard,
+  )
 
   async function fetchBalances() {
     setLoading(true)
@@ -81,6 +98,72 @@ const WalletContent: React.FC = () => {
         isClosable: true,
       })
     })
+  }
+
+  const handleAllTrackedDeposits = async () => {
+    setClaimTooltipText(claimTooltipTextStandard)
+
+    const { getTrackedDeposit, getBalance } = useWallet()
+
+    const tokens = balances
+    const claims = []
+
+    for (const token of tokens) {
+      const balanceOf = await getBalance(
+        userAgent,
+        [token],
+        `${token.principal}`,
+        userPrincipal,
+        'claim',
+      )
+      const deposit = await getTrackedDeposit(
+        userAgent,
+        [token],
+        `${token.principal}`,
+      )
+
+      if (
+        typeof balanceOf === 'number' &&
+        typeof deposit === 'number' &&
+        !isNaN(balanceOf) &&
+        !isNaN(deposit)
+      ) {
+        const available = balanceOf - deposit
+        if (available > 0) {
+          claims.push(
+            `${fixDecimal(available, token.decimals)} ${token.base} available`,
+          )
+        }
+      }
+    }
+
+    if (claims.length > 0) {
+      setClaimTooltipText(
+        <>
+          {`Claim Direct Deposit`}
+          <br />
+          {claims.map((claim, index) => (
+            <div key={index}>{claim}</div>
+          ))}
+        </>,
+      )
+    } else {
+      setClaimTooltipText(
+        <>
+          {`Claim Direct Deposit`}
+          <br />
+          {`No deposits available`}
+        </>,
+      )
+    }
+  }
+
+  const handleMultipleTokenClaims = () => {
+    const tokens = balances
+
+    for (const token of tokens) {
+      handleNotify(token.principal, token.base)
+    }
   }
 
   const handleNotify = (principal: string | undefined, base: string) => {
@@ -376,6 +459,26 @@ const WalletContent: React.FC = () => {
             >
               {userDepositAddress}
             </Text>
+          </Tooltip>
+        </Flex>
+        <Flex align="center">
+          <Tooltip label={claimTooltipText} aria-label="Claim Deposit">
+            <Button
+              onClick={handleMultipleTokenClaims}
+              onMouseEnter={handleAllTrackedDeposits}
+              variant="unstyled"
+              p={0}
+              m={0}
+              display="flex"
+              alignItems="center"
+            >
+              <Image
+                src={colorMode === 'dark' ? WalletIconLight : WalletIconDark}
+                boxSize={4}
+                mr={2}
+              />
+              <Text>Claim Deposit</Text>
+            </Button>
           </Tooltip>
         </Flex>
       </Flex>
