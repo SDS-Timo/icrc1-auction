@@ -75,7 +75,7 @@ const TokenTab: React.FC<TokenTabProps> = ({
         </Flex>
       )}
 
-      {loading ? (
+      {loading && filteredBalances?.length <= 0 ? (
         <Flex justify="center" align="center" h="100px">
           <Progress size="xs" isIndeterminate w="90%" />
         </Flex>
