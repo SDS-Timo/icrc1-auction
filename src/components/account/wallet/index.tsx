@@ -40,6 +40,12 @@ import {
   getErrorMessageDeposit,
 } from '../../../utils/walletUtils'
 
+interface ClaimTokenBalance {
+  principal: string
+  base: string
+  available: number
+}
+
 const WalletContent: React.FC = () => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const { colorMode } = useColorMode()
@@ -52,6 +58,9 @@ const WalletContent: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0)
   const [loading, setLoading] = useState(true)
   const [localBalances, setLocalBalances] = useState<TokenDataItem[]>([])
+  const [claimTokensBalance, setClaimTokensBalance] = useState<
+    ClaimTokenBalance[]
+  >([])
   const { userAgent } = useSelector((state: RootState) => state.auth)
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -105,44 +114,52 @@ const WalletContent: React.FC = () => {
 
     const { getTrackedDeposit, getBalance } = useWallet()
 
-    const tokens = balances
-    const claims = []
+    const tokensBalance: ClaimTokenBalance[] = []
+    const claims = await Promise.all(
+      balances.map(async (token) => {
+        const balanceOf = await getBalance(
+          userAgent,
+          [token],
+          `${token.principal}`,
+          userPrincipal,
+          'claim',
+        )
 
-    for (const token of tokens) {
-      const balanceOf = await getBalance(
-        userAgent,
-        [token],
-        `${token.principal}`,
-        userPrincipal,
-        'claim',
-      )
-      const deposit = await getTrackedDeposit(
-        userAgent,
-        [token],
-        `${token.principal}`,
-      )
+        const deposit = await getTrackedDeposit(
+          userAgent,
+          [token],
+          `${token.principal}`,
+        )
 
-      if (
-        typeof balanceOf === 'number' &&
-        typeof deposit === 'number' &&
-        !isNaN(balanceOf) &&
-        !isNaN(deposit)
-      ) {
-        const available = balanceOf - deposit
-        if (available > 0) {
-          claims.push(
-            `${fixDecimal(available, token.decimals)} ${token.base} available`,
-          )
+        if (
+          typeof balanceOf === 'number' &&
+          typeof deposit === 'number' &&
+          !isNaN(balanceOf) &&
+          !isNaN(deposit)
+        ) {
+          const available = balanceOf - deposit
+          if (available > 0) {
+            tokensBalance.push({
+              principal: `${token?.principal}`,
+              base: token?.base,
+              available,
+            })
+            return `${fixDecimal(available, token.decimals)} ${token.base} available`
+          }
         }
-      }
-    }
+        return null
+      }),
+    )
 
-    if (claims.length > 0) {
+    setClaimTokensBalance(tokensBalance)
+    const filteredClaims = claims.filter((claim) => claim !== null)
+
+    if (filteredClaims.length > 0) {
       setClaimTooltipText(
         <>
-          {`Claim Direct Deposit`}
+          {`Claim Direct Deposits`}
           <br />
-          {claims.map((claim, index) => (
+          {filteredClaims.map((claim, index) => (
             <div key={index}>{claim}</div>
           ))}
         </>,
@@ -150,7 +167,7 @@ const WalletContent: React.FC = () => {
     } else {
       setClaimTooltipText(
         <>
-          {`Claim Direct Deposit`}
+          {`Claim Direct Deposits`}
           <br />
           {`No deposits available`}
         </>,
@@ -159,11 +176,9 @@ const WalletContent: React.FC = () => {
   }
 
   const handleMultipleTokenClaims = () => {
-    const tokens = balances
-
-    for (const token of tokens) {
+    claimTokensBalance.map((token) => {
       handleNotify(token.principal, token.base)
-    }
+    })
   }
 
   const handleNotify = (principal: string | undefined, base: string) => {
