@@ -20,7 +20,8 @@ import {
 import { FaWallet } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 
-import TokenTab from './tokenTab'
+import ActionTab from './actions/actionTab'
+import TokenTab from './tokens/tokenTab'
 import WalletIconDark from '../../../assets/img/common/wallet-black.svg'
 import WalletIconLight from '../../../assets/img/common/wallet-white.svg'
 import useWallet from '../../../hooks/useWallet'
@@ -517,6 +518,13 @@ const WalletContent: React.FC = () => {
           >
             Tokens
           </Tab>
+          <Tab
+            _selected={{ borderBottom: '2px solid', borderColor: 'blue.500' }}
+            _focus={{ boxShadow: 'none' }}
+            _active={{ background: 'transparent' }}
+          >
+            Action History
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -544,6 +552,9 @@ const WalletContent: React.FC = () => {
               showSearch={true}
               loading={loading}
             />
+          </TabPanel>
+          <TabPanel>
+            <ActionTab userAgent={userAgent} tokens={tokens} />
           </TabPanel>
         </TabPanels>
       </Tabs>

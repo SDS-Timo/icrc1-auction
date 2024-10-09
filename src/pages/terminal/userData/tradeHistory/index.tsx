@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, useDisclosure } from '@chakra-ui/react'
+import { Box, useDisclosure, useColorModeValue } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './tradeHistoryTable'
 import LoginButtonComponent from '../../../../components/loginButton'
 import PaginationTable, {
   pgSizeDinamic,
-} from '../../../../components/pagination'
+} from '../../../../components/paginationTable'
 import useTransactionHistory from '../../../../hooks/useTradeHistory'
 import { RootState, AppDispatch } from '../../../../store'
 import { setIsRefreshUserData } from '../../../../store/orders'
 import { TokenDataItem } from '../../../../types'
 
 const TradeHistory: React.FC = () => {
+  const bgColor = useColorModeValue('grey.200', 'grey.700')
+  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const pgSize = pgSizeDinamic()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch = useDispatch<AppDispatch>()
@@ -127,6 +129,8 @@ const TradeHistory: React.FC = () => {
             sortBy={sortBy}
             tableSize="sm"
             fontSize="11px"
+            bgColor={bgColor}
+            fontColor={fontColor}
             emptyMessage="no transactions found"
             pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}

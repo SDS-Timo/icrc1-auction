@@ -11,7 +11,7 @@ import {
 import { HttpAgent } from '@dfinity/agent'
 
 import TokenRow from './tokenRow'
-import { TokenDataItem, TokenMetadata } from '../../../types'
+import { TokenDataItem, TokenMetadata } from '../../../../types'
 
 interface TokenTabProps {
   balances: TokenDataItem[]

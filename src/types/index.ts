@@ -60,7 +60,6 @@ export interface PricesHistoryState {
   headerInformation: HeaderInformation | null
 }
 export interface TokenDataItem extends DataItem, TokenMetadata {
-  action?: boolean
   [key: string]: any
 }
 export interface TokenDataItemState {

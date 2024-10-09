@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, useDisclosure, useToast } from '@chakra-ui/react'
+import {
+  Box,
+  useDisclosure,
+  useToast,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import tableContent from './openOrdersTable'
 import LoginButtonComponent from '../../../../components/loginButton'
 import PaginationTable, {
   pgSizeDinamic,
-} from '../../../../components/pagination'
+} from '../../../../components/paginationTable'
 import useOpenOrders from '../../../../hooks/useOrders'
 import useBalances from '../../../../hooks/useWallet'
 import { RootState, AppDispatch } from '../../../../store'
@@ -17,6 +22,8 @@ import { TokenDataItem, Result } from '../../../../types'
 import { getErrorMessageCancelOrder } from '../../../../utils/orderUtils'
 
 const OpenOrders: React.FC = () => {
+  const bgColor = useColorModeValue('grey.200', 'grey.700')
+  const fontColor = useColorModeValue('grey.700', 'grey.25')
   const toast = useToast({
     duration: 10000,
     position: 'top-right',
@@ -209,6 +216,8 @@ const OpenOrders: React.FC = () => {
             sortBy={sortBy}
             tableSize="sm"
             fontSize="11px"
+            bgColor={bgColor}
+            fontColor={fontColor}
             emptyMessage="no order found"
             pgSize={isResizeUserData ? 15 : pgSize}
             onClick={(c) => c}

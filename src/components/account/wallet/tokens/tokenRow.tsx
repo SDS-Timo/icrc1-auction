@@ -25,12 +25,12 @@ import { LuDownload, LuUpload } from 'react-icons/lu'
 import { RiHandCoinLine } from 'react-icons/ri'
 import * as Yup from 'yup'
 
-import useWallet from '../../../hooks/useWallet'
-import { TokenDataItem, TokenMetadata } from '../../../types'
+import useWallet from '../../../../hooks/useWallet'
+import { TokenDataItem, TokenMetadata } from '../../../../types'
 import {
   fixDecimal,
   convertVolumeFromCanister,
-} from '../../../utils/calculationsUtils'
+} from '../../../../utils/calculationsUtils'
 
 interface TokenRowProps {
   token: TokenDataItem

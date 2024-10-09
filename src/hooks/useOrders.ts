@@ -11,7 +11,6 @@ import {
 import {
   convertPriceFromCanister,
   convertVolumeFromCanister,
-  getDecimals,
   addDecimal,
 } from '../utils/calculationsUtils'
 import { getActor } from '../utils/canisterUtils'
@@ -56,13 +55,13 @@ const useOrders = () => {
 
         const formattedPrice = convertPriceFromCanister(
           Number(price),
-          getDecimals(token),
-          getDecimals(selectedQuote),
+          token.decimals,
+          selectedQuote.decimals,
         )
 
         const { volumeInQuote, volumeInBase } = convertVolumeFromCanister(
           Number(volume),
-          getDecimals(token),
+          token.decimals,
           formattedPrice,
         )
 
@@ -111,13 +110,13 @@ const useOrders = () => {
 
       const { volumeInBase: minimumOrderSize } = convertVolumeFromCanister(
         Number(orderQuoteVolumeMinimum),
-        getDecimals(selectedQuote),
+        selectedQuote.decimals,
         0,
       )
 
       const { volumeInBase: stepSize } = convertVolumeFromCanister(
         Number(orderQuoteVolumeStep),
-        getDecimals(selectedQuote),
+        selectedQuote.decimals,
         0,
       )
 

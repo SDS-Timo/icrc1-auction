@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { Row } from 'react-table'
 
-import { ColumnWithSorting } from '../../../../components/pagination'
+import { ColumnWithSorting } from '../../../../components/paginationTable'
 import { TokenDataItem } from '../../../../types'
 import {
   fixDecimal,
