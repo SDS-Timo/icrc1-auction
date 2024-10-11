@@ -14,15 +14,11 @@ const useDepositHistory = () => {
    *
    * @param userAgent - An instance of HttpAgent used for making authenticated requests.
    * @param tokens - An array of token objects.
-   * @param limit - The maximum number of records to retrieve.
-   * @param skip - The number of records to skip (used for pagination).
    * @returns - A promise that resolves to an array of formatted token deposit/withdraw data items.
    */
   const getDepositHistory = async (
     userAgent: HttpAgent,
     tokens: TokenMetadata[],
-    limit: number,
-    skip: number,
   ): Promise<TokenDataItem[]> => {
     try {
       if (!tokens || tokens.length === 0) return []
@@ -31,12 +27,13 @@ const useDepositHistory = () => {
 
       const histories = await serviceActor.queryDepositHistory(
         [],
-        BigInt(limit),
-        BigInt(skip),
+        BigInt(10000),
+        BigInt(0),
       )
 
-      const formattedData = (histories ?? []).map(
-        ([ts, actionObj, tokenPrincipal, volume], index) => {
+      const formattedData = (histories ?? [])
+        .reverse()
+        .map(([ts, actionObj, tokenPrincipal, volume], index) => {
           const date = new Date(Number(ts) / 1_000_000)
           const optionsDateTime: Intl.DateTimeFormatOptions = {
             day: '2-digit',
@@ -71,8 +68,7 @@ const useDepositHistory = () => {
             action,
             ...token,
           }
-        },
-      )
+        })
 
       return formattedData
     } catch (error) {

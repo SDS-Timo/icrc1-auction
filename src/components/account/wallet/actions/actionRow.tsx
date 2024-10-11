@@ -21,13 +21,24 @@ const ActionRow: React.FC<ActionRowProps> = ({ data }) => {
       </Flex>
       <Flex direction="column" align="flex-end" ml={2} overflowX="auto">
         <Flex align="center" overflowX="auto" whiteSpace="nowrap">
-          <Text mr={2}>{fixDecimal(data.volumeInBase, data.decimals)}</Text>
+          <Text
+            mr={2}
+            color={
+              data.action === 'withdrawal'
+                ? 'red.500'
+                : data.action === 'deposit'
+                  ? 'green.500'
+                  : 'inherit'
+            }
+          >
+            {data.action === 'withdrawal' ? '-' : ''}
+            {fixDecimal(data.volumeInBase, data.decimals)}
+          </Text>
           <ActionIcon action={data.action} />
         </Flex>
+
         <Flex>
-          <Text fontSize="12px" color="grey.400">
-            {data.datetime}
-          </Text>
+          <Text fontSize="12px">{data.datetime}</Text>
         </Flex>
       </Flex>
     </Flex>

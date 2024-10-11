@@ -102,7 +102,7 @@ const WalletContent: React.FC = () => {
       toast({
         position: 'top-right',
         title: 'Copied',
-        description: 'Deposit address copied to clipboard',
+        description: 'Wallet account copied to clipboard',
         status: 'success',
         duration: 2000,
         isClosable: true,

@@ -31,7 +31,7 @@ const NavbarUser: React.FC = () => {
       toast({
         position: 'top-right',
         title: 'Copied',
-        description: 'Wallet address copied to clipboard',
+        description: 'User principal copied to clipboard',
         status: 'success',
         duration: 2000,
         isClosable: true,
