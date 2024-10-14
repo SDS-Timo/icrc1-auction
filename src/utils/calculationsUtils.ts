@@ -55,7 +55,7 @@ export function convertPriceToCanister(
   decimalsQuote: number,
 ): number {
   const priceInSmallestUnitBase =
-    price * Math.pow(10, decimalsQuote - decimalsPrice)
+    (price * Math.pow(10, decimalsQuote)) / Math.pow(10, decimalsPrice)
   return priceInSmallestUnitBase
 }
 

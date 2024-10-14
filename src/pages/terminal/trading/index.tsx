@@ -160,25 +160,58 @@ const Trading = () => {
           then: (schema) => {
             return schema.test('valid-amount', function (value) {
               const { path, createError } = this
+
+              const priceNat = Number(
+                convertPriceToCanister(
+                  Number(formik.values.price),
+                  Number(symbol?.decimals),
+                  selectedQuote.decimals,
+                ),
+              )
+
+              const minimumOrderSizeNat = Number(
+                convertVolumeToCanister(
+                  Number(minimumOrderSize),
+                  Number(selectedQuote.decimals),
+                ),
+              )
+
+              const minimumBaseAmountNat: number =
+                priceNat > 0
+                  ? minimumOrderSizeNat / priceNat
+                  : minimumOrderSizeNat
+
               const minimumBaseAmount: number =
                 parseFloat(formik.values.price) > 0
                   ? minimumOrderSize / parseFloat(formik.values.price)
                   : minimumOrderSize
 
-              const volumeInAvailable = parseFloat(
-                `${available?.volumeInAvailable}`,
+              const baseAmountNat = Number(
+                convertVolumeToCanister(
+                  Number(value),
+                  Number(symbol?.decimals),
+                ),
               )
-              const price = parseFloat(formik.values.price)
+
+              const volumeInAvailable = Number(
+                convertVolumeToCanister(
+                  Number(available?.volumeInAvailable),
+                  tradeType === 'buy'
+                    ? Number(selectedQuote.decimals)
+                    : Number(symbol?.decimals),
+                ),
+              )
+
               const maximumBaseAmount: number =
-                volumeInAvailable > 0 && price > 0
+                volumeInAvailable > 0 && priceNat > 0
                   ? tradeType === 'buy'
-                    ? volumeInAvailable / price
+                    ? priceNat * baseAmountNat
                     : volumeInAvailable
                   : 0
 
-              if (value && value > maximumBaseAmount) {
+              if (maximumBaseAmount > volumeInAvailable) {
                 return createError({ path, message: 'Not enough funds' })
-              } else if (value && value < minimumBaseAmount) {
+              } else if (baseAmountNat < minimumBaseAmountNat) {
                 return createError({
                   path,
                   message: `Amount must be ≥ ${minimumBaseAmount.toFixed(

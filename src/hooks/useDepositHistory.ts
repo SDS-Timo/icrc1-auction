@@ -41,7 +41,6 @@ const useDepositHistory = () => {
             year: 'numeric',
             hour: 'numeric',
             minute: 'numeric',
-            second: 'numeric',
           }
           const formattedDateTime = date.toLocaleDateString(
             'en-US',
