@@ -80,8 +80,11 @@ const useWallet = () => {
           volumeInQuote: 0,
           volumeInBase: volumeInAvailable,
           volumeInAvailable,
+          volumeInAvailableNat: String(credits.available),
           volumeInLocked,
+          volumeInLockedNat: String(credits.locked),
           volumeInTotal,
+          volumeInTotalNat: String(credits.total),
           ...token,
         }
       })

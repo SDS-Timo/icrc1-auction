@@ -60,12 +60,12 @@ export function convertPriceToCanister(
 }
 
 /**
- * Convert the volume in the smallest units of the base currency.
+ * Normalize the amount in the smallest units of the base currency.
  * @param baseAmount - The amount in the base currency.
  * @param decimalsBase - The number of decimal places for the base currency.
  * @returns The volume in the smallest unit of the base currency.
  */
-export function convertVolumeToCanister(
+export function normalizeAmount(
   baseAmount: number,
   decimalsBase: number,
 ): bigint {

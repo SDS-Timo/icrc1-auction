@@ -30,7 +30,7 @@ import { setBalances } from '../../../store/balances'
 import { Result, TokenDataItem, TokenMetadata } from '../../../types'
 import {
   convertVolumeFromCanister,
-  convertVolumeToCanister,
+  normalizeAmount,
   getDecimals,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
@@ -281,10 +281,7 @@ const WalletContent: React.FC = () => {
     }
     withdrawStatus(token.base, 'loading')
 
-    const volume = convertVolumeToCanister(
-      Number(amount),
-      Number(token.decimals),
-    )
+    const volume = normalizeAmount(Number(amount), Number(token.decimals))
 
     const toastId = toast({
       title: `Withdraw ${token.base} pending`,
@@ -367,10 +364,7 @@ const WalletContent: React.FC = () => {
     }
     depositStatus(token.base, 'loading')
 
-    const volume = convertVolumeToCanister(
-      Number(amount),
-      Number(token.decimals),
-    )
+    const volume = normalizeAmount(Number(amount), Number(token.decimals))
 
     const toastId = toast({
       title: `Deposit ${token.base} pending`,

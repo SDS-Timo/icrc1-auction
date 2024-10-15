@@ -30,8 +30,11 @@ export interface DataItem {
   volumeInBase: number
   volumeInQuote: number
   volumeInAvailable?: number
+  volumeInAvailableNat?: string
   volumeInLocked?: number
+  volumeInLockedNat?: string
   volumeInTotal?: number
+  volumeInTotalNat?: string
   priceDecimals?: number
   volumeDecimals?: number
   quoteDecimals?: number
@@ -64,9 +67,7 @@ export interface TokenDataItem extends DataItem, TokenMetadata {
 }
 export interface TokenDataItemState {
   isRefreshUserData: boolean
-  minimumOrderSize: number
-  volumeStepSize: number
-  priceDigitsLimit: number
+  orderSettings: SettingsState
   openOrders: TokenDataItem[] | []
 }
 export interface BalancesState {
@@ -74,8 +75,11 @@ export interface BalancesState {
 }
 export interface SettingsState {
   orderQuoteVolumeMinimum: number
+  orderQuoteVolumeMinimumNat: string
   orderPriceDigitsLimit: number
+  orderPriceDigitsLimitNat: string
   orderQuoteVolumeStep: number
+  orderQuoteVolumeStepNat: string
 }
 export interface Result {
   Ok?: any

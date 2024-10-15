@@ -28,8 +28,8 @@ const ChartPlot = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
-  const priceDigitsLimit = useSelector(
-    (state: RootState) => state.orders.priceDigitsLimit,
+  const orderSettings = useSelector(
+    (state: RootState) => state.orders.orderSettings,
   )
   const priceHistoryData = useSelector(
     (state: RootState) => state.prices.pricesHistory,
@@ -56,7 +56,7 @@ const ChartPlot = () => {
         userAgent,
         symbol,
         selectedQuote,
-        priceDigitsLimit,
+        orderSettings.orderPriceDigitsLimit,
       )
 
       const headerInformation = calculateHeaderInformation(prices)

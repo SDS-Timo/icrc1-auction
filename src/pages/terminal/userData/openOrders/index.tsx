@@ -48,8 +48,8 @@ const OpenOrders: React.FC = () => {
   const isRefreshUserData = useSelector(
     (state: RootState) => state.orders.isRefreshUserData,
   )
-  const priceDigitsLimit = useSelector(
-    (state: RootState) => state.orders.priceDigitsLimit,
+  const orderSettings = useSelector(
+    (state: RootState) => state.orders.orderSettings,
   )
   const openOrders = useSelector((state: RootState) => state.orders.openOrders)
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
@@ -71,7 +71,7 @@ const OpenOrders: React.FC = () => {
         userAgent,
         tokens,
         selectedQuote,
-        priceDigitsLimit,
+        orderSettings.orderPriceDigitsLimit,
       )
 
       dispatch(setOpenOrders(openOrdersRaw))

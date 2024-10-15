@@ -31,7 +31,7 @@ import { Result, TokenDataItem } from '../../../types'
 import { convertExponentialToDecimal } from '../../../utils/calculationsUtils'
 import {
   convertPriceToCanister,
-  convertVolumeToCanister,
+  normalizeAmount,
   volumeStepSizeDecimals,
   volumeCalculateStepSize,
   priceDigitLimitValidate,
@@ -76,14 +76,8 @@ const Trading = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
-  const minimumOrderSize = useSelector(
-    (state: RootState) => state.orders.minimumOrderSize,
-  )
-  const priceDigitsLimit = useSelector(
-    (state: RootState) => state.orders.priceDigitsLimit,
-  )
-  const volumeStepSize = useSelector(
-    (state: RootState) => state.orders.volumeStepSize,
+  const orderSettings = useSelector(
+    (state: RootState) => state.orders.orderSettings,
   )
   const symbol = Array.isArray(selectedSymbol)
     ? selectedSymbol[0]
@@ -115,13 +109,21 @@ const Trading = () => {
               return false
             }),
         })
-        .when('amountType', {
-          is: 'quote',
-          then: (schema) =>
-            schema.min(
-              minimumOrderSize,
-              `Amount must be ≥ ${minimumOrderSize} ${symbol?.quote}`,
-            ),
+        .test('valid-amount', function (value) {
+          const { path, createError } = this
+
+          const quoteAmountNat = Number(
+            normalizeAmount(Number(value), Number(selectedQuote.decimals)),
+          )
+
+          return (
+            quoteAmountNat >=
+              Number(orderSettings.orderQuoteVolumeMinimumNat) ||
+            createError({
+              path,
+              message: `Amount must be ≥ ${orderSettings.orderQuoteVolumeMinimum} ${symbol?.quote}`,
+            })
+          )
         })
         .when('amountType', {
           is: 'quote',
@@ -169,55 +171,21 @@ const Trading = () => {
                 ),
               )
 
-              const minimumOrderSizeNat = Number(
-                convertVolumeToCanister(
-                  Number(minimumOrderSize),
-                  Number(selectedQuote.decimals),
-                ),
-              )
-
-              const minimumBaseAmountNat: number =
-                priceNat > 0
-                  ? minimumOrderSizeNat / priceNat
-                  : minimumOrderSizeNat
-
-              const minimumBaseAmount: number =
-                parseFloat(formik.values.price) > 0
-                  ? minimumOrderSize / parseFloat(formik.values.price)
-                  : minimumOrderSize
-
               const baseAmountNat = Number(
-                convertVolumeToCanister(
-                  Number(value),
-                  Number(symbol?.decimals),
-                ),
+                normalizeAmount(Number(value), Number(symbol?.decimals)),
               )
 
-              const volumeInAvailable = Number(
-                convertVolumeToCanister(
-                  Number(available?.volumeInAvailable),
-                  tradeType === 'buy'
-                    ? Number(selectedQuote.decimals)
-                    : Number(symbol?.decimals),
-                ),
-              )
+              const availableBalance = Number(available?.volumeInAvailableNat)
 
-              const maximumBaseAmount: number =
-                volumeInAvailable > 0 && priceNat > 0
+              const orderAmount: number =
+                availableBalance > 0 && priceNat > 0
                   ? tradeType === 'buy'
                     ? priceNat * baseAmountNat
-                    : volumeInAvailable
+                    : availableBalance
                   : 0
 
-              if (maximumBaseAmount > volumeInAvailable) {
+              if (orderAmount > availableBalance) {
                 return createError({ path, message: 'Not enough funds' })
-              } else if (baseAmountNat < minimumBaseAmountNat) {
-                return createError({
-                  path,
-                  message: `Amount must be ≥ ${minimumBaseAmount.toFixed(
-                    symbol?.decimals,
-                  )} ${symbol?.base}`,
-                })
               }
 
               return true
@@ -240,7 +208,7 @@ const Trading = () => {
         selectedQuote.decimals,
       )
 
-      const volume = convertVolumeToCanister(
+      const volume = normalizeAmount(
         Number(values.baseAmount),
         Number(symbol?.decimals),
       )
@@ -379,7 +347,7 @@ const Trading = () => {
 
     const decimal = volumeStepSizeDecimals(
       numericPrice,
-      volumeStepSize,
+      orderSettings.orderQuoteVolumeStep,
       Number(symbol?.decimals),
       selectedQuote.decimals,
     )
@@ -405,7 +373,7 @@ const Trading = () => {
       numericPrice,
       value,
       Number(decimalPlaces),
-      volumeStepSize,
+      orderSettings.orderQuoteVolumeStep,
     )
 
     const stepSizeDecimalString = convertExponentialToDecimal(stepSize)
@@ -429,7 +397,9 @@ const Trading = () => {
       return { price: formik.values.price, volume: null }
     }
 
-    if (priceDigitLimitValidate(numericValue, priceDigitsLimit)) {
+    if (
+      priceDigitLimitValidate(numericValue, orderSettings.orderPriceDigitsLimit)
+    ) {
       const { volumeFloor } = handleBaseVolumeCalculate(
         parseFloat(formik.values.baseAmount),
         value,

@@ -38,8 +38,8 @@ const TradeHistory: React.FC = () => {
   const isRefreshUserData = useSelector(
     (state: RootState) => state.orders.isRefreshUserData,
   )
-  const priceDigitsLimit = useSelector(
-    (state: RootState) => state.orders.priceDigitsLimit,
+  const orderSettings = useSelector(
+    (state: RootState) => state.orders.orderSettings,
   )
   const selectedSymbol = useSelector(
     (state: RootState) => state.tokens.selectedSymbol,
@@ -59,7 +59,7 @@ const TradeHistory: React.FC = () => {
         userAgent,
         tokens,
         selectedQuote,
-        priceDigitsLimit,
+        orderSettings.orderPriceDigitsLimit,
       )
 
       setTransactions(transactions)

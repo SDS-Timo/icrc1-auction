@@ -122,15 +122,21 @@ const useOrders = () => {
 
       return {
         orderQuoteVolumeMinimum: minimumOrderSize,
+        orderQuoteVolumeMinimumNat: String(orderQuoteVolumeMinimum),
         orderPriceDigitsLimit: Number(orderPriceDigitsLimit),
+        orderPriceDigitsLimitNat: String(orderPriceDigitsLimit),
         orderQuoteVolumeStep: stepSize,
+        orderQuoteVolumeStepNat: String(orderQuoteVolumeStep),
       }
     } catch (error) {
       console.error('Error fetching orders:', error)
       return {
         orderQuoteVolumeMinimum: 0,
+        orderQuoteVolumeMinimumNat: '0',
         orderPriceDigitsLimit: 0,
+        orderPriceDigitsLimitNat: '0',
         orderQuoteVolumeStep: 0,
+        orderQuoteVolumeStepNat: '0',
       }
     }
   }

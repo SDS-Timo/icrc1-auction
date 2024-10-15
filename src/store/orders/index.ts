@@ -4,9 +4,14 @@ import { TokenDataItem, TokenDataItemState } from '../../types'
 
 const initialState: TokenDataItemState = {
   isRefreshUserData: false,
-  minimumOrderSize: 0,
-  volumeStepSize: 0,
-  priceDigitsLimit: 0,
+  orderSettings: {
+    orderQuoteVolumeMinimum: 0,
+    orderQuoteVolumeMinimumNat: '0',
+    orderPriceDigitsLimit: 0,
+    orderPriceDigitsLimitNat: '0',
+    orderQuoteVolumeStep: 0,
+    orderQuoteVolumeStepNat: '0',
+  },
   openOrders: [],
 }
 
@@ -17,14 +22,8 @@ const ordersSlice = createSlice({
     setIsRefreshUserData: (state) => {
       state.isRefreshUserData = !state.isRefreshUserData
     },
-    setMinimumOrderSize: (state, action) => {
-      state.minimumOrderSize = action.payload
-    },
-    setVolumeStepSize: (state, action) => {
-      state.volumeStepSize = action.payload
-    },
-    setPriceDigitsLimit: (state, action) => {
-      state.priceDigitsLimit = action.payload
+    setOrderSettings: (state, action) => {
+      state.orderSettings = action.payload
     },
     setOpenOrders: (state, action: PayloadAction<TokenDataItem[] | []>) => {
       state.openOrders = action.payload
@@ -32,12 +31,7 @@ const ordersSlice = createSlice({
   },
 })
 
-export const {
-  setIsRefreshUserData,
-  setMinimumOrderSize,
-  setVolumeStepSize,
-  setPriceDigitsLimit,
-  setOpenOrders,
-} = ordersSlice.actions
+export const { setIsRefreshUserData, setOrderSettings, setOpenOrders } =
+  ordersSlice.actions
 
 export default ordersSlice.reducer

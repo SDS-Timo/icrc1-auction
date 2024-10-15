@@ -16,11 +16,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import useOrder from '../../../hooks/useOrders'
 import { RootState, AppDispatch } from '../../../store'
-import {
-  setMinimumOrderSize,
-  setPriceDigitsLimit,
-  setVolumeStepSize,
-} from '../../../store/orders'
+import { setOrderSettings } from '../../../store/orders'
 import { getAuctionCanisterId } from '../../../utils/canisterUtils'
 
 const NavbarInfo: React.FC = () => {
@@ -39,14 +35,8 @@ const NavbarInfo: React.FC = () => {
   const selectedQuote = useSelector(
     (state: RootState) => state.tokens.selectedQuote,
   )
-  const minimumOrderSize = useSelector(
-    (state: RootState) => state.orders.minimumOrderSize,
-  )
-  const priceDigitsLimit = useSelector(
-    (state: RootState) => state.orders.priceDigitsLimit,
-  )
-  const volumeStepSize = useSelector(
-    (state: RootState) => state.orders.volumeStepSize,
+  const orderSettings = useSelector(
+    (state: RootState) => state.orders.orderSettings,
   )
 
   const copyToClipboard = (text: string, description: string) => {
@@ -66,9 +56,7 @@ const NavbarInfo: React.FC = () => {
 
       const settings = await getOrderSettings(userAgent, selectedQuote)
 
-      dispatch(setMinimumOrderSize(settings.orderQuoteVolumeMinimum))
-      dispatch(setPriceDigitsLimit(settings.orderPriceDigitsLimit))
-      dispatch(setVolumeStepSize(settings.orderQuoteVolumeStep))
+      dispatch(setOrderSettings(settings))
     }
   }
 
@@ -152,10 +140,12 @@ const NavbarInfo: React.FC = () => {
               Order size:
             </Text>
             <Text ml={1} fontSize="13px">
-              {minimumOrderSize} {selectedQuote.base} minimum
+              {orderSettings.orderQuoteVolumeMinimum} {selectedQuote.base}{' '}
+              minimum
             </Text>
             <Text ml={1} fontSize="13px">
-              {volumeStepSize} {selectedQuote.base} step size
+              {orderSettings.orderQuoteVolumeStep} {selectedQuote.base} step
+              size
             </Text>
           </Box>
           <Box>
@@ -163,7 +153,7 @@ const NavbarInfo: React.FC = () => {
               Price precision:
             </Text>
             <Text ml={1} fontSize="13px">
-              {priceDigitsLimit} significant digits
+              {orderSettings.orderPriceDigitsLimit} significant digits
             </Text>
           </Box>
         </MenuList>
