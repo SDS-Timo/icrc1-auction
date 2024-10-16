@@ -113,7 +113,7 @@ const Trading = () => {
           const { path, createError } = this
 
           const quoteAmountNat = Number(
-            normalizeAmount(Number(value), Number(selectedQuote.decimals)),
+            normalizeAmount(Number(value), selectedQuote.decimals),
           )
 
           return (
@@ -605,7 +605,10 @@ const Trading = () => {
               Amount
             </FormLabel>
           </FormControl>
-          <InputRightElement h="58px">
+          <InputRightElement
+            h="58px"
+            w={`${symbol?.base && symbol.base.length * 9}px`}
+          >
             <Button
               h="58px"
               fontSize="11px"
@@ -681,7 +684,10 @@ const Trading = () => {
               Amount
             </FormLabel>
           </FormControl>
-          <InputRightElement h="58px">
+          <InputRightElement
+            h="58px"
+            w={`${symbol?.base && symbol.base.length * 9}px`}
+          >
             <Button
               h="58px"
               fontSize="11px"
