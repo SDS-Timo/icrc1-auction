@@ -63,15 +63,30 @@ const HeaderInformation = () => {
       const stats = await getStatistics(userAgent, symbol, selectedQuote)
 
       if (stats) {
+        const clearingVolume = stats?.clearingVolume.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: symbol.decimals,
+        })
+
+        const totalAskVolume = stats?.totalAskVolume.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: symbol.decimals,
+        })
+
+        const totalBidVolume = stats?.totalBidVolume.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: symbol.decimals,
+        })
+
         setTooltipText(
           <>
             {`Clearing Price: ${fixDecimal(stats?.clearingPrice, symbol?.decimals)} ${symbol?.quote}`}
             <br />
-            {`Clearing Volume: ${stats?.clearingVolume} ${symbol?.base}`}
+            {`Clearing Volume: ${clearingVolume} ${symbol?.base}`}
             <br />
-            {`Total Ask Volume: ${stats?.totalAskVolume} ${symbol?.base}`}
+            {`Total Ask Volume: ${totalAskVolume} ${symbol?.base}`}
             <br />
-            {`Total Bid Volume: ${stats?.totalBidVolume} ${symbol?.base}`}
+            {`Total Bid Volume: ${totalBidVolume} ${symbol?.base}`}
             <br />
           </>,
         )
