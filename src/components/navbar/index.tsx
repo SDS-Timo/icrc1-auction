@@ -4,7 +4,7 @@ import { Box, Flex, useDisclosure, useColorMode, Image } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 
 import NavbarInfo from './info'
-import NavbarLanguages from './language'
+/* import NavbarLanguages from './language' */
 import NavbarSettings from './settings'
 import NavbarTheme from './theme'
 import NavbarUser from './user'
@@ -41,7 +41,7 @@ const NavbarComponent: React.FC = () => {
       </Box>
       <Flex flexDirection="row" alignItems="center" ml="auto">
         {isAuthenticated && <NavbarUser />}
-        <NavbarLanguages />
+        {/* <NavbarLanguages /> */}
         <NavbarTheme />
         <NavbarInfo />
         <NavbarSettings />

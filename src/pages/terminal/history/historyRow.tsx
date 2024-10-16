@@ -18,6 +18,11 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
   symbol,
   toggleVolume,
 }) => {
+  const volumeInBase = data.volumeInBase.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: data.volumeInBaseDecimals,
+  })
+
   return (
     <Tr key={data.id}>
       <Td textAlign="center">
@@ -41,14 +46,10 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
           </Tooltip>
         ) : (
           <Tooltip
-            label={`${fixDecimal(data.volumeInBase, symbol?.decimals)} ${symbol?.base}`}
+            label={`${volumeInBase} ${symbol?.base}`}
             aria-label="Base value"
           >
-            <Text as="span">
-              {Number(data.volumeInBase.toFixed(data.volumeInBaseDecimals)) > 0
-                ? fixDecimal(data.volumeInBase, data.volumeInBaseDecimals)
-                : fixDecimal(data.volumeInBase, symbol?.decimals)}{' '}
-            </Text>
+            <Text as="span">{volumeInBase}</Text>
           </Tooltip>
         )}
       </Td>

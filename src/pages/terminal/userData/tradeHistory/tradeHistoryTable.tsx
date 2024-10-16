@@ -82,13 +82,17 @@ export default function tableContent(
         const {
           quote,
           base,
-          decimals,
           quoteDecimals,
           volumeInQuote,
           volumeInBase,
           volumeInQuoteDecimals,
           volumeInBaseDecimals,
         } = row.original
+
+        const volumeBase = volumeInBase.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: volumeInBaseDecimals,
+        })
         return (
           <Text
             textAlign="center"
@@ -108,14 +112,9 @@ export default function tableContent(
                 </Text>
               </Tooltip>
             ) : (
-              <Tooltip
-                label={`${fixDecimal(volumeInBase, decimals)} ${base}`}
-                aria-label="Base value"
-              >
+              <Tooltip label={`${volumeBase} ${base}`} aria-label="Base value">
                 <Text as="span">
-                  {Number(volumeInBase.toFixed(volumeInBaseDecimals)) > 0
-                    ? fixDecimal(volumeInBase, volumeInBaseDecimals)
-                    : fixDecimal(volumeInBase, decimals)}{' '}
+                  {volumeBase}{' '}
                   <Text as="span" fontSize="10px">
                     {base}
                   </Text>
