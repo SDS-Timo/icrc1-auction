@@ -49,6 +49,15 @@ export default function tableContent(
     {
       Header: 'Price',
       accessor: 'price',
+      sortType: (
+        rowA: Row<TokenDataItem>,
+        rowB: Row<TokenDataItem>,
+        columnId: string,
+      ) => {
+        const a = rowA.original[columnId] as number
+        const b = rowB.original[columnId] as number
+        return a > b ? 1 : a < b ? -1 : 0
+      },
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {
         const { price, priceDigitsLimit } = row.original
         return (
@@ -66,16 +75,16 @@ export default function tableContent(
     },
     {
       Header: 'Amount',
-      accessor: toggleVolume === 'quote' ? 'volumeInQuote' : 'volumeInBase',
+      accessor: 'volume',
       sortType: (rowA, rowB) => {
         const valA =
-          rowA.values[
-            toggleVolume === 'quote' ? 'volumeInQuote' : 'volumeInBase'
-          ]
+          toggleVolume === 'quote'
+            ? rowA.original.volumeInQuote
+            : rowA.original.volumeInBase
         const valB =
-          rowB.values[
-            toggleVolume === 'quote' ? 'volumeInQuote' : 'volumeInBase'
-          ]
+          toggleVolume === 'quote'
+            ? rowB.original.volumeInQuote
+            : rowB.original.volumeInBase
         return valA - valB
       },
       Cell: ({ row }: { row: Row<TokenDataItem> }) => {

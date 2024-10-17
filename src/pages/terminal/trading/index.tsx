@@ -456,8 +456,8 @@ const Trading = () => {
   }, [balances])
 
   useEffect(() => {
+    if (isAuthenticated) fetchBalances()
     handleClearForm()
-    fetchBalances()
     setTradeType('buy')
   }, [userAgent, selectedSymbol])
 
@@ -774,11 +774,22 @@ const Trading = () => {
               symbol &&
               selectedQuote &&
               tradeType ? (
-                <>{` ${tradeType === 'buy' ? fixDecimal(available.volumeInAvailable, selectedQuote?.decimals) : fixDecimal(available.volumeInAvailable, symbol?.decimals)} `}</>
+                <>
+                  {tradeType === 'buy'
+                    ? available.volumeInAvailable.toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: selectedQuote?.decimals,
+                      })
+                    : available.volumeInAvailable.toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: symbol.decimals,
+                      })}
+                </>
               ) : (
                 <>{` 0 `}</>
               )}
               <Text as="span" fontSize="11px">
+                {` `}
                 {tradeType === 'buy' ? symbol?.quote : symbol?.base}
               </Text>
             </Text>

@@ -21,9 +21,11 @@ const useTokens = () => {
     try {
       const serviceActor = getActor(userAgent)
 
-      const quoteToken = await getQuoteToken(userAgent)
+      const [quoteToken, principals] = await Promise.all([
+        getQuoteToken(userAgent),
+        serviceActor.icrc84_supported_tokens(),
+      ])
 
-      const principals = await serviceActor.icrc84_supported_tokens()
       const tokens = await Promise.all(
         (principals ?? []).map(async (principal) => {
           const { token, logo } = await getTokenInfo(

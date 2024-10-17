@@ -3,7 +3,6 @@ import React from 'react'
 import { Flex, Image, Text } from '@chakra-ui/react'
 
 import { TokenDataItem } from '../../../../types'
-import { fixDecimal } from '../../../../utils/calculationsUtils'
 import ActionIcon from '../../../actionIcon'
 
 interface ActionRowProps {
@@ -32,7 +31,10 @@ const ActionRow: React.FC<ActionRowProps> = ({ data }) => {
             }
           >
             {data.action === 'withdrawal' ? '-' : ''}
-            {fixDecimal(data.volumeInBase, data.decimals)}
+            {data.volumeInBase.toLocaleString('en-US', {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: data.decimals,
+            })}
           </Text>
           <ActionIcon action={data.action} />
         </Flex>
