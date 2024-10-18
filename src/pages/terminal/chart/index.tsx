@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import {
   Box,
@@ -46,7 +46,7 @@ const ChartPlot = () => {
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState('1W')
 
-  async function fetchPrices() {
+  const fetchPrices = useCallback(async () => {
     if (symbol && symbol.principal && selectedQuote) {
       setLoading(true)
       dispatch(setHeaderInformation(null))
@@ -66,39 +66,42 @@ const ChartPlot = () => {
       setVolumeAxis('quote')
       setLoading(false)
     }
-  }
+  }, [dispatch, symbol, selectedQuote, orderSettings])
 
   const handleToggleVolumeAxis = () => {
     setVolumeAxis((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
   }
 
-  const onChangeTimeframe = (newTimeframe: string) => {
-    setTimeframe(newTimeframe)
-    const startDate = new Date()
-    if (newTimeframe === '1D') {
-      startDate.setDate(startDate.getDate() - 1)
-    } else if (newTimeframe === '1W') {
-      startDate.setDate(startDate.getDate() - 6)
-    } else if (newTimeframe === '1M') {
-      startDate.setMonth(startDate.getMonth() - 1)
-    } else {
-      setChartData(priceHistoryData)
-      return
-    }
-    const filtered = priceHistoryData.filter((item) => {
-      const itemDate = new Date(item.datetime)
-      return itemDate >= startDate
-    })
-    setChartData(filtered)
-  }
+  const onChangeTimeframe = useCallback(
+    (newTimeframe: string) => {
+      setTimeframe(newTimeframe)
+      const startDate = new Date()
+      if (newTimeframe === '1D') {
+        startDate.setDate(startDate.getDate() - 1)
+      } else if (newTimeframe === '1W') {
+        startDate.setDate(startDate.getDate() - 6)
+      } else if (newTimeframe === '1M') {
+        startDate.setMonth(startDate.getMonth() - 1)
+      } else {
+        setChartData(priceHistoryData)
+        return
+      }
+      const filtered = priceHistoryData.filter((item) => {
+        const itemDate = new Date(item.datetime)
+        return itemDate >= startDate
+      })
+      setChartData(filtered)
+    },
+    [priceHistoryData],
+  )
 
   useEffect(() => {
     onChangeTimeframe(timeframe)
-  }, [priceHistoryData])
+  }, [priceHistoryData, timeframe, onChangeTimeframe])
 
   useEffect(() => {
     fetchPrices()
-  }, [selectedSymbol, selectedQuote, isRefreshPrices])
+  }, [selectedSymbol, selectedQuote, isRefreshPrices, fetchPrices])
 
   useEffect(() => {
     const updatedData = chartData.map((item) => {

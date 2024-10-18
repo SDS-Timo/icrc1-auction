@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import { Box, useDisclosure, useColorModeValue } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
@@ -51,7 +51,7 @@ const TradeHistory: React.FC = () => {
     ? selectedSymbol[0]
     : selectedSymbol
 
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     if (selectedQuote) {
       setLoading(true)
       const { getTransactionHistory } = useTransactionHistory()
@@ -61,35 +61,37 @@ const TradeHistory: React.FC = () => {
         selectedQuote,
         orderSettings.orderPriceDigitsLimit,
       )
-
       setTransactions(transactions)
       filterTransactions(transactions)
       setLoading(false)
     }
-  }
+  }, [userAgent, tokens, selectedQuote, orderSettings.orderPriceDigitsLimit])
 
-  function filterTransactions(transactions: TokenDataItem[]) {
-    if (showAllMarkets) {
-      setTransactionsFiltered(transactions)
-    } else {
-      const filtered = transactions.filter(
-        (transaction) => transaction.symbol === symbol?.value,
-      )
-      setTransactionsFiltered(filtered)
-    }
-  }
+  const filterTransactions = useCallback(
+    (transactions: TokenDataItem[]) => {
+      if (showAllMarkets) {
+        setTransactionsFiltered(transactions)
+      } else {
+        const filtered = transactions.filter(
+          (transaction) => transaction.symbol === symbol?.value,
+        )
+        setTransactionsFiltered(filtered)
+      }
+    },
+    [showAllMarkets, symbol?.value],
+  )
 
-  const handleCheckboxChange = (e: boolean) => {
+  const handleCheckboxChange = useCallback((e: boolean) => {
     setShowAllMarkets(e)
-  }
+  }, [])
 
-  const handleRefreshClick = () => {
+  const handleRefreshClick = useCallback(() => {
     dispatch(setIsRefreshUserData())
-  }
+  }, [dispatch])
 
-  const handleToggleVolume = () => {
+  const handleToggleVolume = useCallback(() => {
     setToggleVolume((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
-  }
+  }, [])
 
   const { tableColumns, hiddenColumns, sortBy } = tableContent(
     toggleVolume,
@@ -104,7 +106,13 @@ const TradeHistory: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchTransactions()
     else setShowAllMarkets(false)
-  }, [selectedQuote, selectedSymbol, userAgent, isRefreshUserData])
+  }, [
+    selectedQuote,
+    selectedSymbol,
+    userAgent,
+    isRefreshUserData,
+    fetchTransactions,
+  ])
 
   return (
     <Box

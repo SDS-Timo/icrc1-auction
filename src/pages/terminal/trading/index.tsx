@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import {
   Box,
@@ -292,151 +292,183 @@ const Trading = () => {
     },
   })
 
-  async function fetchBalances() {
+  const fetchBalances = useCallback(async () => {
     setLoading(true)
     const { getBalancesCredits } = useBalances()
     const balancesCredits = await getBalancesCredits(userAgent, tokens)
     dispatch(setBalances(balancesCredits))
     setLoading(false)
-  }
+  }, [userAgent, tokens, dispatch])
 
-  const updateAvailable = (type: string) => {
-    const { quote, base } = symbol ?? {}
-    const token = type === 'buy' ? quote : base
+  const updateAvailable = useCallback(
+    (type: string) => {
+      const { quote, base } = symbol ?? {}
+      const token = type === 'buy' ? quote : base
 
-    const availableBalance =
-      balances.find((balance) => balance.symbol === token) ?? null
+      const availableBalance =
+        balances.find((balance) => balance.symbol === token) ?? null
 
-    setAvailable(availableBalance)
+      setAvailable(availableBalance)
 
-    return availableBalance
-  }
+      return availableBalance
+    },
+    [balances, symbol],
+  )
 
-  const handleTradeTypeChange = (type: string) => {
-    if (!formik.isSubmitting) {
-      setTradeType(type)
-      updateAvailable(type)
-    }
-  }
+  const handleTradeTypeChange = useCallback(
+    (type: string) => {
+      if (!formik.isSubmitting) {
+        setTradeType(type)
+        updateAvailable(type)
+      }
+    },
+    [formik.isSubmitting, updateAvailable],
+  )
 
-  const handleClearForm = () => {
+  const handleClearForm = useCallback(() => {
     setMessage(null)
     setSelectedPercentage(null)
     handlePercentageClick(0)
     setAmountType('base')
     formik.resetForm({ values: initialValues })
     setBaseStepSize(null)
-  }
+  }, [formik])
 
-  const handlePercentageClick = (percentage: any) => {
-    setSelectedPercentage(
-      percentage === selectedPercentage ||
-        !isAuthenticated ||
-        !formik.values.price
-        ? null
-        : percentage,
-    )
-  }
-
-  const handleBaseVolumeDecimal = (price: string) => {
-    const numericPrice = Number(price)
-
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-      return null
-    }
-
-    const decimal = volumeStepSizeDecimals(
-      numericPrice,
-      orderSettings.orderQuoteVolumeStep,
-      Number(symbol?.decimals),
-      selectedQuote.decimals,
-    )
-
-    setBaseStepSizeDecimal(decimal)
-    return decimal
-  }
-
-  const handleBaseVolumeCalculate = (value: number, price: string) => {
-    const numericPrice = parseFloat(price)
-
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-      return {
-        volume: null,
-        volumeFloor: null,
-        stepSize: null,
-        stepSizeOverflow: null,
-      }
-    }
-
-    const decimalPlaces = handleBaseVolumeDecimal(price)
-    const { volume, volumeFloor, stepSize } = volumeCalculateStepSize(
-      numericPrice,
-      value,
-      Number(decimalPlaces),
-      orderSettings.orderQuoteVolumeStep,
-    )
-
-    const stepSizeDecimalString = convertExponentialToDecimal(stepSize)
-
-    const stepSizeDecimalPart = stepSizeDecimalString.split('.')[1] ?? ''
-
-    const stepSizeOverflow =
-      stepSizeDecimalPart.length > (symbol?.decimals || 0)
-
-    if (!stepSizeOverflow) {
-      setBaseStepSize(stepSize)
-    }
-
-    return { volume, volumeFloor, stepSize, stepSizeOverflow }
-  }
-
-  const handlePriceInputChange = (value: string) => {
-    const numericValue = Number(value)
-
-    if (isNaN(numericValue)) {
-      return { price: formik.values.price, volume: null }
-    }
-
-    if (
-      priceDigitLimitValidate(numericValue, orderSettings.orderPriceDigitsLimit)
-    ) {
-      const { volumeFloor } = handleBaseVolumeCalculate(
-        parseFloat(formik.values.baseAmount),
-        value,
+  const handlePercentageClick = useCallback(
+    (percentage: any) => {
+      setSelectedPercentage(
+        percentage === selectedPercentage ||
+          !isAuthenticated ||
+          !formik.values.price
+          ? null
+          : percentage,
       )
+    },
+    [selectedPercentage, isAuthenticated, formik.values.price],
+  )
 
-      formik.setFieldValue('price', value)
-      return { price: value, volume: volumeFloor }
-    }
+  const handleBaseVolumeDecimal = useCallback(
+    (price: string) => {
+      const numericPrice = Number(price)
 
-    return { price: formik.values.price, volume: null }
-  }
+      if (isNaN(numericPrice) || numericPrice <= 0) {
+        return null
+      }
 
-  const handleCalculateBaseAmount = (
-    price: string,
-    quoteAmount: string,
-    volumeFloor: string,
-  ) => {
-    const numericPrice = parseFloat(price)
-    const numericQuoteAmount = parseFloat(quoteAmount)
-
-    if (!isNaN(numericPrice) && !isNaN(numericQuoteAmount)) {
-      formik.setFieldValue('baseAmount', volumeFloor)
-    }
-  }
-
-  const handleCalculateQuoteAmount = (price: string, baseAmount: string) => {
-    const numericPrice = parseFloat(price)
-    const numericBaseAmount = parseFloat(baseAmount)
-
-    if (!isNaN(numericPrice) && !isNaN(numericBaseAmount)) {
-      const quoteAmount = fixDecimal(
-        numericBaseAmount * numericPrice,
+      const decimal = volumeStepSizeDecimals(
+        numericPrice,
+        orderSettings.orderQuoteVolumeStep,
+        Number(symbol?.decimals),
         selectedQuote.decimals,
       )
-      formik.setFieldValue('quoteAmount', quoteAmount)
-    }
-  }
+
+      setBaseStepSizeDecimal(decimal)
+      return decimal
+    },
+    [
+      orderSettings.orderQuoteVolumeStep,
+      symbol?.decimals,
+      selectedQuote.decimals,
+    ],
+  )
+
+  const handleBaseVolumeCalculate = useCallback(
+    (value: number, price: string) => {
+      const numericPrice = parseFloat(price)
+
+      if (isNaN(numericPrice) || numericPrice <= 0) {
+        return {
+          volume: null,
+          volumeFloor: null,
+          stepSize: null,
+          stepSizeOverflow: null,
+        }
+      }
+
+      const decimalPlaces = handleBaseVolumeDecimal(price)
+      const { volume, volumeFloor, stepSize } = volumeCalculateStepSize(
+        numericPrice,
+        value,
+        Number(decimalPlaces),
+        orderSettings.orderQuoteVolumeStep,
+      )
+
+      const stepSizeDecimalString = convertExponentialToDecimal(stepSize)
+
+      const stepSizeDecimalPart = stepSizeDecimalString.split('.')[1] ?? ''
+
+      const stepSizeOverflow =
+        stepSizeDecimalPart.length > (symbol?.decimals || 0)
+
+      if (!stepSizeOverflow) {
+        setBaseStepSize(stepSize)
+      }
+
+      return { volume, volumeFloor, stepSize, stepSizeOverflow }
+    },
+    [orderSettings.orderQuoteVolumeStep, symbol?.decimals],
+  )
+
+  const handlePriceInputChange = useCallback(
+    (value: string) => {
+      const numericValue = Number(value)
+
+      if (isNaN(numericValue)) {
+        return { price: formik.values.price, volume: null }
+      }
+
+      if (
+        priceDigitLimitValidate(
+          numericValue,
+          orderSettings.orderPriceDigitsLimit,
+        )
+      ) {
+        const { volumeFloor } = handleBaseVolumeCalculate(
+          parseFloat(formik.values.baseAmount),
+          value,
+        )
+
+        formik.setFieldValue('price', value)
+        return { price: value, volume: volumeFloor }
+      }
+
+      return { price: formik.values.price, volume: null }
+    },
+    [
+      formik.values.baseAmount,
+      formik.values.price,
+      orderSettings.orderPriceDigitsLimit,
+      handleBaseVolumeCalculate,
+    ],
+  )
+
+  const handleCalculateBaseAmount = useCallback(
+    (price: string, quoteAmount: string, volumeFloor: string) => {
+      const numericPrice = parseFloat(price)
+      const numericQuoteAmount = parseFloat(quoteAmount)
+
+      if (!isNaN(numericPrice) && !isNaN(numericQuoteAmount)) {
+        formik.setFieldValue('baseAmount', volumeFloor)
+      }
+    },
+    [],
+  )
+
+  const handleCalculateQuoteAmount = useCallback(
+    (price: string, baseAmount: string) => {
+      const numericPrice = parseFloat(price)
+      const numericBaseAmount = parseFloat(baseAmount)
+
+      if (!isNaN(numericPrice) && !isNaN(numericBaseAmount)) {
+        const quoteAmount = fixDecimal(
+          numericBaseAmount * numericPrice,
+          selectedQuote.decimals,
+        )
+        formik.setFieldValue('quoteAmount', quoteAmount)
+      }
+    },
+    [],
+  )
 
   useEffect(() => {
     const balance = updateAvailable(tradeType)

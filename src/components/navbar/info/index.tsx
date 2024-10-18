@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 
 import { InfoIcon } from '@chakra-ui/icons'
 import {
@@ -39,18 +39,21 @@ const NavbarInfo: React.FC = () => {
     (state: RootState) => state.orders.orderSettings,
   )
 
-  const copyToClipboard = (text: string, description: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({
-        position: 'top-right',
-        title: 'Copied',
-        description,
-        status: 'success',
+  const copyToClipboard = useCallback(
+    (text: string, description: string) => {
+      navigator.clipboard.writeText(text).then(() => {
+        toast({
+          position: 'top-right',
+          title: 'Copied',
+          description,
+          status: 'success',
+        })
       })
-    })
-  }
+    },
+    [toast],
+  )
 
-  async function getMinimumOrder() {
+  const getMinimumOrder = useCallback(async () => {
     if (userAgent && selectedQuote) {
       const { getOrderSettings } = useOrder()
 
@@ -58,11 +61,11 @@ const NavbarInfo: React.FC = () => {
 
       dispatch(setOrderSettings(settings))
     }
-  }
+  }, [selectedQuote, dispatch])
 
   useEffect(() => {
     getMinimumOrder()
-  }, [])
+  }, [getMinimumOrder])
 
   return (
     <Flex alignItems="center" zIndex="10">

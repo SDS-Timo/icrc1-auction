@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import {
   Box,
@@ -63,7 +63,7 @@ const OpenOrders: React.FC = () => {
     ? selectedSymbol[0]
     : selectedSymbol
 
-  async function fetchOpenOrders() {
+  const fetchOpenOrders = useCallback(async () => {
     if (selectedQuote) {
       setLoading(true)
       const { getOpenOrders } = useOpenOrders()
@@ -78,104 +78,113 @@ const OpenOrders: React.FC = () => {
       filterOpenOrders(openOrdersRaw)
       setLoading(false)
     }
-  }
+  }, [
+    userAgent,
+    tokens,
+    selectedQuote,
+    orderSettings.orderPriceDigitsLimit,
+    dispatch,
+  ])
 
-  async function fetchBalances() {
+  const fetchBalances = useCallback(async () => {
     const { getBalancesCredits } = useBalances()
     const balancesCredits = await getBalancesCredits(userAgent, tokens)
     dispatch(setBalances(balancesCredits))
-  }
+  }, [userAgent, tokens, dispatch])
 
-  function filterOpenOrders(openOrders: TokenDataItem[]) {
-    if (showAllMarkets) {
-      setOpenOrdersFiltered(openOrders)
-    } else {
-      const filtered = openOrders.filter(
-        (openOrder) => openOrder.symbol === symbol?.value,
-      )
-      setOpenOrdersFiltered(filtered)
-    }
-  }
+  const filterOpenOrders = useCallback(
+    (openOrders: TokenDataItem[]) => {
+      if (showAllMarkets) {
+        setOpenOrdersFiltered(openOrders)
+      } else {
+        const filtered = openOrders.filter(
+          (openOrder) => openOrder.symbol === symbol?.value,
+        )
+        setOpenOrdersFiltered(filtered)
+      }
+    },
+    [showAllMarkets, symbol],
+  )
 
-  const handleCheckboxChange = (e: boolean) => {
+  const handleCheckboxChange = useCallback((e: boolean) => {
     setShowAllMarkets(e)
-  }
+  }, [])
 
-  const handleRefreshClick = () => {
+  const handleRefreshClick = useCallback(() => {
     dispatch(setIsRefreshUserData())
-  }
+  }, [dispatch])
 
-  const handleCancelOrderClick = async (
-    id: bigint | undefined,
-    type: string | undefined,
-  ) => {
-    const refreshOpenOrders = (loading: boolean) => {
-      if (!loading) dispatch(setIsRefreshUserData())
+  const handleCancelOrderClick = useCallback(
+    async (id: bigint | undefined, type: string | undefined) => {
+      const refreshOpenOrders = (loading: boolean) => {
+        if (!loading) dispatch(setIsRefreshUserData())
 
-      setOpenOrdersFiltered((prevState) =>
-        prevState.map((order) =>
-          order.id === id ? { ...order, loading } : order,
-        ),
-      )
-    }
+        setOpenOrdersFiltered((prevState) =>
+          prevState.map((order) =>
+            order.id === id ? { ...order, loading } : order,
+          ),
+        )
+      }
 
-    refreshOpenOrders(true)
+      refreshOpenOrders(true)
 
-    const toastId = toast({
-      title: 'Cancel order pending',
-      description: 'Please wait',
-      status: 'loading',
-      duration: null,
-      isClosable: true,
-    })
+      const toastId = toast({
+        title: 'Cancel order pending',
+        description: 'Please wait',
+        status: 'loading',
+        duration: null,
+        isClosable: true,
+      })
 
-    const { cancelOrder } = useOpenOrders()
-    cancelOrder(userAgent, id, type)
-      .then((response: Result) => {
-        if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
-          if (toastId) {
-            toast.update(toastId, {
-              title: 'Sucess',
-              description: 'Order cancelled',
-              status: 'success',
-              isClosable: true,
-            })
+      const { cancelOrder } = useOpenOrders()
+      cancelOrder(userAgent, id, type)
+        .then((response: Result) => {
+          if (response.length > 0 && Object.keys(response[0]).includes('Ok')) {
+            if (toastId) {
+              toast.update(toastId, {
+                title: 'Sucess',
+                description: 'Order cancelled',
+                status: 'success',
+                isClosable: true,
+              })
+            }
+          } else {
+            if (toastId) {
+              const description = getErrorMessageCancelOrder(response[0].Err)
+              toast.update(toastId, {
+                title: 'Cancel order rejected',
+                description,
+                status: 'error',
+                isClosable: true,
+              })
+            }
           }
-        } else {
+
+          refreshOpenOrders(false)
+          fetchBalances()
+        })
+        .catch((error) => {
+          const message = error.response ? error.response.data : error.message
+
           if (toastId) {
-            const description = getErrorMessageCancelOrder(response[0].Err)
             toast.update(toastId, {
               title: 'Cancel order rejected',
-              description,
+              description: `Error: ${message}`,
               status: 'error',
               isClosable: true,
             })
           }
-        }
 
-        refreshOpenOrders(false)
-        fetchBalances()
-      })
-      .catch((error) => {
-        const message = error.response ? error.response.data : error.message
+          refreshOpenOrders(false)
+          console.error('Cancellation failed:', message)
+        })
+    },
+    [userAgent, fetchBalances, toast, dispatch],
+  )
 
-        if (toastId) {
-          toast.update(toastId, {
-            title: 'Cancel order rejected',
-            description: `Error: ${message}`,
-            status: 'error',
-            isClosable: true,
-          })
-        }
-
-        refreshOpenOrders(false)
-        console.error('Cancellation failed:', message)
-      })
-  }
-
-  const handleToggleVolume = () => {
+  const handleToggleVolume = useCallback(() => {
     setToggleVolume((prevState) => (prevState === 'quote' ? 'base' : 'quote'))
-  }
+  }, [])
 
   const { tableColumns, hiddenColumns, sortBy } = tableContent(
     toggleVolume,
@@ -191,7 +200,13 @@ const OpenOrders: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchOpenOrders()
     else setShowAllMarkets(false)
-  }, [selectedQuote, selectedSymbol, userAgent, isRefreshUserData])
+  }, [
+    selectedQuote,
+    selectedSymbol,
+    userAgent,
+    isRefreshUserData,
+    fetchOpenOrders,
+  ])
 
   return (
     <Box

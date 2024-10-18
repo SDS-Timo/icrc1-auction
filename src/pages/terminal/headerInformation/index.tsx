@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import {
   Box,
@@ -55,7 +55,7 @@ const HeaderInformation = () => {
 
   const isLoading = !headerInformation
 
-  async function fetchStatistics() {
+  const fetchStatistics = useCallback(async () => {
     if (symbol && symbol.principal && selectedQuote) {
       setTooltipText(tooltipTextStandard)
 
@@ -92,9 +92,9 @@ const HeaderInformation = () => {
         )
       }
     }
-  }
+  }, [symbol, selectedQuote, usePriceHistory])
 
-  async function fetchNextSession() {
+  const fetchNextSession = useCallback(async () => {
     const { getNextSession } = usePriceHistory()
     const info = await getNextSession(userAgent)
 
@@ -103,7 +103,7 @@ const HeaderInformation = () => {
       setNextSessionTime(auctionDate)
     }
     setNextSession(info)
-  }
+  }, [])
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null
@@ -154,11 +154,11 @@ const HeaderInformation = () => {
       }
       stopPolling()
     }
-  }, [nextSessionTime])
+  }, [nextSessionTime, fetchNextSession, dispatch])
 
   useEffect(() => {
     fetchStatistics()
-  }, [selectedSymbol, selectedQuote])
+  }, [selectedSymbol, selectedQuote, fetchStatistics])
 
   return (
     <Flex direction="row" wrap="wrap" gap={4}>

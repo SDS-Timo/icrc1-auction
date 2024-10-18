@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import {
   Flex,
@@ -115,21 +115,24 @@ const TokenRow: React.FC<TokenRowProps> = ({
     },
   })
 
-  const getBalanceOf = async (account: string | null = null) => {
-    const { getBalance } = useWallet()
-    const accountData = account ? account : userPrincipal
-    const action = !account ? 'claim' : 'deposit'
+  const getBalanceOf = useCallback(
+    async (account: string | null = null) => {
+      const { getBalance } = useWallet()
+      const accountData = account ? account : userPrincipal
+      const action = !account ? 'claim' : 'deposit'
 
-    return await getBalance(
-      userAgent,
-      [token],
-      `${token.principal}`,
-      accountData,
-      action,
-    )
-  }
+      return await getBalance(
+        userAgent,
+        [token],
+        `${token.principal}`,
+        accountData,
+        action,
+      )
+    },
+    [userAgent, userPrincipal, token],
+  )
 
-  const handleTrackedDeposit = async () => {
+  const handleTrackedDeposit = useCallback(async () => {
     setClaimTooltipText(claimTooltipTextStandard)
 
     const { getTrackedDeposit } = useWallet()
@@ -172,7 +175,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
         </>,
       )
     }
-  }
+  }, [getBalanceOf, userAgent, token])
 
   const handleAccordionToggle = (actionType: string) => {
     if (currentIndex === 0 && action === actionType) {
@@ -190,21 +193,24 @@ const TokenRow: React.FC<TokenRowProps> = ({
       formik.setFieldValue('amount', token.volumeInAvailable)
   }
 
-  const handleMaxDepositAllowance = async (depositAllowanceAmount: string) => {
-    if (formik.values.account && depositAllowanceAmount) {
-      const balanceOf = await getBalanceOf(formik.values.account)
+  const handleMaxDepositAllowance = useCallback(
+    async (depositAllowanceAmount: string) => {
+      if (formik.values.account && depositAllowanceAmount) {
+        const balanceOf = await getBalanceOf(formik.values.account)
 
-      const max =
-        Math.min(Number(depositAllowanceAmount), Number(balanceOf)) -
-        Number(token.fee)
+        const max =
+          Math.min(Number(depositAllowanceAmount), Number(balanceOf)) -
+          Number(token.fee)
 
-      const amount = max > 0 ? fixDecimal(max, token.decimals) : '0'
-      setMaxDepositAllowance(amount)
-      return amount
-    }
-  }
+        const amount = max > 0 ? fixDecimal(max, token.decimals) : '0'
+        setMaxDepositAllowance(amount)
+        return amount
+      }
+    },
+    [getBalanceOf, token, formik.values.account],
+  )
 
-  const handleGetDepositAllowanceInfo = async () => {
+  const handleGetDepositAllowanceInfo = useCallback(async () => {
     setMaxDepositAllowance(null)
 
     if (formik.values.account) {
@@ -227,13 +233,13 @@ const TokenRow: React.FC<TokenRowProps> = ({
         handleMaxDepositAllowance(amount)
       } else setDepositAllowance(null)
     }
-  }
+  }, [userAgent, token, formik.values.account, handleMaxDepositAllowance])
 
   useEffect(() => {
     if (action === 'deposit') {
       handleGetDepositAllowanceInfo()
     }
-  }, [formik.values.account])
+  }, [formik.values.account, action, handleGetDepositAllowanceInfo])
 
   useEffect(() => {
     formik.setFieldValue('action', action)

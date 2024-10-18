@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { SettingsIcon } from '@chakra-ui/icons'
 import {
@@ -48,7 +48,7 @@ const NavbarSettings: React.FC = () => {
 
   const { userAgent } = useSelector((state: RootState) => state.auth)
 
-  async function fetchTokens() {
+  const fetchTokens = useCallback(async () => {
     const { getTokens } = useTokens()
     const data = await getTokens(userAgent)
 
@@ -78,16 +78,16 @@ const NavbarSettings: React.FC = () => {
     if (quoteToken) {
       dispatch(setSelectedQuote(quoteToken))
     }
-  }
+  }, [])
 
-  function validateCanisterId(canisterId: string) {
+  const validateCanisterId = useCallback((canisterId: string) => {
     try {
       Principal.fromText(canisterId)
       return true
     } catch (error) {
       return false
     }
-  }
+  }, [])
 
   const initialValues = {
     canisterId: '',

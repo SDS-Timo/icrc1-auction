@@ -40,8 +40,10 @@ const useOrders = () => {
 
       const serviceActor = getActor(userAgent)
 
-      const bidsRaw = await serviceActor.queryBids()
-      const asksRaw = await serviceActor.queryAsks()
+      const [bidsRaw, asksRaw] = await Promise.all([
+        serviceActor.queryBids(),
+        serviceActor.queryAsks(),
+      ])
 
       const openOrdersRaw = [
         ...bidsRaw.map(([id, bid]) => ({ ...bid, id, type: 'buy' })),

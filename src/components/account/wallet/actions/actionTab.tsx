@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 
 import {
   Box,
@@ -51,21 +51,21 @@ const ActionTab: React.FC<ActionTabProps> = ({ userAgent, tokens }) => {
       ? symbol[0]
       : (symbol as Option | null)
 
-  async function fetchDepositHistory() {
+  const fetchDepositHistory = useCallback(async () => {
     setLoading(true)
     const { getDepositHistory } = useDepositHistory()
     const data = await getDepositHistory(userAgent, tokens)
     setHistories(data)
     setLoading(false)
-  }
+  }, [userAgent, tokens])
 
   useEffect(() => {
     fetchDepositHistory()
-  }, [])
+  }, [fetchDepositHistory])
 
-  const handleChange = (option: Option | Option[] | null) => {
+  const handleChange = useCallback((option: Option | Option[] | null) => {
     setSymbol(option)
-  }
+  }, [])
 
   const filteredTokens = useMemo(
     () =>
@@ -90,12 +90,15 @@ const ActionTab: React.FC<ActionTabProps> = ({ userAgent, tokens }) => {
     [filteredTokens],
   )
 
-  const isWithinDateRange = (date: string, start: string, end: string) => {
-    const timestamp = new Date(date).getTime()
-    const startTime = start ? new Date(start).getTime() : 0
-    const endTime = end ? new Date(end).getTime() : Infinity
-    return timestamp >= startTime && timestamp <= endTime
-  }
+  const isWithinDateRange = useCallback(
+    (date: string, start: string, end: string) => {
+      const timestamp = new Date(date).getTime()
+      const startTime = start ? new Date(start).getTime() : 0
+      const endTime = end ? new Date(end).getTime() : Infinity
+      return timestamp >= startTime && timestamp <= endTime
+    },
+    [],
+  )
 
   useEffect(() => {
     if (!token?.label && (!startDate || !endDate)) {

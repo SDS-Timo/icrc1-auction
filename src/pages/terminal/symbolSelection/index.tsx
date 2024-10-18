@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 
 import { Box } from '@chakra-ui/react'
 import { Select } from 'bymax-react-select'
@@ -28,7 +28,7 @@ const SymbolSelection: React.FC = () => {
     (state: RootState) => state.tokens.selectedQuote,
   )
 
-  async function fetchTokens() {
+  const fetchTokens = useCallback(async () => {
     setLoading(true)
 
     const { getTokens } = useTokens()
@@ -45,14 +45,14 @@ const SymbolSelection: React.FC = () => {
     }
 
     setLoading(false)
-  }
+  }, [])
 
   const filteredTokens = useMemo(
     () =>
       tokens.filter(
         (token) => token.symbol !== (selectedQuote?.base || quoteTokenDefault),
       ),
-    [tokens, selectedQuote],
+    [tokens, selectedQuote, quoteTokenDefault],
   )
 
   const options: Option[] = useMemo(
@@ -76,7 +76,7 @@ const SymbolSelection: React.FC = () => {
 
   useEffect(() => {
     fetchTokens()
-  }, [])
+  }, [fetchTokens])
 
   useEffect(() => {
     if (filteredTokens.length > 0) {
@@ -101,7 +101,7 @@ const SymbolSelection: React.FC = () => {
     } else {
       dispatch(setSelectedSymbol(null))
     }
-  }, [userAgent, filteredTokens])
+  }, [dispatch, tokenDefault, filteredTokens])
 
   return (
     <Box w="100%" zIndex="9">

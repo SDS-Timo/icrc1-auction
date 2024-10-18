@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 
 import {
   Box,
@@ -30,21 +30,22 @@ const HistoryTabs: React.FC = () => {
     ? selectedSymbol[0]
     : selectedSymbol
 
+  const pricesFiltered = useMemo(() => {
+    if (pricesHistory.length > 0) {
+      return [...pricesHistory].reverse().slice(0, 17)
+    }
+    return []
+  }, [pricesHistory])
+
   useEffect(() => {
     setLoading(true)
     const timeout = setTimeout(() => {
-      if (pricesHistory.length > 0) {
-        const pricesFiltered = [...pricesHistory].reverse().slice(0, 17)
-
-        setPrices(pricesFiltered)
-      } else {
-        setPrices([])
-      }
+      setPrices(pricesFiltered)
       if (symbol) setLoading(false)
     }, 500)
 
     return () => clearTimeout(timeout)
-  }, [pricesHistory, symbol])
+  }, [pricesFiltered, symbol])
 
   return (
     <Box
