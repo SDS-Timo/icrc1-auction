@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { DataItem, TokenDataItem } from '../types'
 
 /**
- * Convert the price received from the canister.
+ * Normalize the price received from the canister.
  * @param price - The price in the smallest unit received from the canister.
  * @param decimalsPrice - The number of decimal places for the price.
  * @param decimalsQuote - The number of decimal places for the quote currency.
@@ -14,14 +14,14 @@ export function convertPriceFromCanister(
   decimalsPrice: number,
   decimalsQuote: number,
 ) {
-  const decimalFactor = Math.pow(10, -decimalsPrice)
-  const decimalQuote = Math.pow(10, -decimalsQuote)
-  const convertedPrice = (price * decimalQuote) / decimalFactor
+  const decimalFactor = Math.pow(10, decimalsPrice)
+  const decimalQuote = Math.pow(10, decimalsQuote)
+  const convertedPrice = (price * decimalFactor) / decimalQuote
   return convertedPrice
 }
 
 /**
- * Convert the volume received from the canister.
+ * Normalize the volume received from the canister.
  * @param volume - The volume in the smallest unit received from the canister.
  * @param decimals - The number of decimal places for the base currency.
  * @param price - The price in the smallest unit of the quote currency.
@@ -43,7 +43,7 @@ export function convertVolumeFromCanister(
 }
 
 /**
- * Convert the price in the smallest units of the base and quote currencies.
+ * Normalize the price in the smallest units of the base and quote currencies.
  * @param price - The price in the quote currency.
  * @param decimalsPrice - The number of decimal places for the price.
  * @param decimalsQuote - The number of decimal places for the quote currency.
@@ -65,7 +65,7 @@ export function convertPriceToCanister(
  * @param decimalsBase - The number of decimal places for the base currency.
  * @returns The volume in the smallest unit of the base currency.
  */
-export function normalizeAmount(
+export function convertVolumetoCanister(
   baseAmount: number,
   decimalsBase: number,
 ): bigint {

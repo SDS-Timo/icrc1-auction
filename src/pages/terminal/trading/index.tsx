@@ -31,7 +31,7 @@ import { Result, TokenDataItem } from '../../../types'
 import { convertExponentialToDecimal } from '../../../utils/calculationsUtils'
 import {
   convertPriceToCanister,
-  normalizeAmount,
+  convertVolumetoCanister,
   volumeStepSizeDecimals,
   volumeCalculateStepSize,
   priceDigitLimitValidate,
@@ -113,7 +113,7 @@ const Trading = () => {
           const { path, createError } = this
 
           const quoteAmountNat = Number(
-            normalizeAmount(Number(value), selectedQuote.decimals),
+            convertVolumetoCanister(Number(value), selectedQuote.decimals),
           )
 
           return (
@@ -172,7 +172,10 @@ const Trading = () => {
               )
 
               const baseAmountNat = Number(
-                normalizeAmount(Number(value), Number(symbol?.decimals)),
+                convertVolumetoCanister(
+                  Number(value),
+                  Number(symbol?.decimals),
+                ),
               )
 
               const availableBalance = Number(available?.volumeInAvailableNat)
@@ -208,7 +211,7 @@ const Trading = () => {
         selectedQuote.decimals,
       )
 
-      const volume = normalizeAmount(
+      const volume = convertVolumetoCanister(
         Number(values.baseAmount),
         Number(symbol?.decimals),
       )
