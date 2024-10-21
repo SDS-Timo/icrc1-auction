@@ -3,10 +3,7 @@ import React from 'react'
 import { Td, Tr, Text, Tooltip } from '@chakra-ui/react'
 
 import { DataItem, Option } from '../../../types'
-import {
-  fixDecimal,
-  getMinimumFractionDigits,
-} from '../../../utils/calculationsUtils'
+import { getMinimumFractionDigits } from '../../../utils/calculationsUtils'
 interface HistoryRowProps {
   data: DataItem
   symbol: Option | null
@@ -23,6 +20,15 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
     maximumFractionDigits: data.volumeInBaseDecimals,
   })
 
+  const volumeQuoteAllDecimals = data.volumeInQuote.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: data.quoteDecimals,
+  })
+
+  const volumeQuoteDecimals = data.volumeInQuote.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: data.volumeInQuoteDecimals,
+  })
   return (
     <Tr key={data.id}>
       <Td textAlign="center">
@@ -37,12 +43,10 @@ const HistoryRow: React.FC<HistoryRowProps> = ({
       <Td textAlign="center">
         {toggleVolume === 'quote' ? (
           <Tooltip
-            label={`${fixDecimal(data.volumeInQuote, data.quoteDecimals)} ${symbol?.quote}`}
+            label={`${volumeQuoteAllDecimals} ${symbol?.quote}`}
             aria-label="Quote value"
           >
-            <Text as="span">
-              {fixDecimal(data.volumeInQuote, data.volumeInQuoteDecimals)}{' '}
-            </Text>
+            <Text as="span">{volumeQuoteDecimals} </Text>
           </Tooltip>
         ) : (
           <Tooltip

@@ -13,10 +13,7 @@ import { Row } from 'react-table'
 
 import { ColumnWithSorting } from '../../../../components/paginationTable'
 import { TokenDataItem } from '../../../../types'
-import {
-  fixDecimal,
-  getMinimumFractionDigits,
-} from '../../../../utils/calculationsUtils'
+import { getMinimumFractionDigits } from '../../../../utils/calculationsUtils'
 
 export default function tableContent(
   toggleVolume: string,
@@ -100,16 +97,26 @@ export default function tableContent(
         const {
           quote,
           base,
-          quoteDecimals,
           volumeInQuote,
           volumeInBase,
-          volumeInQuoteDecimals,
+          quoteDecimals,
           volumeInBaseDecimals,
+          volumeInQuoteDecimals,
         } = row.original
 
         const volumeBase = volumeInBase.toLocaleString('en-US', {
           minimumFractionDigits: 0,
           maximumFractionDigits: volumeInBaseDecimals,
+        })
+
+        const volumeQuoteAllDecimals = volumeInQuote.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: quoteDecimals,
+        })
+
+        const volumeQuoteDecimals = volumeInQuote.toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: volumeInQuoteDecimals,
         })
         return (
           <Text
@@ -119,11 +126,11 @@ export default function tableContent(
           >
             {toggleVolume === 'quote' ? (
               <Tooltip
-                label={`${fixDecimal(volumeInQuote, quoteDecimals)} ${quote}`}
+                label={`${volumeQuoteAllDecimals} ${quote}`}
                 aria-label="Quote value"
               >
                 <Text as="span">
-                  {fixDecimal(volumeInQuote, volumeInQuoteDecimals)}{' '}
+                  {volumeQuoteDecimals}{' '}
                   <Text as="span" fontSize="10px">
                     {quote}
                   </Text>

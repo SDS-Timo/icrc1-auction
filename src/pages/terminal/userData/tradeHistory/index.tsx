@@ -65,7 +65,13 @@ const TradeHistory: React.FC = () => {
       filterTransactions(transactions)
       setLoading(false)
     }
-  }, [userAgent, tokens, selectedQuote, orderSettings.orderPriceDigitsLimit])
+  }, [
+    userAgent,
+    tokens,
+    selectedSymbol,
+    selectedQuote,
+    orderSettings.orderPriceDigitsLimit,
+  ])
 
   const filterTransactions = useCallback(
     (transactions: TokenDataItem[]) => {

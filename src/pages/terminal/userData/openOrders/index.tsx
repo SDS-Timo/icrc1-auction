@@ -81,6 +81,7 @@ const OpenOrders: React.FC = () => {
   }, [
     userAgent,
     tokens,
+    selectedSymbol,
     selectedQuote,
     orderSettings.orderPriceDigitsLimit,
     dispatch,
