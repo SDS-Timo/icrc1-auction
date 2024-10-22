@@ -17,6 +17,7 @@ import {
   Tooltip,
   Image,
 } from '@chakra-ui/react'
+import { Principal } from '@dfinity/principal'
 import { FaWallet } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -34,6 +35,7 @@ import {
   getDecimals,
   fixDecimal,
 } from '../../../utils/calculationsUtils'
+import { getToken } from '../../../utils/tokenUtils'
 import { formatWalletAddress } from '../../../utils/walletUtils'
 import {
   getErrorMessageNotifyDeposits,
@@ -178,7 +180,18 @@ const WalletContent: React.FC = () => {
 
   const handleMultipleTokenClaims = useCallback(() => {
     claimTokensBalance.map((token) => {
-      handleNotify(token.principal, token.base)
+      const tokenInfo = getToken(tokens, Principal.fromText(token.principal))
+
+      if (token.available < Number(tokenInfo.fee)) {
+        toast({
+          title: `The amount ${token.base} detected is below the minimum`,
+          description: '',
+          status: 'warning',
+          isClosable: true,
+        })
+      } else {
+        handleNotify(token.principal, token.base)
+      }
     })
   }, [claimTokensBalance])
 
