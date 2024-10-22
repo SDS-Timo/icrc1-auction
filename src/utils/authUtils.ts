@@ -74,7 +74,7 @@ export async function IdentityAuthenticate(
     const authClient = await AuthClient.create()
     const HTTP_AGENT_HOST = `${process.env.HTTP_AGENT_HOST}`
     const AUTH_EXPIRATION_INTERNET_IDENTITY = BigInt(
-      24 * 60 * 60 * 1000 * 1000 * 1000,
+      30 * 24 * 60 * 60 * 1000 * 1000 * 1000, // 30 days
     )
 
     await authClient.login({
