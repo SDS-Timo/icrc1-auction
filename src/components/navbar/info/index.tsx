@@ -11,6 +11,7 @@ import {
   Text,
   useToast,
   useColorModeValue,
+  useClipboard,
 } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -39,15 +40,21 @@ const NavbarInfo: React.FC = () => {
     (state: RootState) => state.orders.orderSettings,
   )
 
+  const { onCopy: onCopyAuctionPrincipal } = useClipboard(principal)
+  const { onCopy: onCopyQuotePrincipal } = useClipboard(
+    `${selectedQuote.principal}`,
+  )
+
   const copyToClipboard = useCallback(
     (text: string, description: string) => {
-      navigator.clipboard.writeText(text).then(() => {
-        toast({
-          position: 'top-right',
-          title: 'Copied',
-          description,
-          status: 'success',
-        })
+      if (text === 'auctionPrincipal') onCopyAuctionPrincipal()
+      else if (text === 'quotePrincipal') onCopyQuotePrincipal()
+
+      toast({
+        position: 'top-right',
+        title: 'Copied',
+        description,
+        status: 'success',
       })
     },
     [toast],
@@ -89,7 +96,7 @@ const NavbarInfo: React.FC = () => {
                 fontSize="13px"
                 onClick={() =>
                   copyToClipboard(
-                    principal || '',
+                    'auctionPrincipal',
                     'Auction principal copied to clipboard',
                   )
                 }
@@ -120,7 +127,7 @@ const NavbarInfo: React.FC = () => {
                   fontSize="13px"
                   onClick={() =>
                     copyToClipboard(
-                      selectedQuote.principal || '',
+                      'quotePrincipal',
                       'Quote token principal copied to clipboard',
                     )
                   }

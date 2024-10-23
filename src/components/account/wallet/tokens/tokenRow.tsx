@@ -18,6 +18,12 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuList,
+  useToast,
+  useClipboard,
+  useBreakpointValue,
 } from '@chakra-ui/react'
 import { HttpAgent } from '@dfinity/agent'
 import { useFormik } from 'formik'
@@ -71,6 +77,7 @@ const TokenRow: React.FC<TokenRowProps> = ({
 
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
   const bgColor = useColorModeValue('grey.200', 'grey.600')
+  const bgColorMenu = useColorModeValue('grey.100', 'grey.900')
   const fontColor = useColorModeValue('grey.700', 'grey.25')
 
   const [action, setAction] = useState('')
@@ -81,6 +88,23 @@ const TokenRow: React.FC<TokenRowProps> = ({
   const [claimTooltipText, setClaimTooltipText] = useState(
     claimTooltipTextStandard,
   )
+  const { onCopy } = useClipboard(`${token.principal}`)
+  const isMobile = useBreakpointValue({ base: true, md: false })
+
+  const toast = useToast({
+    duration: 2000,
+    position: 'top-right',
+    isClosable: true,
+  })
+
+  const handleCopyToClipboard = () => {
+    onCopy()
+    toast({
+      title: 'Copied',
+      description: 'Token principal copied to clipboard',
+      status: 'success',
+    })
+  }
 
   const initialValues = {
     amount: '',
@@ -264,10 +288,32 @@ const TokenRow: React.FC<TokenRowProps> = ({
           <AccordionButton display="none" />
           <Flex key={token.id} justify="space-between" align="center" py={2}>
             <Flex align="center">
-              <Image src={token.logo} alt={token.symbol} boxSize="30px" />
-              <Text ml={2} fontSize="15px" fontWeight={600}>
-                {token.symbol}
-              </Text>
+              <Menu>
+                <Tooltip label={token.principal} aria-label="Token Principal">
+                  <MenuButton
+                    as={Flex}
+                    align="center"
+                    cursor="pointer"
+                    onClick={handleCopyToClipboard}
+                  >
+                    <Flex align="center" cursor="pointer">
+                      <Image
+                        src={token.logo}
+                        alt={token.symbol}
+                        boxSize="30px"
+                      />
+                      <Text ml={2} fontSize="15px" fontWeight={600}>
+                        {token.symbol}
+                      </Text>
+                    </Flex>
+                  </MenuButton>
+                </Tooltip>
+                {isMobile && (
+                  <MenuList bg={bgColorMenu} p={2}>
+                    {token.principal}
+                  </MenuList>
+                )}
+              </Menu>
             </Flex>
             <Flex direction="column" align="flex-end" ml={2} overflowX="auto">
               <Flex align="center" overflowX="auto" whiteSpace="nowrap">

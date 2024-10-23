@@ -71,6 +71,7 @@ const TradeHistory: React.FC = () => {
     selectedSymbol,
     selectedQuote,
     orderSettings.orderPriceDigitsLimit,
+    isRefreshUserData,
   ])
 
   const filterTransactions = useCallback(
@@ -84,7 +85,7 @@ const TradeHistory: React.FC = () => {
         setTransactionsFiltered(filtered)
       }
     },
-    [showAllMarkets, symbol?.value],
+    [showAllMarkets, symbol],
   )
 
   const handleCheckboxChange = useCallback((e: boolean) => {

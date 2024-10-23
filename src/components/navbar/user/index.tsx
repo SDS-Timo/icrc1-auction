@@ -7,6 +7,7 @@ import {
   Text,
   useToast,
   useColorModeValue,
+  useClipboard,
 } from '@chakra-ui/react'
 import { FaUserLarge } from 'react-icons/fa6'
 import { useSelector } from 'react-redux'
@@ -25,17 +26,15 @@ const NavbarUser: React.FC = () => {
     (state: RootState) => state.auth.userPrincipal,
   )
   const walletAddress = formatWalletAddress(userPrincipal)
+  const { onCopy } = useClipboard(userPrincipal)
 
   const copyToClipboardWalletAddress = () => {
-    navigator.clipboard.writeText(userPrincipal).then(() => {
-      toast({
-        position: 'top-right',
-        title: 'Copied',
-        description: 'User principal copied to clipboard',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      })
+    onCopy()
+    toast({
+      title: 'Copied',
+      description: 'User principal copied to clipboard',
+      status: 'success',
+      duration: 2000,
     })
   }
 

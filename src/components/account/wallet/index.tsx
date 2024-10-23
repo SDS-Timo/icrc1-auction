@@ -16,6 +16,7 @@ import {
   useColorMode,
   Tooltip,
   Image,
+  useClipboard,
 } from '@chakra-ui/react'
 import { Principal } from '@dfinity/principal'
 import { FaWallet } from 'react-icons/fa'
@@ -76,6 +77,7 @@ const WalletContent: React.FC = () => {
   const tokens = useSelector((state: RootState) => state.tokens.tokens)
 
   const userDepositAddress = formatWalletAddress(userDeposit)
+  const { onCopy } = useClipboard(userDeposit)
 
   const claimTooltipTextStandard = (
     <>
@@ -99,18 +101,15 @@ const WalletContent: React.FC = () => {
     setLoading(false)
   }, [userAgent, tokens, dispatch])
 
-  const copyToClipboardDepositAddress = useCallback(() => {
-    navigator.clipboard.writeText(userDeposit).then(() => {
-      toast({
-        position: 'top-right',
-        title: 'Copied',
-        description: 'Wallet account copied to clipboard',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      })
+  const copyToClipboardDepositAddress = () => {
+    onCopy()
+    toast({
+      title: 'Copied',
+      description: 'Wallet account copied to clipboard',
+      status: 'success',
+      duration: 2000,
     })
-  }, [toast, userDeposit])
+  }
 
   const handleAllTrackedDeposits = useCallback(async () => {
     setClaimTooltipText(claimTooltipTextStandard)
