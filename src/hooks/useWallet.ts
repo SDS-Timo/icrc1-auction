@@ -39,7 +39,8 @@ const useWallet = () => {
       const balancesRaw = await serviceActor.queryCredits()
 
       const creditsMap = (balancesRaw ?? []).reduce(
-        (acc, [principal, credits]) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (acc, [principal, credits, _sessionNumber]) => {
           acc[principal.toText()] = credits
           return acc
         },

@@ -46,8 +46,18 @@ const useOrders = () => {
       ])
 
       const openOrdersRaw = [
-        ...bidsRaw.map(([id, bid]) => ({ ...bid, id, type: 'buy' })),
-        ...asksRaw.map(([id, ask]) => ({ ...ask, id, type: 'sell' })),
+        ...bidsRaw.map(([id, bid, sessionNumber]) => ({
+          ...bid,
+          id,
+          sessionNumber,
+          type: 'buy',
+        })),
+        ...asksRaw.map(([id, ask, sessionNumber]) => ({
+          ...ask,
+          id,
+          sessionNumber,
+          type: 'sell',
+        })),
       ]
 
       const openOrders: TokenDataItem[] = (openOrdersRaw ?? []).map((order) => {
@@ -166,21 +176,27 @@ const useOrders = () => {
       let result
 
       if (order.type === 'buy') {
-        result = await serviceActor.placeBids([
+        result = await serviceActor.placeBids(
           [
-            Principal.fromText(principal),
-            BigInt(order.volume),
-            Number(order.price),
+            [
+              Principal.fromText(principal),
+              BigInt(order.volume),
+              Number(order.price),
+            ],
           ],
-        ])
+          [],
+        )
       } else {
-        result = await serviceActor.placeAsks([
+        result = await serviceActor.placeAsks(
           [
-            Principal.fromText(principal),
-            BigInt(order.volume),
-            Number(order.price),
+            [
+              Principal.fromText(principal),
+              BigInt(order.volume),
+              Number(order.price),
+            ],
           ],
-        ])
+          [],
+        )
       }
 
       return result
@@ -217,9 +233,9 @@ const useOrders = () => {
       let result
 
       if (type === 'buy') {
-        result = await serviceActor.cancelBids([id])
+        result = await serviceActor.cancelBids([id], [])
       } else {
-        result = await serviceActor.cancelAsks([id])
+        result = await serviceActor.cancelAsks([id], [])
       }
 
       return result

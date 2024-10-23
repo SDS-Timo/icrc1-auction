@@ -3,6 +3,7 @@ export const idlFactory = ({ IDL }) => {
   const CancelOrderError = IDL.Variant({
     UnknownOrder: IDL.Null,
     UnknownPrincipal: IDL.Null,
+    SessionNumberMismatch: IDL.Principal,
   })
   const UpperResult_4 = IDL.Variant({
     Ok: IDL.Null,
@@ -63,22 +64,25 @@ export const idlFactory = ({ IDL }) => {
     clearingVolume: IDL.Nat,
     totalBidVolume: IDL.Nat,
   })
+  const OrderId__1 = IDL.Nat
+  const InternalPlaceOrderError = IDL.Variant({
+    ConflictingOrder: IDL.Tuple(
+      IDL.Variant({ ask: IDL.Null, bid: IDL.Null }),
+      IDL.Opt(OrderId__1),
+    ),
+    UnknownAsset: IDL.Null,
+    NoCredit: IDL.Null,
+    VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
+    TooLowOrder: IDL.Null,
+    PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
+  })
   const ManageOrdersError = IDL.Variant({
     placement: IDL.Record({
-      error: IDL.Variant({
-        ConflictingOrder: IDL.Tuple(
-          IDL.Variant({ ask: IDL.Null, bid: IDL.Null }),
-          IDL.Opt(OrderId),
-        ),
-        UnknownAsset: IDL.Null,
-        NoCredit: IDL.Null,
-        VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
-        TooLowOrder: IDL.Null,
-        PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
-      }),
+      error: InternalPlaceOrderError,
       index: IDL.Nat,
     }),
     UnknownPrincipal: IDL.Null,
+    SessionNumberMismatch: IDL.Principal,
     cancellation: IDL.Record({
       error: IDL.Variant({
         UnknownAsset: IDL.Null,
@@ -91,7 +95,6 @@ export const idlFactory = ({ IDL }) => {
     Ok: IDL.Vec(OrderId),
     Err: ManageOrdersError,
   })
-  const OrderId__1 = IDL.Nat
   const PlaceOrderError = IDL.Variant({
     ConflictingOrder: IDL.Tuple(
       IDL.Variant({ ask: IDL.Null, bid: IDL.Null }),
@@ -102,6 +105,7 @@ export const idlFactory = ({ IDL }) => {
     UnknownPrincipal: IDL.Null,
     VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
     TooLowOrder: IDL.Null,
+    SessionNumberMismatch: IDL.Principal,
     PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
   })
   const UpperResult_2 = IDL.Variant({
@@ -225,6 +229,7 @@ export const idlFactory = ({ IDL }) => {
     UnknownPrincipal: IDL.Null,
     VolumeStepViolated: IDL.Record({ baseVolumeStep: IDL.Nat }),
     TooLowOrder: IDL.Null,
+    SessionNumberMismatch: IDL.Principal,
     PriceDigitsOverflow: IDL.Record({ maxDigits: IDL.Nat }),
   })
   const UpperResult = IDL.Variant({
@@ -233,8 +238,16 @@ export const idlFactory = ({ IDL }) => {
   })
   return IDL.Service({
     addAdmin: IDL.Func([IDL.Principal], [], []),
-    cancelAsks: IDL.Func([IDL.Vec(OrderId)], [IDL.Vec(UpperResult_4)], []),
-    cancelBids: IDL.Func([IDL.Vec(OrderId)], [IDL.Vec(UpperResult_4)], []),
+    cancelAsks: IDL.Func(
+      [IDL.Vec(OrderId), IDL.Opt(IDL.Nat)],
+      [IDL.Vec(UpperResult_4)],
+      [],
+    ),
+    cancelBids: IDL.Func(
+      [IDL.Vec(OrderId), IDL.Opt(IDL.Nat)],
+      [IDL.Vec(UpperResult_4)],
+      [],
+    ),
     getQuoteLedger: IDL.Func([], [IDL.Principal], ['query']),
     http_request: IDL.Func([HttpRequest], [HttpResponse], ['query']),
     icrc84_all_credits: IDL.Func(
@@ -310,6 +323,7 @@ export const idlFactory = ({ IDL }) => {
             bid: IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64),
           }),
         ),
+        IDL.Opt(IDL.Nat),
       ],
       [UpperResult_3],
       [],
@@ -320,12 +334,18 @@ export const idlFactory = ({ IDL }) => {
       ['query'],
     ),
     placeAsks: IDL.Func(
-      [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64))],
+      [
+        IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64)),
+        IDL.Opt(IDL.Nat),
+      ],
       [IDL.Vec(UpperResult_2)],
       [],
     ),
     placeBids: IDL.Func(
-      [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64))],
+      [
+        IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat, IDL.Float64)),
+        IDL.Opt(IDL.Nat),
+      ],
       [IDL.Vec(UpperResult_2)],
       [],
     ),
@@ -334,11 +354,20 @@ export const idlFactory = ({ IDL }) => {
       [IDL.Opt(IDL.Vec(IDL.Nat8))],
       ['query'],
     ),
-    queryAsks: IDL.Func([], [IDL.Vec(IDL.Tuple(OrderId, Order))], ['query']),
-    queryBids: IDL.Func([], [IDL.Vec(IDL.Tuple(OrderId, Order))], ['query']),
+    queryAsks: IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(OrderId, Order, IDL.Nat))],
+      ['query'],
+    ),
+    queryBids: IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(OrderId, Order, IDL.Nat))],
+      ['query'],
+    ),
+    queryCredit: IDL.Func([IDL.Principal], [CreditInfo, IDL.Nat], ['query']),
     queryCredits: IDL.Func(
       [],
-      [IDL.Vec(IDL.Tuple(IDL.Principal, CreditInfo))],
+      [IDL.Vec(IDL.Tuple(IDL.Principal, CreditInfo, IDL.Nat))],
       ['query'],
     ),
     queryDepositHistory: IDL.Func(
@@ -353,12 +382,12 @@ export const idlFactory = ({ IDL }) => {
     ),
     queryTokenAsks: IDL.Func(
       [IDL.Principal],
-      [IDL.Vec(IDL.Tuple(OrderId, Order))],
+      [IDL.Vec(IDL.Tuple(OrderId, Order)), IDL.Nat],
       ['query'],
     ),
     queryTokenBids: IDL.Func(
       [IDL.Principal],
-      [IDL.Vec(IDL.Tuple(OrderId, Order))],
+      [IDL.Vec(IDL.Tuple(OrderId, Order)), IDL.Nat],
       ['query'],
     ),
     queryTokenHandlerJournal: IDL.Func(
@@ -446,8 +475,16 @@ export const idlFactory = ({ IDL }) => {
     ),
     registerAsset: IDL.Func([IDL.Principal, IDL.Nat], [UpperResult_1], []),
     removeAdmin: IDL.Func([IDL.Principal], [], []),
-    replaceAsk: IDL.Func([OrderId, IDL.Nat, IDL.Float64], [UpperResult], []),
-    replaceBid: IDL.Func([OrderId, IDL.Nat, IDL.Float64], [UpperResult], []),
+    replaceAsk: IDL.Func(
+      [OrderId, IDL.Nat, IDL.Float64, IDL.Opt(IDL.Nat)],
+      [UpperResult],
+      [],
+    ),
+    replaceBid: IDL.Func(
+      [OrderId, IDL.Nat, IDL.Float64, IDL.Opt(IDL.Nat)],
+      [UpperResult],
+      [],
+    ),
     settings: IDL.Func(
       [],
       [
