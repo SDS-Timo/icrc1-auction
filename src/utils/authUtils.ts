@@ -77,10 +77,21 @@ export async function IdentityAuthenticate(
       30 * 24 * 60 * 60 * 1000 * 1000 * 1000, // 30 days
     )
 
+    let windowFeatures = undefined
+    const isDesktop = window.innerWidth > 768
+    if (isDesktop) {
+      const width = 500
+      const height = 600
+      const left = window.screenX + (window.innerWidth - width) / 2
+      const top = window.screenY + (window.innerHeight - height) / 2
+      windowFeatures = `left=${left},top=${top},width=${width},height=${height}`
+    }
+
     await authClient.login({
       maxTimeToLive: AUTH_EXPIRATION_INTERNET_IDENTITY,
       identityProvider: HTTP_AGENT_HOST,
       derivationOrigin: `${process.env.ENV_AUTH_DERIVATION_ORIGIN}`,
+      windowOpenerFeatures: windowFeatures,
       onSuccess: () => {
         const identity = authClient.getIdentity()
         const myAgent = getAgent(identity)
