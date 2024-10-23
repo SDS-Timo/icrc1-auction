@@ -13,7 +13,6 @@ import { FaUserLarge } from 'react-icons/fa6'
 import { useSelector } from 'react-redux'
 
 import { RootState } from '../../../store'
-import { formatWalletAddress } from '../../../utils/walletUtils'
 
 const NavbarUser: React.FC = () => {
   const bgColorHover = useColorModeValue('grey.300', 'grey.500')
@@ -25,8 +24,15 @@ const NavbarUser: React.FC = () => {
   const userPrincipal = useSelector(
     (state: RootState) => state.auth.userPrincipal,
   )
-  const walletAddress = formatWalletAddress(userPrincipal)
   const { onCopy } = useClipboard(userPrincipal)
+
+  const userPrincipalTooltip = (
+    <>
+      {`Do not send funds here!`}
+      <br />
+      {`User principal: ${userPrincipal}`}
+    </>
+  )
 
   const copyToClipboardWalletAddress = () => {
     onCopy()
@@ -41,7 +47,7 @@ const NavbarUser: React.FC = () => {
   return (
     <Flex align="center">
       <Icon as={FaUserLarge} boxSize={4} mr={2} />
-      <Tooltip label={userPrincipal} aria-label={userPrincipal}>
+      <Tooltip label={userPrincipalTooltip} aria-label={userPrincipal}>
         <Text
           onClick={copyToClipboardWalletAddress}
           cursor="pointer"
@@ -53,7 +59,7 @@ const NavbarUser: React.FC = () => {
             borderRadius: 'md',
           }}
         >
-          {walletAddress}
+          {userPrincipal.slice(0, 4)}
         </Text>
       </Tooltip>
     </Flex>
